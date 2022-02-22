@@ -27,7 +27,6 @@ TH1* addHist( TDirectory *dir){
 	Template->SetXTitle("Energy (MeV)");
 	Template->SetYTitle("Entries");
 	//Template->SetStats(0);
-	
 	cout<<count<<endl;	
 	return Template;
 			
@@ -60,7 +59,7 @@ void scale(TH1* Template,TFile *ofile, TDirectory *dir ){
 			int bmax = obj->GetXaxis()->FindBin(1.5);
 			double obj_K40 = obj->Integral(bmin,bmax);
 			//cout<<key2->GetName()<<", obj_Integral() "<<obj_K40<<endl;
-			double factor = K40/obj_K40;
+			double factor = obj_K40/K40;
 			obj -> Scale(factor);
 			string Name = (string)key->GetName()+(string)key2->GetName();
 			obj -> SetName(Name.c_str());
@@ -71,7 +70,7 @@ void scale(TH1* Template,TFile *ofile, TDirectory *dir ){
 }
 TH1* doAnalysis(TH1* Template, TH1 *h_diff,TFile *ofile){
 
-	double nTemplateSig = Template->Integral(Template->GetXaxis()->FindBin(0.25),Template->GetXaxis()->FindBin(1));
+	double nTemplateSig = Template->Integral(Template->GetXaxis()->FindBin(0.25),Template->GetXaxis()->FindBin(0.8));
 	cout<<"nSiginficant interval "<<nTemplateSig<<endl;
 
 	TH1 *obj_new ;
@@ -83,7 +82,7 @@ TH1* doAnalysis(TH1* Template, TH1 *h_diff,TFile *ofile){
 		auto key_new = (TKey*) keyAsObj_new;
 		obj_new = (TH1*)dir_new->Get(key_new->GetName());
 
-		double nDailySig = obj_new->Integral(obj_new->GetXaxis()->FindBin(0.25),obj_new->GetXaxis()->FindBin(1));
+		double nDailySig = obj_new->Integral(obj_new->GetXaxis()->FindBin(0.25),obj_new->GetXaxis()->FindBin(0.8));
 		double diff = nDailySig-nTemplateSig;
 		//cout<<"diff "<<diff<<endl;
 		h_diff->Fill(diff);
@@ -108,6 +107,8 @@ void Analyzer(){
 	
 	//make a template
 	TH1* Template = addHist(dir);
+	Template->Draw();
+	canvas->SaveAs("template.pdf");
 
 	//Scale histogram to template
 	scale(Template,ofile,dir);
