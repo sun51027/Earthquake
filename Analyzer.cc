@@ -43,9 +43,7 @@ TH1* setZeroBinContent(TH1 *hist){
 
 	for(int i = 0;i<hist->GetNbinsX();i++){
 	
-		//cout<<i<<" GetBinContent "<<hist->GetBinContent(i);
 		if(hist->GetBinContent(i) == 0 && hist->GetBinContent(i+1) == 0 && hist->GetBinContent(i+2) == 0){
-			//cout<<"\t\t ,  "<<hist->GetBinContent(i)<<endl;
 		    continue;
 		}
 		else if( hist->GetBinContent(i) == 0){
@@ -53,7 +51,6 @@ TH1* setZeroBinContent(TH1 *hist){
 			hist->SetBinContent(i,(hist->GetBinContent(i-1)+hist->GetBinContent(i+1))/2);		
 
 		}
-			//cout<<"\t\t ,  "<<hist->GetBinContent(i)<<endl;
 	}
 
 
@@ -66,11 +63,15 @@ TH1* setZeroBinContent(TH1 *hist){
 
 TH1* doAnalysis(TH1* Template, TH1 *h_diff,TDirectory *dir, TFile *ofile){
 
+	TCanvas *canvas = new TCanvas("canvas","",800,600);
 	double K40 = Template->Integral(Template->GetXaxis()->FindBin(minK40),Template->GetXaxis()->FindBin(maxK40));	
 
 	TKey *keyAsObj, *keyAsObj2;
 	TIter next(dir->GetListOfKeys());
 	TH1* obj;
+	Double_t x[4000],y[4000];
+	Int_t n = 2500;
+	int i = 0;
 
 	while ((keyAsObj = (TKey*) next())){
 
@@ -83,6 +84,9 @@ TH1* doAnalysis(TH1* Template, TH1 *h_diff,TDirectory *dir, TFile *ofile){
 
 		  auto key2 = (TKey*) keyAsObj2;
 		  obj = (TH1*)dir2->Get(key2->GetName()); // copy every th1 histogram to obj
+		  TString hist_name;
+		  hist_name.Form("%s%s",key->GetName(), key2->GetName());
+//		  cout<<"hist name "<<hist_name<<endl;
   		  obj = setZeroBinContent(obj);
 		  double obj_K40 = obj->Integral(obj->GetXaxis()->FindBin(minK40),obj->GetXaxis()->FindBin(maxK40));
 
@@ -97,12 +101,21 @@ TH1* doAnalysis(TH1* Template, TH1 *h_diff,TDirectory *dir, TFile *ofile){
 			double nDailySig = obj->Integral(obj->GetXaxis()->FindBin(minRadon),obj->GetXaxis()->FindBin(maxRadon));
 			double diff = nDailySig-nTemplateSig;
 			//cout<<"diff "<<diff<<endl;
+			x[i] = i;
+			y[i] = diff;
+			i++;
 			h_diff->Fill(diff);
 			delete obj;
 			delete ScaledTemplate;
 		  }
 		}
 	}
+	cout<<"i "<<i <<endl;
+
+	TGraph* gr = new TGraph(n,x,y);
+	gr->Draw("P");
+	canvas->SaveAs("DiffvsTime.pdf");
+
 	return h_diff;
 
 }
@@ -131,14 +144,25 @@ void Analyzer(){
 	TH1D *h_diff = new TH1D("h_diff","",100,-10000,10000);
 	doAnalysis(Template,h_diff,dir,ofile);
 	
-	//Fitting to get sigma
+	//fitting 
+	h_diff->Fit("gaus");
+//	h_diff->Draw();	
+//	canvas->SaveAs("h_fitting_gaus.pdf");
+
+	TH1D *h_scale = new TH1D("h_scale","",100,-10000,10000);
+	for(int i=0;i< 100;i++){
+		h_scale->SetBinContent(i+1,h_diff->GetBinContent(i+1)/(h_diff->GetFunction("gaus")->GetParameter(2)));
+	}
+//	h_scale->Draw();
+	h_scale->SetStats(0);
+//	canvas->SaveAs("h_scale.pdf");
+
+
+	// Time correlation
+	// X-axis: time / 2 hours
+	// Y-axis: difference
+
 	
-//	TF1 *f1  = new TF1("f1",TMath::Gaus(x,[0]/*mean*/,[1]/*sigma*/),-10000,10000);
-//	f1->SetParameter(-17);
-//	f1->SetParameter(3000);
-	h_diff->Fit("gaus","L");
-    h_diff->Draw();	
-//	canvas->SaveAs("h_diff.pdf");
 
 
 }
