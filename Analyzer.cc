@@ -64,7 +64,7 @@ TH1* setZeroBinContent(TH1 *hist){
   const double minRadon = 0.25;
   const double maxRadon = 0.8;
 
-TH1* doAnalysis(TH1* Template, TH1 *h_diff,TDirectory *dir, TFile *ofile){
+void doAnalysis(TH1* Template, TH1 *h_diff,TDirectory *dir, TFile *ofile){
 
 	double K40 = Template->Integral(Template->GetXaxis()->FindBin(minK40),Template->GetXaxis()->FindBin(maxK40));	
 
@@ -103,7 +103,6 @@ TH1* doAnalysis(TH1* Template, TH1 *h_diff,TDirectory *dir, TFile *ofile){
 		  }
 		}
 	}
-	return h_diff;
 
 }
 void Analyzer(){
