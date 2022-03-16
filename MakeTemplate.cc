@@ -7,8 +7,19 @@
 #include "TGraph.h"
 #include "TH1D.h"
 #include "TKey.h"
-
+#include "RooFit.h"
+#include "RooRealVar.h"
+#include "RooGaussian.h"
+#include "RooPolynomial.h"
+#include "RooExponential.h"
+#include "RooArgSet.h"
+#include "RooAddPdf.h"
+#include "RooArgList.h"
+#include "RooPlot.h"
+#include "RooDataHist.h"
+using namespace RooFit;
 using namespace std;
+
 TH1 *addHist(TDirectory *dir)
 {
   int count = 0;
@@ -68,20 +79,38 @@ void calibration(TH1 *Template, TFile *ofile)
   TH1D *cal = new TH1D("cal", "", xmax - xmin + 1, 2.1, 2.4);
   for (int i = 0; i < xmax - xmin + 1; i++) {
     cal->SetBinContent(i + 1, Template->GetBinContent(xmin + i));
-//    cout << "Template->GetBinContent(" << xmin + i << ") " << Template->GetBinContent(xmin + i) << endl;
+    //    cout << "Template->GetBinContent(" << xmin + i << ") " << Template->GetBinContent(xmin + i) << endl;
   }
+  // Fitting
+  // observable
+  RooRealVar x("x", "random variable", 2.1, 2.4);
 
-  cal->Draw();
+  // Gaussian model
+  RooRealVar  mu("mu", "mean parameter", 2.2, 2.1, 2.4);
+  RooRealVar  sigma("sigma", "width parameter", 0.1, 0.0, 0.3);
+  RooGaussian gaus("gaus", "Gaussian PDF", x, mu, sigma);
+
+  // Linear function: 1 + slope*x
+  RooRealVar    slope("slope", "slope parameter", -1000, -100000, 100000);
+  RooPolynomial linear("linear", "Linear function", x, RooArgSet(slope));
+  // Expo
+  RooRealVar     par("par", "", -1, -10, 10);
+  RooExponential expo("expo", "", x, par);
+  // add up: Gaussian + linear
+  RooRealVar fraction("fraction", "fraction of Gaussian", 0.5, 0., 1.);
+  RooAddPdf  model("model", "PDF model", RooArgList(gaus, expo), RooArgList(fraction));
+  // RooAddPdf  model("model", "PDF model", RooArgList(gaus, linear), RooArgList(fraction));
+  RooDataHist data("data", "data", x, Import(*cal));
+  RooPlot    *frame = x.frame();
+  data.plotOn(frame);
+  model.fitTo(data);
+  model.plotOn(frame);
+  frame->Draw();
   c->SaveAs("cal_new.pdf");
-  //  obj->Fit("gaus", "R", "", 2.1, 2.4);
-  //  double cfactor = obj->GetFunction("gaus")->GetParameter(1) / 2.23118;
-
-  //  cout << cfactor << endl;
   //  return cfactor;
 }
 int main()
 {
-  TCanvas *canvas = new TCanvas("canvas", "", 800, 600);
 
   TFile *ofile = new TFile("o.root", "recreate");
   ofile->mkdir("AdjustedHist");
@@ -93,7 +122,5 @@ int main()
   // make a template
   TH1 *Template = addHist(dir);
   Template      = setZeroBinContent(Template);
-  //	Template->Draw();
-  ///	canvas->SaveAs("template.pdf");
   calibration(Template, ofile);
 }
