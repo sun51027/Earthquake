@@ -26,7 +26,7 @@ const double Earthquake::minK40   = 1.3;
 const double Earthquake::maxK40   = 1.5;
 const double Earthquake::minRadon = 0.25;
 const double Earthquake::maxRadon = 0.8;
-TH1* Earthquake::addHist(TDirectory *dir)
+TH1* Earthquake::AddHist(TDirectory *dir)
 {
   int count = 0;
 
@@ -78,10 +78,11 @@ int main()
 
   // make a template
   TH1 *Template;
- 	Template	= EQ.addHist(dir);
-  Template      = EQ.setZeroBinContent(Template);
+ 	Template	= EQ.AddHist(dir);
+  Template      = EQ.SetZeroBinContent(Template);
 	ofile->cd();
 	Template->Write("Template");
-  EQ.calibration(Template, ofile,"Template_cali");
-	EQ.stability_K40(Template,ofile,"Template_stab");
+  EQ.Calibration(Template, ofile,"Template_cali");
+	EQ.Stability_K40(Template,ofile,"Template_stab");
+	 
 }

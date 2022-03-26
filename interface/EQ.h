@@ -24,9 +24,9 @@ public:
   Earthquake() {}
   ~Earthquake() {}
 
-  TH1 *addHist(TDirectory *dir);
+  TH1 *AddHist(TDirectory *dir);
 
-  TH1 *setZeroBinContent(TH1 *hist)
+  TH1 *SetZeroBinContent(TH1 *hist)
   {
 
     for (int i = 0; i < hist->GetNbinsX(); i++) {
@@ -54,26 +54,16 @@ public:
     return sigma;
   }
 
-  // double calibration(TH1 *obj)
-  // {
 
-  //   obj->Fit("gaus", "R", "", 2.1, 2.4);
-  //   double cfactor = obj->GetFunction("gaus")->GetParameter(1) / 2.22198;
+  void DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile);
 
-  //   //    cout << cfactor << endl;
-  //   return cfactor;
-  // }
+  void WriteFile(TH1 *obj, TFile *ofile) { obj->Write(); }
 
-  void doAnalysis(TH1 *Template, TH1 *h_diff, TDirectory *dir, TFile *ofile);
-
-  void writeFile(TH1 *obj, TFile *ofile) { obj->Write(); }
-
-  double calibration(TH1 *obj, TFile *ofile, TString hist_name)
+  double PeakforCalibration(TH1 *obj, TFile *ofile, TString hist_name)
   {
 
     double   xmin = obj->GetXaxis()->FindBin(2.1);
     double   xmax = obj->GetXaxis()->FindBin(2.4);
-    cout << "xmax " << xmax << endl;
 
     cout << "# of bins " << xmax - xmin + 1 << endl;
     TH1D *cal = new TH1D("cal", "", xmax - xmin + 1, 2.1, 2.4);
@@ -112,11 +102,9 @@ public:
 		delete cal;
 
     double peak = mu.getVal();
-    double cfactor = 2.22198 / peak;
-
-    return cfactor;
+    return peak;
   }
-  double stability_K40(TH1 *obj, TFile *ofile, TString hist_name)
+  double PeakforK40(TH1 *obj, TFile *ofile, TString hist_name, bool flag)
   {
 
     RooRealVar x("x", "random variable", minK40, maxK40);
@@ -140,12 +128,17 @@ public:
     RooPlot    *frame = x.frame();
     data.plotOn(frame);
     model.fitTo(data);
-//    model.plotOn(frame,LineColor(kBlue));
+	  model.plotOn(frame,RooFit::LineColor(kRed));
     frame->Draw();
+		if(flag==0){
+	    ofile->cd("K40_uncali_fit");
+    	frame->Write(hist_name.Data());
+		}
+		else{
+			ofile->cd("K40_cali_fit");
+    	frame->Write(hist_name.Data());
+		}
 
-    ofile->cd("stability_K40");
-
-    frame->Write(hist_name.Data());
 		//Get peak of 
     double peak = mu.getVal();
     return peak;
