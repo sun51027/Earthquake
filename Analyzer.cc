@@ -1,5 +1,11 @@
+// STL
+using namespace std;
 #include <iostream>
+
+// my header
 #include "interface/EQ.h"
+
+// ROOT include
 #include "TCanvas.h"
 #include "TDirectory.h"
 #include "TF1.h"
@@ -12,12 +18,25 @@
 #include "TKey.h"
 #include "TStyle.h"
 //#define DEBUG
-using namespace std;
+
 const double Earthquake::minK40   = 1.3;
 const double Earthquake::maxK40   = 1.5;
 const double Earthquake::minRadon = 0.25;
 const double Earthquake::maxRadon = 0.8;
 
+TH1* Earthquake::SetZeroBinContent(TH1 *hist)
+{
+
+  for (int i = 0; i < hist->GetNbinsX(); i++) {
+    if (hist->GetBinContent(i) == 0 && hist->GetBinContent(i + 1) == 0 && hist->GetBinContent(i + 2) == 0) {
+      continue;
+    } else if (hist->GetBinContent(i) == 0) {
+      hist->SetBinContent(i, (hist->GetBinContent(i - 1) + hist->GetBinContent(i + 1)) / 2);
+    }
+  }
+
+  return hist;
+}
 void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 {
 
@@ -121,7 +140,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   //	h_diff->GetFunction("gaus")->GetParameter(2);
   //	h_diff->Scale(h_diff->GetFunction("gaus")->GetParameter(2));
   h_diff->Draw();
-  c->SaveAs("h_diff.pdf");
+  c->SaveAs("plots/h_diff.pdf");
 
   TGraph *gr = new TGraph(N, x, y);
   gr->GetXaxis()->SetLimits(0, N);
@@ -130,7 +149,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   }
   gr->SetTitle("");
   gr->Draw("AP");
-  c->SaveAs("DiffvsTime.pdf");
+  c->SaveAs("plots/DiffvsTime.pdf");
   delete c;
 
   // draw corr factor
@@ -144,7 +163,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   corr->GetXaxis()->SetLimits(0, N);
   corr->GetYaxis()->SetTitle("Calibration factor");
   c2->SetGridy(1);
-  c2->SaveAs("cfactor.pdf");
+  c2->SaveAs("plots/cfactor.pdf");
   delete c2;
 
   // see if K40 is K40_peak around 1.4 MeV (peak)after calibration
@@ -165,14 +184,14 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 
   c3->SetTicks();
   p1->SetTicks();
-//	p1->SetRightMargin(0.05);
+  //	p1->SetRightMargin(0.05);
   p2->SetTicks();
 
   c3->cd();
-	p1->Draw();
-	p2->Draw();
-	
-	c3->cd();
+  p1->Draw();
+  p2->Draw();
+
+  c3->cd();
   p1->cd();
   mg->Add(g_K40_peak_uncali);
   mg->Add(g_K40_peak_cali);
@@ -196,36 +215,36 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   p2->cd();
   h_K40_peak_cali->Draw("hbar");
   h_K40_peak_cali->SetFillColor(kRed);
-	h_K40_peak_cali->SetStats(0);
+  h_K40_peak_cali->SetStats(0);
   h_K40_peak_uncali->Draw("same hbar");
   h_K40_peak_uncali->SetFillColor(kBlue);
-	h_K40_peak_uncali->SetStats(0);
+  h_K40_peak_uncali->SetStats(0);
   c3->RedrawAxis();
   c3->SetGridy(1);
-  c3->SaveAs("K40_cali_vs_uncali.pdf");
+  c3->SaveAs("plots/K40_cali_vs_uncali.pdf");
   delete c3;
 }
-int main()
-{
-  // outputfile
-  TFile *ofile = new TFile("oAnalyzer.root", "recreate");
-  ofile->mkdir("cali_Hist");
-  ofile->mkdir("K40_uncali_fit");
-  ofile->mkdir("K40_cali_fit");
-  ofile->cd();
-  // inputfile
-  TFile      *fin1 = new TFile("output.root");
-  TDirectory *dir  = (TDirectory *)fin1->Get("HistoCh0");
-  dir->cd();
-
-  // get template
-  TFile *fin2     = new TFile("template.root");
-  TH1   *Template = (TH1 *)fin2->Get("Template");
-
-  Earthquake EQ;
-
-  // do analysis
-  EQ.DoAnalysis(Template, dir, ofile);
-
-  return 0;
-}
+// int main()
+//{
+//   // outputfile
+//   TFile *ofile = new TFile("oAnalyzer.root", "recreate");
+//   ofile->mkdir("cali_Hist");
+//   ofile->mkdir("K40_uncali_fit");
+//   ofile->mkdir("K40_cali_fit");
+//   ofile->cd();
+//   // inputfile
+//   TFile      *fin1 = new TFile("output.root");
+//   TDirectory *dir  = (TDirectory *)fin1->Get("HistoCh0");
+//   dir->cd();
+//
+//   // get template
+//   TFile *fin2     = new TFile("template.root");
+//   TH1   *Template = (TH1 *)fin2->Get("Template");
+//
+//   Earthquake EQ;
+//
+//   // do analysis
+//   EQ.DoAnalysis(Template, dir, ofile);
+//
+//   return 0;
+// }
