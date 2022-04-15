@@ -17,7 +17,7 @@ using namespace std;
 #include "TH1D.h"
 #include "TKey.h"
 #include "TStyle.h"
-//using namespace mgr;
+// using namespace mgr;
 //#define DEBUG
 
 const double Earthquake::minK40   = 1.3;
@@ -25,7 +25,7 @@ const double Earthquake::maxK40   = 1.5;
 const double Earthquake::minRadon = 0.25;
 const double Earthquake::maxRadon = 0.8;
 
-TH1* Earthquake::SetZeroBinContent(TH1 *hist)
+TH1 *Earthquake::SetZeroBinContent(TH1 *hist)
 {
 
   for (int i = 0; i < hist->GetNbinsX(); i++) {
@@ -42,8 +42,8 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 {
 
   TCanvas *c                 = new TCanvas("canvas", "", 800, 600);
-  TH1D    *h_K40_peak_cali   = new TH1D("h_K40_peak_cali", "", 100,1.37, 1.44);
-  TH1D    *h_K40_peak_uncali = new TH1D("h_K40_peak_uncali", "", 100,1.37,1.44);
+  TH1D    *h_K40_peak_cali   = new TH1D("h_K40_peak_cali", "", 100, 1.37, 1.44);
+  TH1D    *h_K40_peak_uncali = new TH1D("h_K40_peak_uncali", "", 100, 1.37, 1.44);
   TH1D    *h_diff            = new TH1D("h_diff", "", 100, -10000, 10000);
 
   double K40_template =
@@ -87,18 +87,21 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         daily_name[N].Remove(10, 4);
 
         // get the calibration factor
-        peakforCali[N]    = PeakforCalibration(obj, ofile, daily_name[N]);// ex 2.1
-        cfactor[N]        = 2.22198 / peakforCali[N]; // ex. 1.06
-        K40peak_uncali[N] = PeakforK40(obj, ofile, daily_name[N], 0); // ex. 1.41
+        peakforCali[N]    = PeakforCalibration(obj, ofile, daily_name[N]); // ex 2.1
+        cfactor[N]        = 2.22198 / peakforCali[N];                      // ex. 1.06
+        K40peak_uncali[N] = PeakforK40(obj, ofile, daily_name[N], 0);      // ex. 1.41
+								cout<<"cfactor "<<cfactor[N]<<endl;
         for (int k = 0; k < 1024; k++) {
-          nMoveBin_K40[k] = ( 1 - cfactor[N]) * obj->GetBinCenter(k + 1) / energyBin;
+          nMoveBin_K40[k] = (1 - cfactor[N]) * obj->GetBinCenter(k + 1) / energyBin;
+					cout<<"nMoveBin_K40["<<k<<"] "<<nMoveBin_K40[k]<<endl;
         }
 
         // calibrate hourly and show K40 peak
         TH1D *obj_cali = (TH1D *)(obj->Clone("obj_cali"));
         for (int j = 0; j < 1024; j++) {
-          //obj_cali->SetBinContent(obj->GetBinContent(j + 1), j + 1 - (int)nMoveBin_K40[j]);
-          obj_cali->SetBinContent(j+1,obj->GetBinContent(j + 1 - (int)nMoveBin_K40[j]));
+          //obj_cali->SetBinContent(j + 1, obj->GetBinContent(j + 1 + (int)nMoveBin_K40[j]));
+					obj_cali->SetBinContent(j + 1 , obj->GetBinContent(j+1-(int)nMoveBin_K40[j]));
+
           if ((int)nMoveBin_K40[j] != 0) {
             cout << "obj " << obj->GetBinContent(j + 1) << "\t" << (int)nMoveBin_K40[j] << "\t obj_cali "
                  << obj_cali->GetBinContent(j + 1) << endl;
@@ -107,7 +110,8 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         K40peak_cali[N] = PeakforK40(obj_cali, ofile, daily_name[N], 1);
         h_K40_peak_cali->Fill(K40peak_cali[N]);
         h_K40_peak_uncali->Fill(K40peak_uncali[N]);
-				cout<<"K40peak_cali["<<N<<"] "<<K40peak_cali[N]<<"\t K40peak_uncali["<<N<<"] "<<K40peak_uncali[N]<<endl;
+        cout << "K40peak_cali[" << N << "] " << K40peak_cali[N] << "\t K40peak_uncali[" << N << "] "
+             << K40peak_uncali[N] << endl;
 
         /*----------------------------------
          *
@@ -171,12 +175,12 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 
   // see if K40 is K40_peak around 1.4 MeV (peak)after calibration
   TCanvas     *c3 = new TCanvas("c3", "", 2000, 700);
-  TPad        *p1 = new TPad("p1", "", 0, 0, 0.9, 1.0);
-  TPad        *p2 = new TPad("p2", "", 0.9, 0, 1.0, 1.0);
+  TPad        *p1 = new TPad("p1", "", 0, 0, 0.7, 1.0);
+  TPad        *p2 = new TPad("p2", "", 0.7, 0, 1.0, 1.0);
   TMultiGraph *mg = new TMultiGraph();
 
   TGraph *g_K40_peak_cali = new TGraph(N, x, K40peak_cali);
-  g_K40_peak_cali->SetMarkerColor(kRed);
+  g_K40_peak_cali->SetMarkerColorAlpha(kRed,0.5);
   g_K40_peak_cali->SetMarkerStyle(8);
   g_K40_peak_cali->GetXaxis()->SetLimits(0, N);
 
@@ -185,6 +189,9 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   g_K40_peak_uncali->SetMarkerStyle(22);
   g_K40_peak_uncali->GetXaxis()->SetLimits(0, N);
 
+	for(int i=0;i<N;i++){
+					cout<<"cali "<<K40peak_cali[i]<<"\t K40peak_uncali "<<K40peak_uncali[i]<<endl;
+	}
   c3->SetTicks();
   p1->SetTicks();
   //	p1->SetRightMargin(0.05);
