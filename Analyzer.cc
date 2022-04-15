@@ -91,16 +91,17 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         cfactor[N]        = 2.22198 / peakforCali[N]; // ex. 1.06
         K40peak_uncali[N] = PeakforK40(obj, ofile, daily_name[N], 0); // ex. 1.41
         for (int k = 0; k < 1024; k++) {
-          nMoveBin_K40[N] = (1 - cfactor[N]) * obj->GetBinCenter(k + 1) / energyBin;
+          nMoveBin_K40[k] = ( 1 - cfactor[N]) * obj->GetBinCenter(k + 1) / energyBin;
         }
 
         // calibrate hourly and show K40 peak
         TH1D *obj_cali = (TH1D *)(obj->Clone("obj_cali"));
         for (int j = 0; j < 1024; j++) {
-          obj_cali->SetBinContent(obj->GetBinContent(j + 1), j + 1 - (int)nMoveBin_K40[N]);
-          if ((int)nMoveBin_K40[N] != 0) {
-        //    cout << "obj " << obj->GetBinContent(j + 1) << "\t" << (int)nMoveBin_K40[N] << "\t obj_cali "
-          //       << obj_cali->GetBinContent(j + 1) << endl;
+          //obj_cali->SetBinContent(obj->GetBinContent(j + 1), j + 1 - (int)nMoveBin_K40[j]);
+          obj_cali->SetBinContent(j+1,obj->GetBinContent(j + 1 - (int)nMoveBin_K40[j]));
+          if ((int)nMoveBin_K40[j] != 0) {
+            cout << "obj " << obj->GetBinContent(j + 1) << "\t" << (int)nMoveBin_K40[j] << "\t obj_cali "
+                 << obj_cali->GetBinContent(j + 1) << endl;
           }
         }
         K40peak_cali[N] = PeakforK40(obj_cali, ofile, daily_name[N], 1);
