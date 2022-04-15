@@ -17,6 +17,7 @@ using namespace std;
 #include "TH1D.h"
 #include "TKey.h"
 #include "TStyle.h"
+//using namespace mgr;
 //#define DEBUG
 
 const double Earthquake::minK40   = 1.3;
@@ -41,8 +42,8 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 {
 
   TCanvas *c                 = new TCanvas("canvas", "", 800, 600);
-  TH1D    *h_K40_peak_cali   = new TH1D("h_K40_peak_cali", "", 100, -10, 10);
-  TH1D    *h_K40_peak_uncali = new TH1D("h_K40_peak_uncali", "", 100, -10, 10);
+  TH1D    *h_K40_peak_cali   = new TH1D("h_K40_peak_cali", "", 100,1.37, 1.44);
+  TH1D    *h_K40_peak_uncali = new TH1D("h_K40_peak_uncali", "", 100,1.37,1.44);
   TH1D    *h_diff            = new TH1D("h_diff", "", 100, -10000, 10000);
 
   double K40_template =
@@ -86,9 +87,9 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         daily_name[N].Remove(10, 4);
 
         // get the calibration factor
-        peakforCali[N]    = PeakforCalibration(obj, ofile, daily_name[N]);
-        cfactor[N]        = 2.22198 / peakforCali[N];
-        K40peak_uncali[N] = PeakforK40(obj, ofile, daily_name[N], 0);
+        peakforCali[N]    = PeakforCalibration(obj, ofile, daily_name[N]);// ex 2.1
+        cfactor[N]        = 2.22198 / peakforCali[N]; // ex. 1.06
+        K40peak_uncali[N] = PeakforK40(obj, ofile, daily_name[N], 0); // ex. 1.41
         for (int k = 0; k < 1024; k++) {
           nMoveBin_K40[N] = (1 - cfactor[N]) * obj->GetBinCenter(k + 1) / energyBin;
         }
@@ -98,13 +99,14 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         for (int j = 0; j < 1024; j++) {
           obj_cali->SetBinContent(obj->GetBinContent(j + 1), j + 1 - (int)nMoveBin_K40[N]);
           if ((int)nMoveBin_K40[N] != 0) {
-            cout << "obj " << obj->GetBinContent(j + 1) << "\t" << (int)nMoveBin_K40[N] << "\t obj_cali "
-                 << obj_cali->GetBinContent(j + 1) << endl;
+        //    cout << "obj " << obj->GetBinContent(j + 1) << "\t" << (int)nMoveBin_K40[N] << "\t obj_cali "
+          //       << obj_cali->GetBinContent(j + 1) << endl;
           }
         }
         K40peak_cali[N] = PeakforK40(obj_cali, ofile, daily_name[N], 1);
         h_K40_peak_cali->Fill(K40peak_cali[N]);
         h_K40_peak_uncali->Fill(K40peak_uncali[N]);
+				cout<<"K40peak_cali["<<N<<"] "<<K40peak_cali[N]<<"\t K40peak_uncali["<<N<<"] "<<K40peak_uncali[N]<<endl;
 
         /*----------------------------------
          *
@@ -167,9 +169,9 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   delete c2;
 
   // see if K40 is K40_peak around 1.4 MeV (peak)after calibration
-  TCanvas     *c3 = new TCanvas("c3", "", 900, 700);
-  TPad        *p1 = new TPad("p1", "", 0, 0, 0.7, 1.0);
-  TPad        *p2 = new TPad("p2", "", 0.7, 0, 1.0, 1.0);
+  TCanvas     *c3 = new TCanvas("c3", "", 2000, 700);
+  TPad        *p1 = new TPad("p1", "", 0, 0, 0.9, 1.0);
+  TPad        *p2 = new TPad("p2", "", 0.9, 0, 1.0, 1.0);
   TMultiGraph *mg = new TMultiGraph();
 
   TGraph *g_K40_peak_cali = new TGraph(N, x, K40peak_cali);
@@ -213,38 +215,14 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 
   c3->cd();
   p2->cd();
-  h_K40_peak_cali->Draw("hbar");
   h_K40_peak_cali->SetFillColor(kRed);
   h_K40_peak_cali->SetStats(0);
-  h_K40_peak_uncali->Draw("same hbar");
   h_K40_peak_uncali->SetFillColor(kBlue);
   h_K40_peak_uncali->SetStats(0);
+  h_K40_peak_uncali->Draw("hbar");
+  h_K40_peak_cali->Draw("same hbar");
   c3->RedrawAxis();
   c3->SetGridy(1);
   c3->SaveAs("plots/K40_cali_vs_uncali.pdf");
   delete c3;
 }
-// int main()
-//{
-//   // outputfile
-//   TFile *ofile = new TFile("oAnalyzer.root", "recreate");
-//   ofile->mkdir("cali_Hist");
-//   ofile->mkdir("K40_uncali_fit");
-//   ofile->mkdir("K40_cali_fit");
-//   ofile->cd();
-//   // inputfile
-//   TFile      *fin1 = new TFile("output.root");
-//   TDirectory *dir  = (TDirectory *)fin1->Get("HistoCh0");
-//   dir->cd();
-//
-//   // get template
-//   TFile *fin2     = new TFile("template.root");
-//   TH1   *Template = (TH1 *)fin2->Get("Template");
-//
-//   Earthquake EQ;
-//
-//   // do analysis
-//   EQ.DoAnalysis(Template, dir, ofile);
-//
-//   return 0;
-// }
