@@ -171,8 +171,8 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 
   // see if K40 is K40_peak around 1.4 MeV (peak)after calibration
   TCanvas     *c3 = new TCanvas("c3", "",10,10, 1500, 900);
-  TPad        *pL = new TPad("pL", "", 0, 0, 0.8, 1.0);
-  TPad        *pR = new TPad("pR", "", 0.8, 0, 1.0, 1.0);
+  TPad        *pL = mgr::NewLeftPad();
+  TPad        *pR = mgr::NewRightPad();
   TMultiGraph *mg = new TMultiGraph();
 
   TGraph *g_K40_peak_cali = new TGraph(N, x, K40peak_cali);
@@ -184,15 +184,6 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   g_K40_peak_uncali->SetMarkerColor(kBlue);
   g_K40_peak_uncali->SetMarkerStyle(22);
   g_K40_peak_uncali->GetXaxis()->SetLimits(0, N);
-	//g_K40_peak_uncali->LabelsDeflate();
-	//g_K40_peak_cali->LabelsDeflate();
-
-//	for(int i=0;i<N;i++){
-//					cout<<"cali "<<K40peak_cali[i]<<"\t K40peak_uncali "<<K40peak_uncali[i]<<endl;
-//	}
-  c3->SetTicks();
-  pL->SetTicks(1,1);
-  pR->SetTicks(1,1);
 
   c3->cd();
   pL->Draw();
@@ -200,7 +191,6 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 
   c3->cd();
   pL->cd();
-	pL->SetRightMargin(0.025);
   mg->Add(g_K40_peak_uncali);
   mg->Add(g_K40_peak_cali);
   for (int i = 0; i <= N / 80; i++) {
@@ -220,13 +210,10 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   leg2->AddEntry(g_K40_peak_uncali, "un-cali", "p");
   leg2->AddEntry(g_K40_peak_cali, "Cali", "p");
   leg2->Draw();
-	mgr::SetBottomPlotAxis(g_K40_peak_uncali);
-	mgr::SetBottomPlotAxis(g_K40_peak_cali);
 	gPad->Update();	
 
   c3->cd();
   pR->cd();
-	pR->SetLeftMargin(0.025);
   h_K40_peak_cali->SetFillColor(kRed);
   h_K40_peak_cali->SetStats(0);
   h_K40_peak_uncali->SetFillColor(kBlue);
