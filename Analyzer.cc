@@ -17,6 +17,7 @@ using namespace std;
 #include "TH1D.h"
 #include "TKey.h"
 #include "TStyle.h"
+#include "rootlogon.h"
 // using namespace mgr;
 //#define DEBUG
 
@@ -89,17 +90,13 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         // get the calibration factor
         peakforCali[N]    = PeakforCalibration(obj, ofile, daily_name[N]); // ex 2.1
         cfactor[N]        = 2.22198 / peakforCali[N];                      // ex. 1.06
-        K40peak_uncali[N] = PeakforK40(obj, ofile, daily_name[N], 0);      // ex. 1.41
-								cout<<"cfactor "<<cfactor[N]<<endl;
         for (int k = 0; k < 1024; k++) {
           nMoveBin_K40[k] = (1 - cfactor[N]) * obj->GetBinCenter(k + 1) / energyBin;
-					cout<<"nMoveBin_K40["<<k<<"] "<<nMoveBin_K40[k]<<endl;
         }
-
+				
         // calibrate hourly and show K40 peak
         TH1D *obj_cali = (TH1D *)(obj->Clone("obj_cali"));
         for (int j = 0; j < 1024; j++) {
-          //obj_cali->SetBinContent(j + 1, obj->GetBinContent(j + 1 + (int)nMoveBin_K40[j]));
 					obj_cali->SetBinContent(j + 1 , obj->GetBinContent(j+1-(int)nMoveBin_K40[j]));
 
           if ((int)nMoveBin_K40[j] != 0) {
@@ -107,11 +104,10 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
                  << obj_cali->GetBinContent(j + 1) << endl;
           }
         }
+        K40peak_uncali[N] = PeakforK40(obj, ofile, daily_name[N], 0);      // ex. 1.41
         K40peak_cali[N] = PeakforK40(obj_cali, ofile, daily_name[N], 1);
         h_K40_peak_cali->Fill(K40peak_cali[N]);
         h_K40_peak_uncali->Fill(K40peak_uncali[N]);
-        cout << "K40peak_cali[" << N << "] " << K40peak_cali[N] << "\t K40peak_uncali[" << N << "] "
-             << K40peak_uncali[N] << endl;
 
         /*----------------------------------
          *
@@ -174,13 +170,13 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   delete c2;
 
   // see if K40 is K40_peak around 1.4 MeV (peak)after calibration
-  TCanvas     *c3 = new TCanvas("c3", "", 2000, 700);
-  TPad        *p1 = new TPad("p1", "", 0, 0, 0.7, 1.0);
-  TPad        *p2 = new TPad("p2", "", 0.7, 0, 1.0, 1.0);
+  TCanvas     *c3 = new TCanvas("c3", "",10,10, 1500, 900);
+  TPad        *pL = new TPad("pL", "", 0, 0, 0.8, 1.0);
+  TPad        *pR = new TPad("pR", "", 0.8, 0, 1.0, 1.0);
   TMultiGraph *mg = new TMultiGraph();
 
   TGraph *g_K40_peak_cali = new TGraph(N, x, K40peak_cali);
-  g_K40_peak_cali->SetMarkerColorAlpha(kRed,0.5);
+  g_K40_peak_cali->SetMarkerColorAlpha(kRed,1);
   g_K40_peak_cali->SetMarkerStyle(8);
   g_K40_peak_cali->GetXaxis()->SetLimits(0, N);
 
@@ -188,30 +184,34 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   g_K40_peak_uncali->SetMarkerColor(kBlue);
   g_K40_peak_uncali->SetMarkerStyle(22);
   g_K40_peak_uncali->GetXaxis()->SetLimits(0, N);
+	//g_K40_peak_uncali->LabelsDeflate();
+	//g_K40_peak_cali->LabelsDeflate();
 
-	for(int i=0;i<N;i++){
-					cout<<"cali "<<K40peak_cali[i]<<"\t K40peak_uncali "<<K40peak_uncali[i]<<endl;
-	}
+//	for(int i=0;i<N;i++){
+//					cout<<"cali "<<K40peak_cali[i]<<"\t K40peak_uncali "<<K40peak_uncali[i]<<endl;
+//	}
   c3->SetTicks();
-  p1->SetTicks();
-  //	p1->SetRightMargin(0.05);
-  p2->SetTicks();
+  pL->SetTicks(1,1);
+  pR->SetTicks(1,1);
 
   c3->cd();
-  p1->Draw();
-  p2->Draw();
+  pL->Draw();
+  pR->Draw();
 
   c3->cd();
-  p1->cd();
+  pL->cd();
+	pL->SetRightMargin(0.025);
   mg->Add(g_K40_peak_uncali);
   mg->Add(g_K40_peak_cali);
-  for (int i = 0; i <= N / 60; i++) {
-    mg->GetXaxis()->SetBinLabel(i * 60 + 1, hist_name[i * 60]);
+  for (int i = 0; i <= N / 80; i++) {
+    mg->GetXaxis()->SetBinLabel(i * 80 + 1, hist_name[i * 80]);
   }
   mg->SetMaximum(1.44);
   mg->SetMinimum(1.37);
   mg->GetYaxis()->SetTitle("K40 peak (MeV)");
   mg->GetXaxis()->SetTitle("Time (mm/dd)");
+	mg->GetXaxis()->SetTitleOffset(1.6);
+	mg->GetXaxis()->SetNdivisions(510);
   mg->Draw("AP");
   TLegend *leg2 = new TLegend(0.65, 0.65, 0.80, 0.80);
   leg2->SetBorderSize(0);
@@ -220,17 +220,28 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   leg2->AddEntry(g_K40_peak_uncali, "un-cali", "p");
   leg2->AddEntry(g_K40_peak_cali, "Cali", "p");
   leg2->Draw();
+	mgr::SetBottomPlotAxis(g_K40_peak_uncali);
+	mgr::SetBottomPlotAxis(g_K40_peak_cali);
+	gPad->Update();	
 
   c3->cd();
-  p2->cd();
+  pR->cd();
+	pR->SetLeftMargin(0.025);
   h_K40_peak_cali->SetFillColor(kRed);
   h_K40_peak_cali->SetStats(0);
   h_K40_peak_uncali->SetFillColor(kBlue);
   h_K40_peak_uncali->SetStats(0);
   h_K40_peak_uncali->Draw("hbar");
   h_K40_peak_cali->Draw("same hbar");
-  c3->RedrawAxis();
+	h_K40_peak_uncali->SetLabelSize(0);
+	h_K40_peak_uncali->SetTitleSize(0);
+//	h_K40_peak_uncali->SetLabelSize(0);
+
+	
   c3->SetGridy(1);
+	c3->Update();
+	pR->Modified();
+	pL->Modified();
   c3->SaveAs("plots/K40_cali_vs_uncali.pdf");
   delete c3;
 }
