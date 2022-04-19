@@ -19,7 +19,7 @@ int main()
   dir->cd();
 
   // get template
-  TFile *fin2     = new TFile("plots_root/template.root");
+  TFile *fin2     = new TFile("plots_root/template_beforeSep.root");
   TH1D   *Template = (TH1D*)fin2->Get("Template");
 
   Earthquake EQ;

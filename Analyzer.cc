@@ -43,8 +43,8 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 {
 
   TCanvas *c                 = new TCanvas("canvas", "", 800, 600);
-  TH1D    *h_K40_peak_cali   = new TH1D("h_K40_peak_cali", "", 100, 1.37, 1.44);
-  TH1D    *h_K40_peak_uncali = new TH1D("h_K40_peak_uncali", "", 100, 1.37, 1.44);
+  TH1D    *h_K40_peak_cali   = new TH1D("h_K40_peak_cali", "", 100, 1.37, 1.47);
+  TH1D    *h_K40_peak_uncali = new TH1D("h_K40_peak_uncali", "", 100, 1.37, 1.47);
   TH1D    *h_diff            = new TH1D("h_diff", "", 100, -10000, 10000);
 
   double K40_template =
@@ -78,7 +78,8 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
       obj       = (TH1 *)dir2->Get(key2->GetName()); // copy every th1 histogram to
       obj       = SetZeroBinContent(obj);            // fill the empty bin with average of adjacent bins
 
-      if (h > 1799 && obj->Integral() != 0) { // start from 9/15 h=1800)
+      if (h < 1800 && obj->Integral() != 0) { // start from 9/15 h=1800 h> 1799)
+//      if (obj->Integral() != 0) { // start from 9/15 h=1800)
 
         // set hist name ex. 12/25;  daily_name = 2021122522
         hist_name[N].Form("%s", key->GetName());
@@ -97,7 +98,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         // calibrate hourly and show K40 peak
         TH1D *obj_cali = (TH1D *)(obj->Clone("obj_cali"));
         for (int j = 0; j < 1024; j++) {
-          obj_cali->SetBinContent(j + 1, obj->GetBinContent(j + 1 - (int)nMoveBin_K40[j]));
+          obj_cali->SetBinContent(j + 1, obj->GetBinContent(j + 1 + (int)nMoveBin_K40[j]));
 
           if ((int)nMoveBin_K40[j] != 0) {
             cout << "obj " << obj->GetBinContent(j + 1) << "\t" << (int)nMoveBin_K40[j] << "\t obj_cali "
@@ -166,7 +167,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   corr->GetXaxis()->SetLimits(0, N);
   corr->GetYaxis()->SetTitle("Calibration factor");
   c2->SetGridy(1);
-  c2->SaveAs("plots/cfactor.pdf");
+  c2->SaveAs("plots/cfactor_beforSep.pdf");
   delete c2;
 
   // see if K40 is K40_peak around 1.4 MeV (peak)after calibration
@@ -196,7 +197,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   for (int i = 0; i <= N / 80; i++) {
     mg->GetXaxis()->SetBinLabel(i * 80 + 1, hist_name[i * 80]);
   }
-  mg->SetMaximum(1.44);
+  mg->SetMaximum(1.47);
   mg->SetMinimum(1.37);
   mg->GetYaxis()->SetTitle("K40 peak (MeV)");
   mg->GetXaxis()->SetTitle("Time (mm/dd)");
@@ -226,6 +227,6 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   pL->Modified();
   c3->SetGridy(1);
   c3->Modified();
-  c3->SaveAs("plots/K40_cali_vs_uncali.pdf");
+  c3->SaveAs("plots/K40_cali_vs_uncali_beforeSep.pdf");
   delete c3;
 }
