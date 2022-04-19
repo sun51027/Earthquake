@@ -220,13 +220,15 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   h_K40_peak_uncali->SetStats(0);
   h_K40_peak_uncali->Draw("hbar");
   h_K40_peak_cali->Draw("same hbar");
-	h_K40_peak_uncali->SetLabelSize(0);
-	h_K40_peak_uncali->SetTitleSize(0);
+//	h_K40_peak_uncali->SetLabelSize(0);
+//	h_K40_peak_uncali->SetTitleSize(0);
 //	h_K40_peak_uncali->SetLabelSize(0);
 
 	
   c3->SetGridy(1);
 	c3->Update();
+	mgr::SetRightPlotAxis(h_K40_peak_uncali);
+	//mgr::SetLeftPlotAxis(mg);
 	pR->Modified();
 	pL->Modified();
   c3->SaveAs("plots/K40_cali_vs_uncali.pdf");
