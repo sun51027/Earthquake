@@ -70,7 +70,7 @@ int main()
   ofile->mkdir("stability_K40");
   ofile->mkdir("cali_Hist");
 
-  TFile      *file = new TFile("output.root");
+  TFile      *file = new TFile("plots_root/output.root");
   TDirectory *dir  = (TDirectory *)file->Get("HistoCh0");
   dir->cd();
 	// init
