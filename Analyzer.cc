@@ -1,7 +1,7 @@
 // STL
 using namespace std;
 #include <iostream>
-
+#include <fstream>
 // my header
 #include "interface/EQ.h"
 
@@ -141,6 +141,18 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
     }
   }
 
+	ofstream ofs;
+	ofs.open("plot_name.txt");
+	if(!ofs.is_open()){
+					cout<<"Fail to open txt file"<<endl;
+	}else{
+					for(int i=0;i<N;i++){
+									ofs<<daily_name[i]<<endl;
+					}
+	}
+	ofs.close();
+
+
 	ofile->cd("Analysis_plot");
 
 //  h_diff->SetStats(0);
@@ -152,7 +164,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   //c->SaveAs("plots/h_diff.pdf");
 
   TGraph *gr = new TGraph(N, x, y);
-	gr->SetName("DiffvsTime");
+	gr->SetName("g_diffvsTime");
 	gr->Write();	
 //  gr->GetXaxis()->SetLimits(0, N);
 //  for (int i = 0; i <= N / 60; i++) {
@@ -162,9 +174,9 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 //  gr->Draw("AP");
 //  c->SaveAs("plots/DiffvsTime.pdf");
 //  delete c;
-//
-  // draw corr factor
-//  TGraph  *corr = new TGraph(N, x, cfactor);
+
+// draw corr factor
+  TGraph  *corr = new TGraph(N, x, cfactor);
 //  for (int i = 0; i <= N / 60; i++) {
 //    corr->GetXaxis()->SetBinLabel(i * 60 + 1, hist_name[i * 60]);
 //  }
@@ -174,26 +186,30 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 //  corr->GetYaxis()->SetTitle("Calibration factor");
 //  c2->SetGridy(1);
 //  c2->SaveAs("plots/cfactor_beforSep.pdf");
-//	corr->Write();
+	corr->SetName("g_cfactor");
+	corr->Write();
 //  delete c2;
 
-  // see if K40 is K40_peak around 1.4 MeV (peak)after calibration
-//  TCanvas     *c3 = new TCanvas("c3", "", 10, 10, 1500, 900);
-//  TPad        *pL = mgr::NewLeftPad();
-//  TPad        *pR = mgr::NewRightPad();
-//  TMultiGraph *mg = new TMultiGraph();
-//
-//  TGraph *g_K40_peak_cali = new TGraph(N, x, K40peak_cali);
+// see if K40 is K40_peak around 1.4 MeV (peak)after calibration
+  TCanvas     *c3 = new TCanvas("c3", "", 10, 10, 1500, 900);
+  TPad        *pL = mgr::NewLeftPad();
+  TPad        *pR = mgr::NewRightPad();
+  TMultiGraph *mg = new TMultiGraph();
+
+  TGraph *g_K40_peak_cali = new TGraph(N, x, K40peak_cali);
 //  g_K40_peak_cali->SetMarkerColorAlpha(kRed, 1);
 //  g_K40_peak_cali->SetMarkerStyle(8);
 //  g_K40_peak_cali->GetXaxis()->SetLimits(0, N);
-//	g_K40_peak_cali->Write();
-//  TGraph *g_K40_peak_uncali = new TGraph(N, x, K40peak_uncali);
+	g_K40_peak_cali->SetName("g_K40_peak_cali");
+	g_K40_peak_cali->Write();
+
+  TGraph *g_K40_peak_uncali = new TGraph(N, x, K40peak_uncali);
 //  g_K40_peak_uncali->SetMarkerColor(kBlue);
 //  g_K40_peak_uncali->SetMarkerStyle(22);
 //  g_K40_peak_uncali->GetXaxis()->SetLimits(0, N);
-//	g_K40_peak_uncali->Write();
-//
+	g_K40_peak_uncali->SetName("g_K40_peak_cali");
+	g_K40_peak_uncali->Write();
+
 //  c3->cd();
 //  pL->Draw();
 //  pR->Draw();
@@ -229,9 +245,9 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 //  h_K40_peak_uncali->SetStats(0);
 //  h_K40_peak_uncali->Draw("hbar");
 //  h_K40_peak_cali->Draw("same hbar");
-//	h_K40_peak_uncali->Write();
-//	h_K40_peak_cali->Write();
-//
+	h_K40_peak_uncali->Write();
+	h_K40_peak_cali->Write();
+
 //  mgr::SetRightPlotAxis(h_K40_peak_uncali);
 //  pR->Modified();
 //  pL->Modified();
