@@ -33,7 +33,7 @@ void Earthquake::DrawPlot()
 
   // load plot_name.txt
   ifstream ifs;
-  ifs.open("plot_name.txt", std::ios::in);
+  ifs.open("time_name.txt", std::ios::in);
   vector<TString> time;
   if (!ifs.is_open()) {
     cout << "fail to open file." << endl;
@@ -41,18 +41,16 @@ void Earthquake::DrawPlot()
     while (!ifs.eof()) {
       string s;
       getline(ifs, s);
-      time.push_back(s);//2021122500
+      time.push_back(s); // 2021122500
     }
   }
   ifs.close();
-	int N = time.size();
-	for(int i = 0;i < N;i++){
-				//cout<<time[i]<<"\t\t";
-        time[i].Remove(8, 2);
-        time[i].Remove(0, 4);
-        time[i].Insert(2, "/");
-				//cout<<time[i]<<endl;
-	}
+  int N = time.size();
+  for (int i = 0; i < N; i++) {
+    time[i].Remove(8, 2);
+    time[i].Remove(0, 4);
+    time[i].Insert(2, "/");
+  }
 
   TCanvas *c = new TCanvas("canvas", "", 800, 600);
 
@@ -75,16 +73,16 @@ void Earthquake::DrawPlot()
   c->SetGridy(1);
   c->SaveAs("cfactor.pdf");
 
-	//K40 stability 
+  // K40 stability
   TCanvas     *c3 = new TCanvas("c3", "", 10, 10, 1500, 900);
   TPad        *pL = mgr::NewLeftPad();
   TPad        *pR = mgr::NewRightPad();
   TMultiGraph *mg = new TMultiGraph();
 
-  TGraph *g_K40_peak_cali	= (TGraph *)dir->Get("g_K40_peak_cali");
-  TGraph *g_K40_peak_uncali	= (TGraph *)dir->Get("g_K40_peak_uncali");
-	TH1D *h_K40_peak_cali = (TH1D*)dir->Get("h_K40_peak_cali");
-	TH1D *h_K40_peak_uncali = (TH1D*)dir->Get("h_K40_peak_uncali");
+  TGraph *g_K40_peak_cali   = (TGraph *)dir->Get("g_K40_peak_cali");
+  TGraph *g_K40_peak_uncali = (TGraph *)dir->Get("g_K40_peak_uncali");
+  TH1D   *h_K40_peak_cali   = (TH1D *)dir->Get("h_K40_peak_cali");
+  TH1D   *h_K40_peak_uncali = (TH1D *)dir->Get("h_K40_peak_uncali");
 
   g_K40_peak_cali->SetMarkerColorAlpha(kRed, 1);
   g_K40_peak_cali->SetMarkerStyle(8);
@@ -136,5 +134,5 @@ void Earthquake::DrawPlot()
   c3->SetGridy(1);
   c3->Modified();
   c3->SaveAs("plots/K40_cali_vs_uncali_beforeSep.pdf");
-	delete c3;
+  delete c3;
 }
