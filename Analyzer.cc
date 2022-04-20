@@ -17,7 +17,7 @@ using namespace std;
 #include "TH1D.h"
 #include "TKey.h"
 #include "TStyle.h"
-#include "rootlogon.h"
+//#include "rootlogon.h"
 // using namespace mgr;
 //#define DEBUG
 
@@ -42,8 +42,8 @@ TH1 *Earthquake::SetZeroBinContent(TH1 *hist)
 void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 {
 
-  TH1D    *h_K40_peak_cali   = new TH1D("h_K40_peak_cali", "", 100, 1.37, 1.47);
-  TH1D    *h_K40_peak_uncali = new TH1D("h_K40_peak_uncali", "", 100, 1.37, 1.47);
+  TH1D    *h_K40_peak_cali   = new TH1D("h_K40_peak_cali", "", 100, 1.37, 1.44);
+  TH1D    *h_K40_peak_uncali = new TH1D("h_K40_peak_uncali", "", 100, 1.37, 1.44);
   TH1D    *h_diff            = new TH1D("h_diff", "", 100, -10000, 10000);
 
   double K40_template =
@@ -191,10 +191,10 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 //  delete c2;
 
 // see if K40 is K40_peak around 1.4 MeV (peak)after calibration
-  TCanvas     *c3 = new TCanvas("c3", "", 10, 10, 1500, 900);
-  TPad        *pL = mgr::NewLeftPad();
-  TPad        *pR = mgr::NewRightPad();
-  TMultiGraph *mg = new TMultiGraph();
+//  TCanvas     *c3 = new TCanvas("c3", "", 10, 10, 1500, 900);
+//  TPad        *pL = mgr::NewLeftPad();
+//  TPad        *pR = mgr::NewRightPad();
+//  TMultiGraph *mg = new TMultiGraph();
 
   TGraph *g_K40_peak_cali = new TGraph(N, x, K40peak_cali);
 //  g_K40_peak_cali->SetMarkerColorAlpha(kRed, 1);
@@ -207,7 +207,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 //  g_K40_peak_uncali->SetMarkerColor(kBlue);
 //  g_K40_peak_uncali->SetMarkerStyle(22);
 //  g_K40_peak_uncali->GetXaxis()->SetLimits(0, N);
-	g_K40_peak_uncali->SetName("g_K40_peak_cali");
+	g_K40_peak_uncali->SetName("g_K40_peak_uncali");
 	g_K40_peak_uncali->Write();
 
 //  c3->cd();

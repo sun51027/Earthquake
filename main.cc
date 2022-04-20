@@ -27,6 +27,8 @@ int main()
 
   // do analysis
   EQ.DoAnalysis(Template, dir, ofile);
+	ofile->Close();
 
+	EQ.DrawPlot();
   return 0;
 }
