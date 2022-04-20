@@ -42,27 +42,14 @@ TH1 *Earthquake::SetZeroBinContent(TH1 *hist)
 void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 {
 
-  TH1D    *h_K40_peak_cali   = new TH1D("h_K40_peak_cali", "", 100, 1.37, 1.44);
-  TH1D    *h_K40_peak_uncali = new TH1D("h_K40_peak_uncali", "", 100, 1.37, 1.44);
-  TH1D    *h_diff            = new TH1D("h_diff", "", 100, -10000, 10000);
+  h_K40_peak_cali   = new TH1D("h_K40_peak_cali", "", 100, 1.37, 1.44);
+  h_K40_peak_uncali = new TH1D("h_K40_peak_uncali", "", 100, 1.37, 1.44);
+  h_diff            = new TH1D("h_diff", "", 100, -10000, 10000);
+  K40_template      = Template->Integral(Template->GetXaxis()->FindBin(minK40), Template->GetXaxis()->FindBin(maxK40));
 
-  double K40_template =
-    Template->Integral(Template->GetXaxis()->FindBin(minK40), Template->GetXaxis()->FindBin(maxK40));
-
-  TKey    *keyAsObj, *keyAsObj2;
-  TIter    next(dir->GetListOfKeys());
-  TH1     *obj;
-  Double_t x[4000], y[4000];
-  double   cfactor[4000];
-  double   K40peak_cali[4000];
-  double   K40peak_uncali[4000];
-  double   peakforCali[4000]; // 2.2MeV, unknown peak
-  double   nMoveBin_K40[4000];
-  double   energyBin = 5. / 1024.;
-  int      N         = 0;
-  int      h         = 0; // # of hour
-
-  TString time_name[2500];
+  TKey *keyAsObj, *keyAsObj2;
+  TIter next(dir->GetListOfKeys());
+  TH1  *obj;
 
   while ((keyAsObj = (TKey *)next())) {
     auto        key  = (TKey *)keyAsObj;
@@ -85,7 +72,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 
         // get the calibration factor
         peakforCali[N] = PeakforCalibration(obj, ofile, time_name[N]);
-        cfactor[N]     = 2.22198 / peakforCali[N];                      // After Sep
+        cfactor[N]     = 2.22198 / peakforCali[N]; // After Sep
         //        cfactor[N]     = 2.24337 / peakforCali[N];            // Apr-Aug
         //        cfactor[N]     = 2.25117 / peakforCali[N];             // Apr-Jun
         //
@@ -99,11 +86,11 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
           obj_cali->SetBinContent(j + 1, obj->GetBinContent(j + 1 + (int)nMoveBin_K40[j]));
 
           if ((int)nMoveBin_K40[j] != 0) {
-          //  cout << "obj " << obj->GetBinContent(j + 1) << "\t" << (int)nMoveBin_K40[j] << "\t obj_cali "
-          //       << obj_cali->GetBinContent(j + 1) << endl;
+            //  cout << "obj " << obj->GetBinContent(j + 1) << "\t" << (int)nMoveBin_K40[j] << "\t obj_cali "
+            //       << obj_cali->GetBinContent(j + 1) << endl;
           }
         }
-        K40peak_uncali[N] = PeakforK40(obj, ofile, time_name[N], 0); 
+        K40peak_uncali[N] = PeakforK40(obj, ofile, time_name[N], 0);
         K40peak_cali[N]   = PeakforK40(obj_cali, ofile, time_name[N], 1);
         h_K40_peak_cali->Fill(K40peak_cali[N]);
         h_K40_peak_uncali->Fill(K40peak_uncali[N]);
@@ -136,41 +123,39 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
       h++;
     }
   }
-	
-	//save time name into txt
-	ofstream ofs;
-	ofs.open("time_name.txt");
-	if(!ofs.is_open()){
-					cout<<"Fail to open txt file"<<endl;
-	}else{
-					for(int i=0;i<N;i++){
-									ofs<<time_name[i]<<endl;
-					}
-	}
-	ofs.close();
 
-	//write analysis plots into oAnalyzr.root
-	ofile->cd("Analysis_plot");
+  // save time name into txt
+  ofstream ofs;
+  ofs.open("time_name.txt");
+  if (!ofs.is_open()) {
+    cout << "Fail to open txt file" << endl;
+  } else {
+    for (int i = 0; i < N; i++) {
+      ofs << time_name[i] << endl;
+    }
+  }
+  ofs.close();
 
-	h_K40_peak_uncali->Write();
-	h_K40_peak_cali->Write();
-	h_diff->Write();
+  // write analysis plots into oAnalyzr.root
+  ofile->cd("Analysis_plot");
+
+  h_K40_peak_uncali->Write();
+  h_K40_peak_cali->Write();
+  h_diff->Write();
 
   TGraph *gr = new TGraph(N, x, y);
-	gr->SetName("g_diffvsTime");
-	gr->Write();	
+  gr->SetName("g_diffvsTime");
+  gr->Write();
 
-  TGraph  *corr = new TGraph(N, x, cfactor);
-	corr->SetName("g_cfactor");
-	corr->Write();
+  TGraph *corr = new TGraph(N, x, cfactor);
+  corr->SetName("g_cfactor");
+  corr->Write();
 
   TGraph *g_K40_peak_cali = new TGraph(N, x, K40peak_cali);
-	g_K40_peak_cali->SetName("g_K40_peak_cali");
-	g_K40_peak_cali->Write();
+  g_K40_peak_cali->SetName("g_K40_peak_cali");
+  g_K40_peak_cali->Write();
 
   TGraph *g_K40_peak_uncali = new TGraph(N, x, K40peak_uncali);
-	g_K40_peak_uncali->SetName("g_K40_peak_uncali");
-	g_K40_peak_uncali->Write();
-
-
+  g_K40_peak_uncali->SetName("g_K40_peak_uncali");
+  g_K40_peak_uncali->Write();
 }

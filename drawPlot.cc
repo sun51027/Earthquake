@@ -27,7 +27,7 @@ void Earthquake::DrawPlot()
 {
 
   // load root
-  TFile      *fin = new TFile("oAnalyzer.root");
+  TFile      *fin = new TFile("plots_root/oAnalyzer.root");
   TDirectory *dir = (TDirectory *)fin->Get("Analysis_plot");
   dir->cd();
 
@@ -52,17 +52,21 @@ void Earthquake::DrawPlot()
     time[i].Insert(2, "/");
   }
 
-  TCanvas *c = new TCanvas("canvas", "", 800, 600);
+	//create canvas
+  TCanvas     *c = new TCanvas("c", "", 10, 10, 1500, 900);
+  TPad        *pL = mgr::NewLeftPad();
+  TPad        *pR = mgr::NewRightPad();
 
   // difference vs time
   TGraph *g_diffvsTime = (TGraph *)dir->Get("g_diffvsTime");
+  TH1D *h_diff = (TH1D *)dir->Get("h_diff");
   g_diffvsTime->GetXaxis()->SetLimits(0, N);
   for (int i = 0; i <= N / 60; i++) {
     g_diffvsTime->GetXaxis()->SetBinLabel(i * 60 + 1, time[i * 60]);
   }
   g_diffvsTime->SetTitle("");
   g_diffvsTime->Draw("AP");
-  c->SaveAs("DiffvsTime.pdf");
+  c->SaveAs("plots/DiffvsTime.pdf");
 
   //   Correlation factor
   TGraph *g_cfactor = (TGraph *)dir->Get("g_cfactor");
@@ -71,12 +75,12 @@ void Earthquake::DrawPlot()
   g_cfactor->GetXaxis()->SetLimits(0, N);
   g_cfactor->GetYaxis()->SetTitle("Calibration factor");
   c->SetGridy(1);
-  c->SaveAs("cfactor.pdf");
+  c->SaveAs("plots/cfactor.pdf");
 
   // K40 stability
-  TCanvas     *c3 = new TCanvas("c3", "", 10, 10, 1500, 900);
-  TPad        *pL = mgr::NewLeftPad();
-  TPad        *pR = mgr::NewRightPad();
+  TCanvas     *c2 = new TCanvas("c2", "", 10, 10, 1500, 900);
+  TPad        *pL2 = mgr::NewLeftPad();
+  TPad        *pR2 = mgr::NewRightPad();
   TMultiGraph *mg = new TMultiGraph();
 
   TGraph *g_K40_peak_cali   = (TGraph *)dir->Get("g_K40_peak_cali");
@@ -92,12 +96,12 @@ void Earthquake::DrawPlot()
   g_K40_peak_uncali->SetMarkerStyle(22);
   g_K40_peak_uncali->GetXaxis()->SetLimits(0, N);
 
-  c3->cd();
-  pL->Draw();
-  pR->Draw();
+  c2->cd();
+  pL2->Draw();
+  pR2->Draw();
 
-  c3->cd();
-  pL->cd();
+  c2->cd();
+  pL2->cd();
   mg->Add(g_K40_peak_uncali);
   mg->Add(g_K40_peak_cali);
   for (int i = 0; i <= N / 80; i++) {
@@ -119,8 +123,8 @@ void Earthquake::DrawPlot()
   leg2->Draw();
   gPad->Update();
 
-  c3->cd();
-  pR->cd();
+  c2->cd();
+  pR2->cd();
   h_K40_peak_cali->SetFillColor(kRed);
   h_K40_peak_cali->SetStats(0);
   h_K40_peak_uncali->SetFillColor(kBlue);
@@ -129,10 +133,10 @@ void Earthquake::DrawPlot()
   h_K40_peak_cali->Draw("same hbar");
 
   mgr::SetRightPlotAxis(h_K40_peak_uncali);
-  pR->Modified();
-  pL->Modified();
-  c3->SetGridy(1);
-  c3->Modified();
-  c3->SaveAs("plots/K40_cali_vs_uncali_beforeSep.pdf");
-  delete c3;
+  pR2->Modified();
+  pL2->Modified();
+  c2->SetGridy(1);
+  c2->Modified();
+  c2->SaveAs("plots/K40_cali_vs_uncali.pdf");
+  delete c2;
 }
