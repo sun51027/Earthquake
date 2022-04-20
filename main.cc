@@ -12,6 +12,7 @@ int main()
   ofile->mkdir("cali_Hist");
   ofile->mkdir("K40_uncali_fit");
   ofile->mkdir("K40_cali_fit");
+  ofile->mkdir("Analysis_plot");
   ofile->cd();
   // inputfile
   TFile      *fin1 = new TFile("plots_root/output.root");
@@ -19,7 +20,7 @@ int main()
   dir->cd();
 
   // get template
-  TFile *fin2     = new TFile("plots_root/template_beforeSep.root");
+  TFile *fin2     = new TFile("plots_root/template.root");
   TH1D   *Template = (TH1D*)fin2->Get("Template");
 
   Earthquake EQ;

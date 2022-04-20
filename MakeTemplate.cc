@@ -26,6 +26,19 @@ const double Earthquake::minK40   = 1.3;
 const double Earthquake::maxK40   = 1.5;
 const double Earthquake::minRadon = 0.25;
 const double Earthquake::maxRadon = 0.8;
+TH1 *Earthquake::SetZeroBinContent(TH1 *hist)
+{
+
+  for (int i = 0; i < hist->GetNbinsX(); i++) {
+    if (hist->GetBinContent(i) == 0 && hist->GetBinContent(i + 1) == 0 && hist->GetBinContent(i + 2) == 0) {
+      continue;
+    } else if (hist->GetBinContent(i) == 0) {
+      hist->SetBinContent(i, (hist->GetBinContent(i - 1) + hist->GetBinContent(i + 1)) / 2);
+    }
+  }
+
+  return hist;
+}
 TH1* Earthquake::AddHist(TDirectory *dir)
 {
   int count = 0;
@@ -48,7 +61,7 @@ TH1* Earthquake::AddHist(TDirectory *dir)
                                                      // obj
       double obj_K40 = obj->Integral();
 
-      if (count > 1800) { // start from 9/15
+      if (count < 1800) { // start from 9/15
         Template->Add(obj);
       }
       delete obj;
@@ -63,10 +76,11 @@ TH1* Earthquake::AddHist(TDirectory *dir)
 }
 
 
-int main()
+//int main()
+void makeTemplate()
 {
 
-  TFile *ofile = new TFile("template.root", "recreate");
+  TFile *ofile = new TFile("template_beforeSep.root", "recreate");
   ofile->mkdir("stability_K40");
   ofile->mkdir("cali_Hist");
 
@@ -82,7 +96,8 @@ int main()
   Template      = EQ.SetZeroBinContent(Template);
 	ofile->cd();
 	Template->Write("Template");
-  EQ.Calibration(Template, ofile,"Template_cali");
-	EQ.Stability_K40(Template,ofile,"Template_stab");
+  EQ.PeakforCalibration(Template, ofile,"Template_cal");
+	EQ.PeakforK40(Template,ofile,"Template_K40",0);
+//	return 0;
 	 
 }

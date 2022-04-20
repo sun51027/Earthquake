@@ -61,7 +61,7 @@ TH1* Earthquake::AddHist(TDirectory *dir)
                                                      // obj
       double obj_K40 = obj->Integral();
 
-      if (count < 1800) { // start from 9/15
+      if (count < 720) { // start from 9/15
         Template->Add(obj);
       }
       delete obj;
@@ -80,7 +80,7 @@ int main()
 //void makeTemplate()
 {
 
-  TFile *ofile = new TFile("template_beforeSep.root", "recreate");
+  TFile *ofile = new TFile("../plots_root/template_beforeJuly.root", "recreate");
   ofile->mkdir("stability_K40");
   ofile->mkdir("cali_Hist");
 
@@ -96,8 +96,10 @@ int main()
   Template      = EQ.SetZeroBinContent(Template);
 	ofile->cd();
 	Template->Write("Template");
-  EQ.PeakforCalibration(Template, ofile,"Template_cal");
-	EQ.PeakforK40(Template,ofile,"Template_K40",0);
+  double cali_peak = EQ.PeakforCalibration(Template, ofile,"Template_cal");
+	double K40_peak = EQ.PeakforK40(Template,ofile,"Template_K40",0);
+	cout<<"cali_peak "<<cali_peak<<"  K40_peak "<<K40_peak<<endl;
+	
 	return 0;
 	 
 }

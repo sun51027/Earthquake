@@ -78,8 +78,8 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
       obj       = (TH1 *)dir2->Get(key2->GetName()); // copy every th1 histogram to
       obj       = SetZeroBinContent(obj);            // fill the empty bin with average of adjacent bins
 
-      if (h < 1800 && obj->Integral() != 0) { // start from 9/15 h=1800 h> 1799)
-//      if (obj->Integral() != 0) { // start from 9/15 h=1800)
+      //      if (h < 720 && obj->Integral() != 0) { // before July
+      if (h > 1799 && obj->Integral() != 0) { // start from 9/15 h=1800)
 
         // set hist name ex. 12/25;  daily_name = 2021122522
         hist_name[N].Form("%s", key->GetName());
@@ -89,8 +89,11 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         daily_name[N].Remove(10, 4);
 
         // get the calibration factor
-        peakforCali[N] = PeakforCalibration(obj, ofile, daily_name[N]); // ex 2.1
-        cfactor[N]     = 2.22198 / peakforCali[N];                      // ex. 1.06
+        peakforCali[N] = PeakforCalibration(obj, ofile, daily_name[N]);
+        cfactor[N]     = 2.22198 / peakforCali[N];                      // After Sep
+        //        cfactor[N]     = 2.24337 / peakforCali[N];            // Apr-Aug
+        //        cfactor[N]     = 2.25117 / peakforCali[N];             // Apr-Jun
+        //
         for (int k = 0; k < 1024; k++) {
           nMoveBin_K40[k] = (1 - cfactor[N]) * obj->GetBinCenter(k + 1) / energyBin;
         }
@@ -101,11 +104,11 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
           obj_cali->SetBinContent(j + 1, obj->GetBinContent(j + 1 + (int)nMoveBin_K40[j]));
 
           if ((int)nMoveBin_K40[j] != 0) {
-            cout << "obj " << obj->GetBinContent(j + 1) << "\t" << (int)nMoveBin_K40[j] << "\t obj_cali "
-                 << obj_cali->GetBinContent(j + 1) << endl;
+          //  cout << "obj " << obj->GetBinContent(j + 1) << "\t" << (int)nMoveBin_K40[j] << "\t obj_cali "
+          //       << obj_cali->GetBinContent(j + 1) << endl;
           }
         }
-        K40peak_uncali[N] = PeakforK40(obj, ofile, daily_name[N], 0); // ex. 1.41
+        K40peak_uncali[N] = PeakforK40(obj, ofile, daily_name[N], 0); 
         K40peak_cali[N]   = PeakforK40(obj_cali, ofile, daily_name[N], 1);
         h_K40_peak_cali->Fill(K40peak_cali[N]);
         h_K40_peak_uncali->Fill(K40peak_uncali[N]);
@@ -147,6 +150,8 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   c->SaveAs("plots/h_diff.pdf");
 
   TGraph *gr = new TGraph(N, x, y);
+	ofile->cd("Analysis_plot");
+	gr->Write();	
   gr->GetXaxis()->SetLimits(0, N);
   for (int i = 0; i <= N / 60; i++) {
     gr->GetXaxis()->SetBinLabel(i * 60 + 1, hist_name[i * 60]);
@@ -168,6 +173,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   corr->GetYaxis()->SetTitle("Calibration factor");
   c2->SetGridy(1);
   c2->SaveAs("plots/cfactor_beforSep.pdf");
+	corr->Write();
   delete c2;
 
   // see if K40 is K40_peak around 1.4 MeV (peak)after calibration
@@ -180,11 +186,12 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   g_K40_peak_cali->SetMarkerColorAlpha(kRed, 1);
   g_K40_peak_cali->SetMarkerStyle(8);
   g_K40_peak_cali->GetXaxis()->SetLimits(0, N);
-
+	g_K40_peak_cali->Write();
   TGraph *g_K40_peak_uncali = new TGraph(N, x, K40peak_uncali);
   g_K40_peak_uncali->SetMarkerColor(kBlue);
   g_K40_peak_uncali->SetMarkerStyle(22);
   g_K40_peak_uncali->GetXaxis()->SetLimits(0, N);
+	g_K40_peak_uncali->Write();
 
   c3->cd();
   pL->Draw();
@@ -221,6 +228,8 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   h_K40_peak_uncali->SetStats(0);
   h_K40_peak_uncali->Draw("hbar");
   h_K40_peak_cali->Draw("same hbar");
+	h_K40_peak_uncali->Write();
+	h_K40_peak_cali->Write();
 
   mgr::SetRightPlotAxis(h_K40_peak_uncali);
   pR->Modified();
