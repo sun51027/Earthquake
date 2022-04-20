@@ -31,6 +31,7 @@ public:
   void WriteFile(TH1 *obj, TFile *ofile) { obj->Write(); }
   double PeakforCalibration(TH1 *obj, TFile *ofile, TString hist_name);
   double PeakforK40(TH1 *obj, TFile *ofile, TString hist_name, bool flag);
+	void DrawPlot();
 
   static const double minK40; // 1.3
   static const double maxK40; // 1.5
