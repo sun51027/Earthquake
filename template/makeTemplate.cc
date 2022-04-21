@@ -26,7 +26,7 @@ const double Earthquake::minK40   = 1.3;
 const double Earthquake::maxK40   = 1.5;
 const double Earthquake::minRadon = 0.25;
 const double Earthquake::maxRadon = 0.8;
-TH1 *Earthquake::SetZeroBinContent(TH1 *hist)
+TH1         *Earthquake::SetZeroBinContent(TH1 *hist)
 {
 
   for (int i = 0; i < hist->GetNbinsX(); i++) {
@@ -39,7 +39,7 @@ TH1 *Earthquake::SetZeroBinContent(TH1 *hist)
 
   return hist;
 }
-TH1* Earthquake::AddHist(TDirectory *dir)
+TH1 *Earthquake::AddHist(TDirectory *dir)
 {
   int count = 0;
 
@@ -59,9 +59,8 @@ TH1* Earthquake::AddHist(TDirectory *dir)
       auto key2 = (TKey *)keyAsObj2;
       obj       = (TH1 *)dir2->Get(key2->GetName()); // copy every th1 histogram to
                                                      // obj
-      double obj_K40 = obj->Integral();
 
-      if (count < 720) { // start from 9/15
+      if (count <= 1799) { // start from 9/15
         Template->Add(obj);
       }
       delete obj;
@@ -75,31 +74,31 @@ TH1* Earthquake::AddHist(TDirectory *dir)
   return Template;
 }
 
-
 int main()
-//void makeTemplate()
+// void makeTemplate()
 {
 
-  TFile *ofile = new TFile("../plots_root/template_beforeJuly.root", "recreate");
-  ofile->mkdir("stability_K40");
-  ofile->mkdir("cali_Hist");
+  TFile *ofile = new TFile("../plots_root/template_Apr-Sep.root", "recreate");
+  ofile->mkdir("K40_peak");
+  ofile->mkdir("cali_peak");
 
   TFile      *file = new TFile("../plots_root/output.root");
   TDirectory *dir  = (TDirectory *)file->Get("HistoCh0");
   dir->cd();
-	// init
-	Earthquake EQ;
+  // init
+  Earthquake EQ;
 
   // make a template
   TH1 *Template;
- 	Template	= EQ.AddHist(dir);
-  Template      = EQ.SetZeroBinContent(Template);
-	ofile->cd();
-	Template->Write("Template");
-  double cali_peak = EQ.PeakforCalibration(Template, ofile,"Template_cal");
-	double K40_peak = EQ.PeakforK40(Template,ofile,"Template_K40",0);
-	cout<<"cali_peak "<<cali_peak<<"  K40_peak "<<K40_peak<<endl;
-	
-	return 0;
-	 
+  Template = EQ.AddHist(dir);
+  Template = EQ.SetZeroBinContent(Template);
+  ofile->cd();
+  Template->Write("Template");
+  double caliPeak = EQ.PeakforCalibration(Template, ofile, "cali_peak");
+  double K40Peak  = EQ.PeakforK40(Template, ofile, "K40_peak", 0);
+	cout<<"\n\n\n";
+  cout << "cali_peak " << caliPeak<< "  K40_peak " << K40Peak << endl;
+	cout<<"\n\n\n";
+
+  return 0;
 }
