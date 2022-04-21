@@ -31,13 +31,19 @@ using namespace std;
 //const double Earthquake::maxRadon = 0.8;
 
 
-double Earthquake::FittingGaus(TH1 *h_diff)
+double Earthquake::FittingGausSigma(TH1 *h_diff)
 {
   h_diff->Fit("gaus");
   double sigma = h_diff->GetFunction("gaus")->GetParameter(2);
   return sigma;
 }
 
+double Earthquake::FittingGausPeak(TH1 *h_diff)
+{
+  h_diff->Fit("gaus");
+  double peak = h_diff->GetFunction("gaus")->GetParameter(1);
+  return peak;
+}
 
 double Earthquake::PeakforCalibration(TH1 *obj, TFile *ofile, TString hist_name)
 {

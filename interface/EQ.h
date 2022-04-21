@@ -28,6 +28,8 @@ public:
   double FittingGaus(TH1 *h_diff);
   void   DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile);
   void   WriteFile(TH1 *obj, TFile *ofile) { obj->Write(); }
+	double FittingGausSigma(TH1 *h_diff);
+	double FittingGausPeak(TH1 *h_diff);
   double PeakforCalibration(TH1 *obj, TFile *ofile, TString hist_name);
   double PeakforK40(TH1 *obj, TFile *ofile, TString hist_name, bool flag);
   void   DrawPlot();
@@ -38,19 +40,29 @@ public:
   static const double maxRadon;
 
 private:
+
+	//Histogram
   TH1D    *h_K40_peak_cali;
   TH1D    *h_K40_peak_uncali;
   TH1D    *h_diff;
+
+	//Graph
+	TGraph		*g_sigma_significant;
+
+	//variables
   double   K40_template = 0;
-  Double_t x[4000], y[4000];
+  Double_t N_[4000], diff_[4000];
   double   cfactor[4000];
   double   K40peak_cali[4000];
   double   K40peak_uncali[4000];
   double   peakforCali[4000]; // 2.2MeV, unknown peak
   double   nMoveBin_K40[4000];
-  double   energyBin = 5. / 1024.;
-  int      N         = 0;
-  int      h         = 0; // # of hour
+  double   energyBin   = 5. / 1024.;
+  int      N           = 0;
+  int      h           = 0; // # of hour
+  double   fluct_peak  = 0;
+  double   fluct_sigma = 0;
+	double 	 sigma_[4000];
 
   TString time_name[2500];
 };

@@ -44,7 +44,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 
   h_K40_peak_cali   = new TH1D("h_K40_peak_cali", "", 100, 1.37, 1.44);
   h_K40_peak_uncali = new TH1D("h_K40_peak_uncali", "", 100, 1.37, 1.44);
-  h_diff            = new TH1D("h_diff", "", 100, -10000, 10000);
+  h_diff            = new TH1D("h_diff", "", 100, -20000, 20000);
   K40_template      = Template->Integral(Template->GetXaxis()->FindBin(minK40), Template->GetXaxis()->FindBin(maxK40));
 
   TKey *keyAsObj, *keyAsObj2;
@@ -95,15 +95,15 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         h_K40_peak_cali->Fill(K40peak_cali[N]);
         h_K40_peak_uncali->Fill(K40peak_uncali[N]);
 
-        /*----------------------------------
-         *
-         *			After calibration
-         *
-         * --------------------------------*/
+        /**********************************************************
+            After the calibration, calculate the difference
+            between template and each plots.
+         **********************************************************/
 
         // Normalize template to yiels of every hour (use K40)
         double K40_obj_cali =
           obj_cali->Integral(obj_cali->GetXaxis()->FindBin(minK40), obj_cali->GetXaxis()->FindBin(maxK40));
+
         TH1D *scaledTemplate = (TH1D *)(Template->Clone("scaledTemplate"));
         scaledTemplate->Scale(K40_obj_cali / K40_template); // template scale to same as the hourly plot
 
@@ -112,9 +112,11 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         double nDailySig =
           obj_cali->Integral(obj_cali->GetXaxis()->FindBin(minRadon), obj_cali->GetXaxis()->FindBin(maxRadon));
         double diff = nDailySig - nTemplateSig;
-        x[N]        = (double)(N + 1); // number of 2hour
-        y[N]        = diff;
+        N_[N]       = (double)(N + 1); // number of 2hour
+        diff_[N]    = diff;
         h_diff->Fill(diff);
+
+        // calculate the sigma
 
         delete obj;
         delete scaledTemplate;
@@ -123,6 +125,29 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
       h++;
     }
   }
+
+  /**********************************************************
+      Calculate the sigma between template and each plots.
+   **********************************************************/
+
+  fluct_peak  = Earthquake::FittingGausPeak(h_diff);
+  fluct_sigma = Earthquake::FittingGausSigma(h_diff);
+  for (int i = 0; i < N; i++) {
+    if (diff_[i] < fluct_peak)
+      sigma_[i] = 0;
+    else {
+      sigma_[i] = (diff_[i] - fluct_peak) / fluct_sigma;
+      cout << "diff_[" << i << "] " << diff_[i] << "\t - peak " << fluct_peak << "\t / sigma " << fluct_sigma
+           << "  = sigma[" << i << "] = " << sigma_[i] << endl;
+    }
+  }
+	g_sigma_significant = new TGraph(N,N_,sigma_);
+
+	
+
+  /**********************************************************
+      Write object into output files
+   **********************************************************/
 
   // save time name into txt
   ofstream ofs;
@@ -143,19 +168,22 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   h_K40_peak_cali->Write();
   h_diff->Write();
 
-  TGraph *gr = new TGraph(N, x, y);
+	g_sigma_significant->SetName("g_sigma_significant");
+	g_sigma_significant->Write();
+
+  TGraph *gr = new TGraph(N, N_, diff_);
   gr->SetName("g_diffvsTime");
   gr->Write();
 
-  TGraph *corr = new TGraph(N, x, cfactor);
+  TGraph *corr = new TGraph(N, N_, cfactor);
   corr->SetName("g_cfactor");
   corr->Write();
 
-  TGraph *g_K40_peak_cali = new TGraph(N, x, K40peak_cali);
+  TGraph *g_K40_peak_cali = new TGraph(N, N_, K40peak_cali);
   g_K40_peak_cali->SetName("g_K40_peak_cali");
   g_K40_peak_cali->Write();
 
-  TGraph *g_K40_peak_uncali = new TGraph(N, x, K40peak_uncali);
+  TGraph *g_K40_peak_uncali = new TGraph(N, N_, K40peak_uncali);
   g_K40_peak_uncali->SetName("g_K40_peak_uncali");
   g_K40_peak_uncali->Write();
 }
