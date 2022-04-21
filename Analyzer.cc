@@ -171,19 +171,19 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 	g_sigma_significant->SetName("g_sigma_significant");
 	g_sigma_significant->Write();
 
-  TGraph *gr = new TGraph(N, N_, diff_);
-  gr->SetName("g_diffvsTime");
-  gr->Write();
+  g_diffvsTime = new TGraph(N, N_, diff_);
+  g_diffvsTime->SetName("g_diffvsTime");
+  g_diffvsTime->Write();
 
-  TGraph *corr = new TGraph(N, N_, cfactor);
-  corr->SetName("g_cfactor");
-  corr->Write();
+  g_cfactor = new TGraph(N, N_, cfactor);
+  g_cfactor->SetName("g_cfactor");
+  g_cfactor->Write();
 
-  TGraph *g_K40_peak_cali = new TGraph(N, N_, K40peak_cali);
+  g_K40_peak_cali = new TGraph(N, N_, K40peak_cali);
   g_K40_peak_cali->SetName("g_K40_peak_cali");
   g_K40_peak_cali->Write();
 
-  TGraph *g_K40_peak_uncali = new TGraph(N, N_, K40peak_uncali);
+  g_K40_peak_uncali = new TGraph(N, N_, K40peak_uncali);
   g_K40_peak_uncali->SetName("g_K40_peak_uncali");
   g_K40_peak_uncali->Write();
 }

@@ -48,6 +48,10 @@ private:
 
 	//Graph
 	TGraph		*g_sigma_significant;
+	TGraph		*g_diffvsTime;
+	TGraph    *g_cfactor;
+	TGraph		*g_K40_peak_cali;
+	TGraph		*g_K40_peak_uncali;
 
 	//variables
   double   K40_template = 0;
