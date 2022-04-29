@@ -17,6 +17,7 @@ using namespace std;
 #include "TMultiGraph.h"
 #include "TPad.h"
 #include "TLegend.h"
+#include "TLatex.h"
 #include "TH1D.h"
 #include "TKey.h"
 #include "TStyle.h"
@@ -171,12 +172,12 @@ void Earthquake::DrawPlot()
   g_cfactor->SetMarkerStyle(20);
   g_cfactor->SetMaximum(1.01); // 1.01
   g_cfactor->SetMinimum(0.99); // 0.98
+  //mgr::SetLeftPlotAxis(g_cfactor);
   g_cfactor->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 29) * 60 * 60 * 2);
   g_cfactor->GetYaxis()->SetTitle("calibration factor");
   g_cfactor->GetXaxis()->SetTitle("Time (mm/dd)");
   g_cfactor->GetXaxis()->SetTimeDisplay(1);
   g_cfactor->GetXaxis()->SetTimeFormat("%d/%m %F2021-09-15 00:00:00");
-  mgr::SetLeftPlotAxis(g_cfactor);
 
   c3->cd();
   pR3->cd();
@@ -195,14 +196,14 @@ void Earthquake::DrawPlot()
 
   /*----------------------------------------------*/
   // sigma significant
-  TCanvas *c4 = new TCanvas("c4", "", 800, 600);
+  TCanvas *c4 = new TCanvas("c4", "", 1200, 600);
   g_sigma_significant->SetTitle("");
-  g_sigma_significant->SetMaximum(8);
+  g_sigma_significant->SetMaximum(9);
   g_sigma_significant->SetMinimum(0);
-  g_sigma_significant->Draw("AC");
+  g_sigma_significant->Draw("");
   g_sigma_significant->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 29) * 60 * 60 * 2);
   g_sigma_significant->GetXaxis()->SetTitle("Time (mm/dd)");
-  g_sigma_significant->GetYaxis()->SetTitle("#sigma");
+  g_sigma_significant->GetYaxis()->SetTitle("No. of #sigma");
   g_sigma_significant->GetXaxis()->SetTitleOffset(1.6);
   g_sigma_significant->GetXaxis()->SetTimeDisplay(1);
   g_sigma_significant->GetXaxis()->SetTimeFormat("%d/%m %F2021-09-15 00:00:00");
@@ -213,19 +214,36 @@ void Earthquake::DrawPlot()
 
   /*----------------------------------------------*/
   // p value
-  TCanvas *c5 = new TCanvas("c5", "", 800, 600);
+  TCanvas *c5 = new TCanvas("c5", "", 1200, 600);
   g_pvalue->SetTitle("");
   g_pvalue->SetMaximum(1);
   g_pvalue->SetMinimum(1e-13);
-  g_pvalue->Draw("AC");
-	g_pvalue->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 29) * 60 * 60 * 2);
+  g_pvalue->Draw("");
+  g_pvalue->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 80) * 60 * 60 * 2);
   g_pvalue->GetXaxis()->SetTitle("Time (mm/dd)");
   g_pvalue->GetYaxis()->SetTitle("p-value");
-  g_pvalue->GetXaxis()->SetTitleOffset(1.6);
+  //g_pvalue->GetXaxis()->SetTitleOffset(1.6);
   g_pvalue->GetXaxis()->SetTimeDisplay(1);
   g_pvalue->GetXaxis()->SetTimeFormat("%d/%m %F2021-09-015 00:00:00");
+  for (int i = 0; i < 7; i++) {
+    double p = 0.5 * (1 - TMath::Erf((i + 1) / sqrt(2)));
+    TLine *l = new TLine(-30 * 60 * 60 * 2, p, (N + 80) * 60 * 60 * 2, p);
+    l->SetLineStyle(7);
+    l->SetLineColor(kRed);
+    l->SetLineWidth(1);
+    l->Draw();
+		TString s;
+		s.Form("%i",i+1);
+    TLatex *tv1 = new TLatex((N+15) * 60 * 60 * 2, p,s+" #sigma");
+    tv1->SetTextAlign(11);
+		tv1->SetTextColor(kRed);
+    tv1->SetTextSize(0.04);
+    tv1->SetTextFont(12);
+    tv1->Draw();
+  }
+
   c5->SetLogy();
-  c5->SetGrid(1, 1);
+  c5->SetTicks(1, 1);
   c5->Modified();
   c5->SaveAs("plots/p-value.pdf");
   delete c5;
