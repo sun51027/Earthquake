@@ -27,11 +27,11 @@ using namespace mgr;
 void Earthquake::DrawPlot()
 {
 		
-  TCanvas *c_  = new TCanvas("c_", "", 10, 10, 800,600);
-//		h_diff->Draw();
-//		c_->SaveAs("h_diff.pdf");
-		g_cfactor_cali->Draw();
-		c_->SaveAs("cfactor_cali.pdf");
+//  TCanvas *c_  = new TCanvas("c_", "", 10, 10, 800,600);
+////		h_diff->Draw();
+////		c_->SaveAs("h_diff.pdf");
+//		g_cfactor_cali->Draw();
+//		c_->SaveAs("cfactor_cali.pdf");
   /*----------------------------------------------*/
 
   // difference vs time

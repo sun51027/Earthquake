@@ -47,6 +47,7 @@ private:
   TH1D    *h_K40_peak_uncali;
   TH1D    *h_diff;
   TH1D    *h_cfactor;
+  TH1D    *h_cfactor_cali;
 
 	//Graph
 	TGraph		*g_diffvsTime;
