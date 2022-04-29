@@ -24,10 +24,10 @@ using namespace std;
 // using namespace mgr;
 //#define DEBUG
 
-//const double Earthquake::MINK40   = 1.3;//K40 +- sigma
-//const double Earthquake::MAXK40   = 1.5;
-//const double Earthquake::MINRADON = 0.25;
-//const double Earthquake::MAXRADON = 0.8;
+// const double Earthquake::MINK40   = 1.3;//K40 +- sigma
+// const double Earthquake::MAXK40   = 1.5;
+// const double Earthquake::MINRADON = 0.25;
+// const double Earthquake::MAXRADON = 0.8;
 
 TH1 *Earthquake::SetZeroBinContent(TH1 *hist)
 {
@@ -45,10 +45,11 @@ TH1 *Earthquake::SetZeroBinContent(TH1 *hist)
 void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 {
 
-  h_K40_peak_cali   = new TH1D("h_K40_peak_cali", "", 100, 1.37, 1.44);//before Sep 1.37-1.48
+  h_K40_peak_cali   = new TH1D("h_K40_peak_cali", "", 100, 1.37, 1.44); // before Sep 1.37-1.48
   h_K40_peak_uncali = new TH1D("h_K40_peak_uncali", "", 100, 1.37, 1.44);
   h_diff            = new TH1D("h_diff", "", 100, -20000, 20000);
-  h_cfactor         = new TH1D("h_cfactor", "", 100, 0.99, 1.01);//befor Sep 0.98-1.01
+  h_cfactor         = new TH1D("h_cfactor", "", 100, 0.99, 1.01); // befor Sep 0.98-1.01
+  h_cfactor_cali    = new TH1D("h_cfactor", "", 100, 0.99, 1.01); // befor Sep 0.98-1.01
   K40_template      = Template->Integral(Template->GetXaxis()->FindBin(MINK40), Template->GetXaxis()->FindBin(MAXK40));
 
   TKey *keyAsObj, *keyAsObj2;
@@ -76,28 +77,26 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 
         // get the calibration factor
         peakforCali[N] = PeakforCalibration(obj, ofile, time_name[N]);
-        cfactor[N]     = 2.22198 / peakforCali[N]; // After Sep
-        // cfactor[N]     = 2.24337 / peakforCali[N];            // Apr-Aug
-        // cfactor[N]     = 2.25117 / peakforCali[N];             // Apr-Jun
-        //
+        cfactor[N]     = PEAKFORCALI / peakforCali[N]; // After Sep
         h_cfactor->Fill(cfactor[N]);
+
         for (int k = 0; k < 1024; k++) {
           nMoveBin_K40[k] = (1 - cfactor[N]) * obj->GetBinCenter(k + 1) / energyBin;
         }
-				
+
         // calibrate hourly and show K40 peak
         TH1D *obj_cali = (TH1D *)(obj->Clone("obj_cali"));
         for (int j = 0; j < 1024; j++) {
-          obj_cali->SetBinContent(j + 1, obj->GetBinContent(j + 1 + (int)nMoveBin_K40[j]));
+          obj_cali->SetBinContent(j + 1, obj->GetBinContent(j + 1 + nMoveBin_K40[j]));
 
-          if ((int)nMoveBin_K40[j] != 0) {
-            //  cout << "obj " << obj->GetBinContent(j + 1) << "\t" << (int)nMoveBin_K40[j] << "\t obj_cali "
-            //       << obj_cali->GetBinContent(j + 1) << endl;
+          if (nMoveBin_K40[j] != 0) {
+              cout << "obj " << obj->GetBinContent(j + 1) << "\t" << nMoveBin_K40[j] << "\t obj_cali "
+                   << obj_cali->GetBinContent(j + 1) << endl;
           }
         }
 
-				cfactor_cali[N] = 2.22198/PeakforCalibration(obj_cali, ofile, time_name[N]);
-
+        cfactor_cali[N] = PEAKFORCALI/ PeakforCalibration(obj_cali, ofile, time_name[N]);
+        h_cfactor_cali->Fill(cfactor_cali[N]);
         K40peak_uncali[N] = PeakforK40(obj, ofile, time_name[N], 0);
         K40peak_cali[N]   = PeakforK40(obj_cali, ofile, time_name[N], 1);
         h_K40_peak_cali->Fill(K40peak_cali[N]);
@@ -120,9 +119,9 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         double nDailySig =
           obj_cali->Integral(obj_cali->GetXaxis()->FindBin(MINRADON), obj_cali->GetXaxis()->FindBin(MAXRADON));
         double diff = nDailySig - nTemplateSig;
-        //N_[N]       = (double)(N + 1); // number of 2hour
-        N_[N]       = (double)(N + 1)*60*60*2; // number of 2hour
-        diff_[N]    = diff;
+        // N_[N]       = (double)(N + 1); // number of 2hour
+        N_[N]    = (double)(N + 1) * 60 * 60 * 2; // number of 2hour
+        diff_[N] = diff;
         h_diff->Fill(diff);
 
         // calculate the sigma
@@ -135,7 +134,6 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
     }
   }
 
-	
   g_diffvsTime      = new TGraph(N, N_, diff_);
   g_cfactor         = new TGraph(N, N_, cfactor);
   g_cfactor_cali    = new TGraph(N, N_, cfactor_cali);
@@ -156,15 +154,15 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
       sigma_[i]   = (diff_[i] - fluct_peak) / fluct_sigma;
       p_value_[i] = 0.5 * (1 - TMath::Erf(sigma_[i] / sqrt(2)));
     }
-//    cout << "diff_[" << i << "] " << diff_[i] << "\t - peak " << fluct_peak << "\t / sigma " << fluct_sigma
-//         << "  = sigma[" << i << "] = " << sigma_[i] << " p-value " << p_value_[i] << endl;
+    //    cout << "diff_[" << i << "] " << diff_[i] << "\t - peak " << fluct_peak << "\t / sigma " << fluct_sigma
+    //         << "  = sigma[" << i << "] = " << sigma_[i] << " p-value " << p_value_[i] << endl;
   }
   g_sigma_significant = new TGraph(N, N_, sigma_);
   g_pvalue            = new TGraph(N, N_, p_value_);
-//	for(int i = 0 ;i<N;i++){
-//					cout<<"sigma["<<i<<"] "<<g_sigma_significant->GetPointY(i)<<"\t\t";
-//					cout<<"pvalue["<<i<<"] "<<g_pvalue->GetPointY(i)<<endl;
-//	}
+  //	for(int i = 0 ;i<N;i++){
+  //					cout<<"sigma["<<i<<"] "<<g_sigma_significant->GetPointY(i)<<"\t\t";
+  //					cout<<"pvalue["<<i<<"] "<<g_pvalue->GetPointY(i)<<endl;
+  //	}
 
   /**********************************************************
       Write object into output files
