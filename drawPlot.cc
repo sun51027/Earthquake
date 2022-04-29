@@ -85,12 +85,10 @@ void Earthquake::DrawPlot()
 
   g_K40_peak_cali->SetMarkerColorAlpha(kRed, 1);
   g_K40_peak_cali->SetMarkerStyle(8);
-  //  g_K40_peak_cali->GetXaxis()->SetLimits(0, N);
   mgr::SetLeftPlotAxis(g_K40_peak_cali);
 
   g_K40_peak_uncali->SetMarkerColor(kBlue);
   g_K40_peak_uncali->SetMarkerStyle(22);
-  //  g_K40_peak_uncali->GetXaxis()->SetLimits(0, N);
   mgr::SetLeftPlotAxis(g_K40_peak_uncali);
 
   c2->cd();
@@ -147,26 +145,46 @@ void Earthquake::DrawPlot()
   c3->cd();
   pL3->cd();
 
-  g_cfactor->SetTitle("");
-  g_cfactor->Draw("AP");
   g_cfactor->SetMarkerColor(kBlue);
   g_cfactor->SetMarkerStyle(20);
-  g_cfactor->SetMaximum(1.01); // 1.01
-  g_cfactor->SetMinimum(0.99); // 0.98
-  //mgr::SetLeftPlotAxis(g_cfactor);
-  g_cfactor->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 29) * 60 * 60 * 2);
-  g_cfactor->GetYaxis()->SetTitle("calibration factor");
-  g_cfactor->GetXaxis()->SetTitle("Time (mm/dd)");
-  g_cfactor->GetXaxis()->SetTimeDisplay(1);
-  g_cfactor->GetXaxis()->SetTimeFormat("%d/%m %F2021-09-15 00:00:00");
+  mgr::SetLeftPlotAxis(g_cfactor);
+
+  g_cfactor_cali->SetMarkerColor(kRed);
+  g_cfactor_cali->SetMarkerStyle(20);
+  mgr::SetLeftPlotAxis(g_cfactor_cali);
+
+  TMultiGraph *mg2  = new TMultiGraph();
+	mg2->Add(g_cfactor_cali);
+	mg2->Add(g_cfactor);
+  mg2->SetTitle("");
+  mg2->SetMaximum(1.01); // 1.01
+  mg2->SetMinimum(0.99); // 0.98
+  mg2->Draw("AP");
+  mg2->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 29) * 60 * 60 * 2);
+  mg2->GetYaxis()->SetTitle("calibration factor");
+  mg2->GetXaxis()->SetTitle("Time (mm/dd)");
+  mg2->GetXaxis()->SetTimeDisplay(1);
+  mg2->GetXaxis()->SetTimeFormat("%d/%m %F2021-09-15 00:00:00");
+
+  TLegend *leg3 = new TLegend(0.65, 0.65, 0.80, 0.80);
+  leg3->SetBorderSize(0);
+  leg3->SetTextSize(0.04);
+  leg3->SetFillColorAlpha(0, 0);
+  leg3->AddEntry(g_cfactor, "un-cali", "p");
+  leg3->AddEntry(g_cfactor_cali, "Cali", "p");
+  leg3->Draw();
 
   c3->cd();
   pR3->cd();
 
-  h_cfactor->Draw("hbar");
+  h_cfactor_cali->Draw("hbar");
+  h_cfactor->Draw("hbar same");
   h_cfactor->SetFillColor(kBlue);
   h_cfactor->SetStats(0);
-  mgr::SetRightPlotAxis(h_cfactor);
+  h_cfactor_cali->SetFillColor(kRed);
+  h_cfactor_cali->SetStats(0);
+  mgr::SetRightPlotAxis(h_cfactor_cali);
+
 
   pR3->Modified();
   pL3->Modified();
