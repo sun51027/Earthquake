@@ -26,31 +26,12 @@ using namespace mgr;
 
 void Earthquake::DrawPlot()
 {
-
-  // load root
-  // TFile      *fin = new TFile("plots_root/oAnalyzer.root");
-
-  // load plot_name.txt
-  ifstream ifs;
-  ifs.open("time_name.txt", std::ios::in);
-  vector<TString> time;
-  if (!ifs.is_open()) {
-    cout << "fail to open file." << endl;
-  } else {
-    while (!ifs.eof()) {
-      string s;
-      getline(ifs, s);
-      time.push_back(s); // 2021122500
-    }
-  }
-  ifs.close();
-  int N = time.size();
-  for (int i = 0; i < N; i++) {
-    time[i].Remove(8, 2);
-    time[i].Remove(0, 4);
-    time[i].Insert(2, "/");
-  }
-
+		
+  TCanvas *c_  = new TCanvas("c_", "", 10, 10, 800,600);
+//		h_diff->Draw();
+//		c_->SaveAs("h_diff.pdf");
+		g_cfactor_cali->Draw();
+		c_->SaveAs("cfactor_cali.pdf");
   /*----------------------------------------------*/
 
   // difference vs time
@@ -86,7 +67,7 @@ void Earthquake::DrawPlot()
   h_diff->Draw("hbar");
   h_diff->SetFillColor(kBlue);
   h_diff->SetStats(0);
-  mgr::SetRightPlotAxis(h_diff);
+  //mgr::SetRightPlotAxis(h_diff);
 
   pR->Modified();
   pL->Modified();

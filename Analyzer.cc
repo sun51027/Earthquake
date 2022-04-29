@@ -5,6 +5,7 @@ using namespace std;
 #include <cmath>
 // my header
 #include "interface/EQ.h"
+#include "interface/Constants.h"
 
 // ROOT include
 #include "TCanvas.h"
@@ -23,10 +24,10 @@ using namespace std;
 // using namespace mgr;
 //#define DEBUG
 
-const double Earthquake::minK40   = 1.3;
-const double Earthquake::maxK40   = 1.5;
-const double Earthquake::minRadon = 0.25;
-const double Earthquake::maxRadon = 0.8;
+//const double Earthquake::MINK40   = 1.3;//K40 +- sigma
+//const double Earthquake::MAXK40   = 1.5;
+//const double Earthquake::MINRADON = 0.25;
+//const double Earthquake::MAXRADON = 0.8;
 
 TH1 *Earthquake::SetZeroBinContent(TH1 *hist)
 {
@@ -48,7 +49,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   h_K40_peak_uncali = new TH1D("h_K40_peak_uncali", "", 100, 1.37, 1.44);
   h_diff            = new TH1D("h_diff", "", 100, -20000, 20000);
   h_cfactor         = new TH1D("h_cfactor", "", 100, 0.99, 1.01);//befor Sep 0.98-1.01
-  K40_template      = Template->Integral(Template->GetXaxis()->FindBin(minK40), Template->GetXaxis()->FindBin(maxK40));
+  K40_template      = Template->Integral(Template->GetXaxis()->FindBin(MINK40), Template->GetXaxis()->FindBin(MAXK40));
 
   TKey *keyAsObj, *keyAsObj2;
   TIter next(dir->GetListOfKeys());
@@ -83,7 +84,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         for (int k = 0; k < 1024; k++) {
           nMoveBin_K40[k] = (1 - cfactor[N]) * obj->GetBinCenter(k + 1) / energyBin;
         }
-
+				
         // calibrate hourly and show K40 peak
         TH1D *obj_cali = (TH1D *)(obj->Clone("obj_cali"));
         for (int j = 0; j < 1024; j++) {
@@ -94,6 +95,9 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
             //       << obj_cali->GetBinContent(j + 1) << endl;
           }
         }
+
+				cfactor_cali[N] = 2.22198/PeakforCalibration(obj_cali, ofile, time_name[N]);
+
         K40peak_uncali[N] = PeakforK40(obj, ofile, time_name[N], 0);
         K40peak_cali[N]   = PeakforK40(obj_cali, ofile, time_name[N], 1);
         h_K40_peak_cali->Fill(K40peak_cali[N]);
@@ -106,15 +110,15 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 
         // Normalize template to yiels of every hour (use K40)
         double K40_obj_cali =
-          obj_cali->Integral(obj_cali->GetXaxis()->FindBin(minK40), obj_cali->GetXaxis()->FindBin(maxK40));
+          obj_cali->Integral(obj_cali->GetXaxis()->FindBin(MINK40), obj_cali->GetXaxis()->FindBin(MAXK40));
 
         TH1D *scaledTemplate = (TH1D *)(Template->Clone("scaledTemplate"));
         scaledTemplate->Scale(K40_obj_cali / K40_template); // template scale to same as the hourly plot
 
-        double nTemplateSig = scaledTemplate->Integral(scaledTemplate->GetXaxis()->FindBin(minRadon),
-                                                       scaledTemplate->GetXaxis()->FindBin(maxRadon));
+        double nTemplateSig = scaledTemplate->Integral(scaledTemplate->GetXaxis()->FindBin(MINRADON),
+                                                       scaledTemplate->GetXaxis()->FindBin(MAXRADON));
         double nDailySig =
-          obj_cali->Integral(obj_cali->GetXaxis()->FindBin(minRadon), obj_cali->GetXaxis()->FindBin(maxRadon));
+          obj_cali->Integral(obj_cali->GetXaxis()->FindBin(MINRADON), obj_cali->GetXaxis()->FindBin(MAXRADON));
         double diff = nDailySig - nTemplateSig;
         //N_[N]       = (double)(N + 1); // number of 2hour
         N_[N]       = (double)(N + 1)*60*60*2; // number of 2hour
@@ -131,11 +135,10 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
     }
   }
 
-  for (int i = 0; i < N; i++) {
-	}
-
+	
   g_diffvsTime      = new TGraph(N, N_, diff_);
   g_cfactor         = new TGraph(N, N_, cfactor);
+  g_cfactor_cali    = new TGraph(N, N_, cfactor_cali);
   g_K40_peak_cali   = new TGraph(N, N_, K40peak_cali);
   g_K40_peak_uncali = new TGraph(N, N_, K40peak_uncali);
   /**********************************************************
