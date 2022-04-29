@@ -1,5 +1,6 @@
 #ifndef EQ_H
 #define EQ_H
+#include "Constants.h"
 
 #include "TDirectory.h"
 #include "TF1.h"
@@ -34,10 +35,10 @@ public:
   double PeakforK40(TH1 *obj, TFile *ofile, TString hist_name, bool flag);
   void   DrawPlot();
 
-  static const double minK40; // 1.3
-  static const double maxK40; // 1.5
-  static const double minRadon;
-  static const double maxRadon;
+//  static const double minK40; // 1.3
+//  static const double maxK40; // 1.5
+//  static const double minRadon;
+//  static const double maxRadon;
 
 private:
 
@@ -45,18 +46,22 @@ private:
   TH1D    *h_K40_peak_cali;
   TH1D    *h_K40_peak_uncali;
   TH1D    *h_diff;
+  TH1D    *h_cfactor;
 
 	//Graph
-	TGraph		*g_sigma_significant;
 	TGraph		*g_diffvsTime;
 	TGraph    *g_cfactor;
+	TGraph    *g_cfactor_cali;
 	TGraph		*g_K40_peak_cali;
 	TGraph		*g_K40_peak_uncali;
+	TGraph		*g_sigma_significant;
+	TGraph		*g_pvalue;
 
 	//variables
   double   K40_template = 0;
   Double_t N_[4000], diff_[4000];
   double   cfactor[4000];
+  double   cfactor_cali[4000];
   double   K40peak_cali[4000];
   double   K40peak_uncali[4000];
   double   peakforCali[4000]; // 2.2MeV, unknown peak
@@ -67,6 +72,7 @@ private:
   double   fluct_peak  = 0;
   double   fluct_sigma = 0;
 	double 	 sigma_[4000];
+	double 	 p_value_[4000];
 
   TString time_name[2500];
 };

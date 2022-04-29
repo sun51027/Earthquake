@@ -4,6 +4,7 @@ using namespace std;
 
 // my header
 #include "interface/EQ.h"
+#include "interface/Constants.h"
 
 // ROOT include
 #include "TCanvas.h"
@@ -95,10 +96,10 @@ double Earthquake::PeakforCalibration(TH1 *obj, TFile *ofile, TString hist_name)
 double Earthquake::PeakforK40(TH1 *obj, TFile *ofile, TString hist_name, bool flag)
 {
 
-  RooRealVar x("x", "random variable", minK40, maxK40);
+  RooRealVar x("x", "random variable", MINK40, MAXK40);
 
   // Gaussian model
-  RooRealVar  mu("mu", "mean parameter", 1.2, minK40, maxK40);
+  RooRealVar  mu("mu", "mean parameter", 1.2, MINK40, MAXK40);
   RooRealVar  sigma("sigma", "width parameter", 0.1, 0.0, 0.3);
   RooGaussian gaus("gaus", "Gaussian PDF", x, mu, sigma);
 
