@@ -134,11 +134,6 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
     }
   }
 
-  g_diffvsTime      = new TGraph(N, N_, diff_);
-  g_cfactor         = new TGraph(N, N_, cfactor);
-  g_cfactor_cali    = new TGraph(N, N_, cfactor_cali);
-  g_K40_peak_cali   = new TGraph(N, N_, K40peak_cali);
-  g_K40_peak_uncali = new TGraph(N, N_, K40peak_uncali);
   /**********************************************************
       Calculate the sigma between template and each plots.
    **********************************************************/
@@ -159,10 +154,21 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   }
   g_sigma_significant = new TGraph(N, N_, sigma_);
   g_pvalue            = new TGraph(N, N_, p_value_);
-  //	for(int i = 0 ;i<N;i++){
-  //					cout<<"sigma["<<i<<"] "<<g_sigma_significant->GetPointY(i)<<"\t\t";
-  //					cout<<"pvalue["<<i<<"] "<<g_pvalue->GetPointY(i)<<endl;
-  //	}
+
+	/*********************************************************
+	 		Fill TGraph
+	 *********************************************************/
+	double v[4000];
+	for(int i=0;i<N;i++)	v[i] = diff_[i]/fluct_sigma;
+	cout<<"fluct_peak "<<fluct_peak<<endl;
+	cout<<"fluct_sigma "<<fluct_sigma<<endl;
+
+  g_diffvsTime      = new TGraph(N, N_, v);
+  g_cfactor         = new TGraph(N, N_, cfactor);
+  g_cfactor_cali    = new TGraph(N, N_, cfactor_cali);
+  g_K40_peak_cali   = new TGraph(N, N_, K40peak_cali);
+  g_K40_peak_uncali = new TGraph(N, N_, K40peak_uncali);
+
 
   /**********************************************************
       Write object into output files

@@ -47,15 +47,15 @@ void Earthquake::DrawPlot()
   c->cd();
   pL->cd();
   g_diffvsTime->SetTitle("");
-  g_diffvsTime->SetMaximum(20000);
-  g_diffvsTime->SetMinimum(-20000);
+  g_diffvsTime->SetMaximum(20000/fluct_sigma);
+  g_diffvsTime->SetMinimum(-20000/fluct_sigma);
   g_diffvsTime->SetMarkerStyle(20);
   g_diffvsTime->SetMarkerColor(kBlue);
   g_diffvsTime->Draw("AP");
   mgr::SetLeftPlotAxis(g_diffvsTime);
   g_diffvsTime->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 29) * 60 * 60 * 2);
   g_diffvsTime->GetXaxis()->SetTitle("Time (mm/dd)");
-  g_diffvsTime->GetYaxis()->SetTitle("N_{radon} - <N_{radon}> ");
+  g_diffvsTime->GetYaxis()->SetTitle("N_{radon} - <N_{radon}> / #sigma");
   g_diffvsTime->GetXaxis()->SetTitleOffset(1.6);
   g_diffvsTime->GetXaxis()->SetTimeDisplay(1);
   g_diffvsTime->GetXaxis()->SetTimeFormat("%d/%m %F2021-09-15 00:00:00");
@@ -67,13 +67,13 @@ void Earthquake::DrawPlot()
   h_diff->Draw("hbar");
   h_diff->SetFillColor(kBlue);
   h_diff->SetStats(0);
-  //mgr::SetRightPlotAxis(h_diff);
+  mgr::SetRightPlotAxis(h_diff);
 
   pR->Modified();
   pL->Modified();
   pL->SetGrid(1, 1);
   c->Modified();
-  c->SaveAs("plots/DiffvsTime.pdf");
+  c->SaveAs("plots/DiffvsTime2.pdf");
   delete c;
 
   /*----------------------------------------------*/

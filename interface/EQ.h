@@ -60,7 +60,7 @@ private:
 
 	//variables
   double   K40_template = 0;
-  Double_t N_[4000], diff_[4000];
+  double N_[4000], diff_[4000];
   double   cfactor[4000];
   double   cfactor_cali[4000];
   double   K40peak_cali[4000];
