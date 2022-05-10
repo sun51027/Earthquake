@@ -87,21 +87,23 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         // calibrate hourly and show K40 peak
         TH1D *obj_cali = (TH1D *)(obj->Clone("obj_cali"));
         for (int j = 0; j < 1024; j++) {
-								if(j+1==1){
-									obj->SetBinContent(j+1,obj->GetBinContent(j+1)*cfactor[N]);
-								}
-								else{
-												obj->SetBinContent(j+1,obj->GetBinContent(j+1)*cfactor[N] + obj->GetBinContent(j)*(1-cfactor[N]));
-								}
-//          obj_cali->SetBinContent(j + 1, obj->GetBinContent(j + 1 + round(nMoveBin_K40[j])));
-
-          if (nMoveBin_K40[j] != 0) {
-              cout << "obj " << obj->GetBinContent(j + 1) << "\t" << nMoveBin_K40[j] << "\t obj_cali "
-                   << obj_cali->GetBinContent(j + 1) << endl;
+          if (j + 1 == 1) {
+            obj->SetBinContent(j + 1, obj->GetBinContent(j + 1) * cfactor[N]);
+          } else {
+            obj->SetBinContent(j + 1,
+                               obj->GetBinContent(j + 1) * cfactor[N] + obj->GetBinContent(j) * (1 - cfactor[N]));
           }
+          //          obj_cali->SetBinContent(j + 1, obj->GetBinContent(j + 1 + round(nMoveBin_K40[j])));
+
+//          if (nMoveBin_K40[j] != 0) {
+            cout << "obj " << obj->GetBinContent(j + 1) 
+										//<< "\t" << nMoveBin_K40[j] << "\t obj_cali "
+								 <<"\t\t cfactor "<<cfactor[N]
+                 <<"\t\tcali_obj "<< obj_cali->GetBinContent(j + 1) << endl;
+  //        }
         }
 
-        cfactor_cali[N] = PEAKFORCALI/ PeakforCalibration(obj_cali, ofile, time_name[N]);
+        cfactor_cali[N] = PEAKFORCALI / PeakforCalibration(obj_cali, ofile, time_name[N]);
         h_cfactor_cali->Fill(cfactor_cali[N]);
         K40peak_uncali[N] = PeakforK40(obj, ofile, time_name[N], 0);
         K40peak_cali[N]   = PeakforK40(obj_cali, ofile, time_name[N], 1);
@@ -161,20 +163,19 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   g_sigma_significant = new TGraph(N, N_, sigma_);
   g_pvalue            = new TGraph(N, N_, p_value_);
 
-	/*********************************************************
-	 		Fill TGraph
-	 *********************************************************/
-	double v[4000];
-	for(int i=0;i<N;i++)	v[i] = diff_[i]/fluct_sigma;
-	cout<<"fluct_peak "<<fluct_peak<<endl;
-	cout<<"fluct_sigma "<<fluct_sigma<<endl;
+  /*********************************************************
+      Fill TGraph
+   *********************************************************/
+  double v[4000];
+  for (int i = 0; i < N; i++) v[i] = diff_[i] / fluct_sigma;
+  cout << "fluct_peak " << fluct_peak << endl;
+  cout << "fluct_sigma " << fluct_sigma << endl;
 
   g_diffvsTime      = new TGraph(N, N_, v);
   g_cfactor         = new TGraph(N, N_, cfactor);
   g_cfactor_cali    = new TGraph(N, N_, cfactor_cali);
   g_K40_peak_cali   = new TGraph(N, N_, K40peak_cali);
   g_K40_peak_uncali = new TGraph(N, N_, K40peak_uncali);
-
 
   /**********************************************************
       Write object into output files
