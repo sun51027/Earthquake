@@ -87,7 +87,13 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         // calibrate hourly and show K40 peak
         TH1D *obj_cali = (TH1D *)(obj->Clone("obj_cali"));
         for (int j = 0; j < 1024; j++) {
-          obj_cali->SetBinContent(j + 1, obj->GetBinContent(j + 1 + round(nMoveBin_K40[j])));
+								if(j+1==1){
+									obj->SetBinContent(j+1,obj->GetBinContent(j+1)*cfactor[N]);
+								}
+								else{
+												obj->SetBinContent(j+1,obj->GetBinContent(j+1)*cfactor[N] + obj->GetBinContent(j)*(1-cfactor[N]));
+								}
+//          obj_cali->SetBinContent(j + 1, obj->GetBinContent(j + 1 + round(nMoveBin_K40[j])));
 
           if (nMoveBin_K40[j] != 0) {
               cout << "obj " << obj->GetBinContent(j + 1) << "\t" << nMoveBin_K40[j] << "\t obj_cali "
