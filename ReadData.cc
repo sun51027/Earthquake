@@ -77,7 +77,6 @@ int main()
     datetime[i - 1].Remove(4, 1);
     datetime[i - 1].Remove(6, 1);
     datetime[i - 1].Remove(10, 9);
-    //    cout << datetime[i-1] << endl;
     lat.push_back(stod(lat_[i]));
     lon.push_back(stod(lon_[i]));
     depth.push_back(stod(depth_[i]));
@@ -90,30 +89,59 @@ int main()
     ERZ.push_back(stod(ERZ_[i]));
     nph.push_back(stod(nph_[i]));
   }
-	// odd time -> odd -1 time
-	// ex 13 -> 12
-		
+  // odd time -> odd -1 time
+  // ex 13 -> 12
 
-
-	//------------------------------------------
+  for (int i = 0; i < lat_.size(); i++) {
+    TString s(datetime[i](9, 10));
+    //				cout<<datetime[i]<<" ";
+    if (s == "1") {
+      datetime[i].Replace(9, 1, "0");
+    } else if (s == "3") {
+      datetime[i].Replace(9, 1, "2");
+    } else if (s == "5") {
+      datetime[i].Replace(9, 1, "4");
+    } else if (s == "7") {
+      datetime[i].Replace(9, 1, "6");
+    } else if (s == "9") {
+      datetime[i].Replace(9, 1, "8");
+    }
+    //	cout<<datetime[i]<<endl;
+  }
+  //------------------------------------------
 
   ifstream ifs2;
   ifs2.open("time_name.txt");
   vector<string> datetime_Rn;
+  double         RichterML[4000];
   string         column;
+  int            n = 0;
 
-  if (!ifs2.is_open()) {
-    cout << "Failed to open file2" << endl;
-  } else {
-    while (ifs2 >> column) {
-      datetime_Rn.push_back(column);
-    }
-    for (int j = 0; j < datetime_Rn.size(); j++) {
-      for (int i = 0; i < lat_.size() - 1; i++) {
-        if (datetime[i] == datetime_Rn[j]) cout << datetime[i] << " " << datetime_Rn[j] << endl;
+  while (ifs2 >> column) {
+    datetime_Rn.push_back(column);
+  }
+
+  for (int j = 0; j < datetime_Rn.size(); j++) {
+    for (int i = 0; i < lat_.size() - 1; i++) {
+
+      if (datetime[i] == datetime_Rn[j]) {
+        cout << datetime[i] << " " << datetime_Rn[j] << " " << ML[i] << endl;
+
+        RichterML[j] = ML[i];
+        cout << "RichterML[" << j << "] " << RichterML[j] << endl;
+        n++;
+      } else {
+        RichterML[j] = 0;
       }
     }
   }
+
+  for (int j = 0; j < datetime_Rn.size(); j++) {
+    cout << "RichterML[" << j << "] " << RichterML[j] << endl;
+  }
+  cout << "n " << n << endl;
+
+  //  TGraph *g_RichterML = new TGraph(, , );
 
   return 0;
 }
