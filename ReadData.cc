@@ -9,50 +9,23 @@
 #include <string>
 using namespace std;
 
-#include <TString.h>
+#include "TString.h"
+#include "TGraph.h"
+#include "TCanvas.h"
 
-// void Earthquake::ReadData()
-int main()
-{
 
-  vector<string> date_;
-  vector<string> time_;
-  vector<string> fixed;
-  vector<string> quality;
+#include "interface/DataReader.h"
 
-  vector<string> lat_;
-  vector<string> lon_;
-  vector<string> depth_;
-  vector<string> ML_;
-  vector<string> nstn_;
-  vector<string> dmin_;
-  vector<string> gap_;
-  vector<string> trms_;
-  vector<string> ERH_;
-  vector<string> ERZ_;
-  vector<string> nph_;
-
-  vector<double> lat;
-  vector<double> lon;
-  vector<double> depth;
-  vector<double> ML;
-  vector<double> nstn;
-  vector<double> dmin;
-  vector<double> gap;
-  vector<double> trms;
-  vector<double> ERH;
-  vector<double> ERZ;
-  vector<int>    nph;
-
+void DataReader::EarthquakeDirectory(){
   string c1, c2, c13, c15, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c14;
 
-  ifstream ifs;
-  ifs.open("data/GDMScatalog20210915-1231.txt");
+  ifstream earthqakeDirInput;
+  earthqakeDirInput.open("data/GDMScatalog20210915-1231.txt");
 
-  if (!ifs.is_open()) {
+  if (!earthqakeDirInput.is_open()) {
     cout << "Failed to open file" << endl;
   } else {
-    while (ifs >> c1 >> c2 >> c3 >> c4 >> c5 >> c6 >> c7 >> c8 >> c9 >> c10 >> c11 >> c12 >> c13 >> c14 >> c15) {
+    while (earthqakeDirInput >> c1 >> c2 >> c3 >> c4 >> c5 >> c6 >> c7 >> c8 >> c9 >> c10 >> c11 >> c12 >> c13 >> c14 >> c15) {
       date_.push_back(c1);
       time_.push_back(c2);
       lat_.push_back(c3);
@@ -113,14 +86,16 @@ int main()
   ifstream ifs2;
   ifs2.open("time_name.txt");
   vector<string> datetime_Rn;
-  double         RichterML[4000];
   string         column;
-  int            n = 0;
+  double            N[4000];
 
   while (ifs2 >> column) {
     datetime_Rn.push_back(column);
   }
 
+  for (int j = 0; j < datetime_Rn.size(); j++) {
+					RichterML[j] = 0;
+	}
   for (int j = 0; j < datetime_Rn.size(); j++) {
     for (int i = 0; i < lat_.size() - 1; i++) {
 
@@ -128,20 +103,16 @@ int main()
         cout << datetime[i] << " " << datetime_Rn[j] << " " << ML[i] << endl;
 
         RichterML[j] = ML[i];
+				Depth[j] = depth[i];
         cout << "RichterML[" << j << "] " << RichterML[j] << endl;
-        n++;
-      } else {
-        RichterML[j] = 0;
-      }
+      } 
     }
+        N[j]=j+1;
   }
 
   for (int j = 0; j < datetime_Rn.size(); j++) {
     cout << "RichterML[" << j << "] " << RichterML[j] << endl;
+		cout<< "N["<<j<<"] "<<N[j]<<endl;
   }
-  cout << "n " << n << endl;
 
-  //  TGraph *g_RichterML = new TGraph(, , );
-
-  return 0;
 }
