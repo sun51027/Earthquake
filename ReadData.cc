@@ -11,7 +11,7 @@ using namespace std;
 
 #include <TString.h>
 
-//void Earthquake::ReadData()
+// void Earthquake::ReadData()
 int main()
 {
 
@@ -70,10 +70,14 @@ int main()
       quality.push_back(c15);
     }
   }
-	vector<TString> data;
+  vector<TString> datetime;
+  datetime.resize(100);
   for (int i = 1; i < lat_.size(); i++) {
-					cout<<date_[i]<<" "<<time_[i]<<endl;
-					d
+    datetime[i - 1].Form("%s%s", date_[i].c_str(), time_[i].c_str());
+    datetime[i - 1].Remove(4, 1);
+    datetime[i - 1].Remove(6, 1);
+    datetime[i - 1].Remove(10, 9);
+    //    cout << datetime[i-1] << endl;
     lat.push_back(stod(lat_[i]));
     lon.push_back(stod(lon_[i]));
     depth.push_back(stod(depth_[i]));
@@ -86,9 +90,30 @@ int main()
     ERZ.push_back(stod(ERZ_[i]));
     nph.push_back(stod(nph_[i]));
   }
-	
-//	double N_[4000];
-//	for(int N = 0
-//	TGraph *g_RichterML  = new TGraph(N,,);
-return 0;
+	// odd time -> odd -1 time
+	// ex 13 -> 12
+		
+
+
+	//------------------------------------------
+
+  ifstream ifs2;
+  ifs2.open("time_name.txt");
+  vector<string> datetime_Rn;
+  string         column;
+
+  if (!ifs2.is_open()) {
+    cout << "Failed to open file2" << endl;
+  } else {
+    while (ifs2 >> column) {
+      datetime_Rn.push_back(column);
+    }
+    for (int j = 0; j < datetime_Rn.size(); j++) {
+      for (int i = 0; i < lat_.size() - 1; i++) {
+        if (datetime[i] == datetime_Rn[j]) cout << datetime[i] << " " << datetime_Rn[j] << endl;
+      }
+    }
+  }
+
+  return 0;
 }

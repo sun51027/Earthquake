@@ -20,14 +20,6 @@ using namespace std;
 #include "TKey.h"
 #include "TStyle.h"
 #include "TMath.h"
-//#include "rootlogon.h"
-// using namespace mgr;
-//#define DEBUG
-
-// const double Earthquake::MINK40   = 1.3;//K40 +- sigma
-// const double Earthquake::MAXK40   = 1.5;
-// const double Earthquake::MINRADON = 0.25;
-// const double Earthquake::MAXRADON = 0.8;
 
 TH1 *Earthquake::SetZeroBinContent(TH1 *hist)
 {
@@ -81,16 +73,16 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         h_cfactor->Fill(cfactor[N]);
 
         for (int k = 0; k < 1024; k++) {
-          nMoveBin_K40[k] = (1 - cfactor[N]) * obj->GetBinCenter(k + 1) / energyBin;
+          nMoveBin[k] = (1 - cfactor[N]) * obj->GetBinCenter(k + 1) / energyBin;
         }
 
         // calibrate hourly and show K40 peak
         TH1D *obj_cali = (TH1D *)(obj->Clone("obj_cali"));
         for (int j = 0; j < 1024; j++) {
-          obj_cali->SetBinContent(j + 1, obj->GetBinContent(j + 1 + round(nMoveBin_K40[j])));
+          obj_cali->SetBinContent(j + 1, obj->GetBinContent(j + 1 + round(nMoveBin[j])));
 
-          if (nMoveBin_K40[j] != 0) {
-              cout << "obj " << obj->GetBinContent(j + 1) << "\t" << nMoveBin_K40[j] << "\t obj_cali "
+          if (nMoveBin[j] != 0) {
+              cout << "obj " << obj->GetBinContent(j + 1) << "\t" << nMoveBin[j] << "\t obj_cali "
                    << obj_cali->GetBinContent(j + 1) << endl;
           }
         }
@@ -119,12 +111,10 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         double nDailySig =
           obj_cali->Integral(obj_cali->GetXaxis()->FindBin(MINRADON), obj_cali->GetXaxis()->FindBin(MAXRADON));
         double diff = nDailySig - nTemplateSig;
-        // N_[N]       = (double)(N + 1); // number of 2hour
         N_[N]    = (double)(N + 1) * 60 * 60 * 2; // number of 2hour
         diff_[N] = diff;
         h_diff->Fill(diff);
 
-        // calculate the sigma
 
         delete obj;
         delete scaledTemplate;
@@ -149,8 +139,6 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
       sigma_[i]   = (diff_[i] - fluct_peak) / fluct_sigma;
       p_value_[i] = 0.5 * (1 - TMath::Erf(sigma_[i] / sqrt(2)));
     }
-    //    cout << "diff_[" << i << "] " << diff_[i] << "\t - peak " << fluct_peak << "\t / sigma " << fluct_sigma
-    //         << "  = sigma[" << i << "] = " << sigma_[i] << " p-value " << p_value_[i] << endl;
   }
   g_sigma_significant = new TGraph(N, N_, sigma_);
   g_pvalue            = new TGraph(N, N_, p_value_);
