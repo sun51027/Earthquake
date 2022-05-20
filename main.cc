@@ -1,5 +1,6 @@
 #include <iostream>
 #include "interface/EQ.h"
+#include "interface/DataReader.h"
 #include "TDirectory.h"
 #include "TFile.h"
 #include "TH1D.h"
@@ -23,12 +24,14 @@ int main()
   TFile *fin2     = new TFile("plots_root/template.root");
   TH1D   *Template = (TH1D*)fin2->Get("Template");
 
-  Earthquake EQ;
+  Earthquake eqAnalysis;
+	DataReader eqData;
 
   // do analysis
-  EQ.DoAnalysis(Template, dir, ofile);
+  eqAnalysis.DoAnalysis(Template, dir, ofile);
 	ofile->Close();
 
-	EQ.DrawPlot();
+	eqData.EarthquakeDirectory();
+	eqAnalysis.DrawPlot();
   return 0;
 }
