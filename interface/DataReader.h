@@ -22,7 +22,7 @@ public:
   double RichterML[4000];
   double Depth[4000];
 
-private:
+//private:
   vector<string> date_raw;
   vector<string> time_raw;
   vector<string> fixed_raw;
@@ -52,17 +52,17 @@ private:
   double ERZ_;
   double nph_;
 
-  //  vector<double> lat;
-  //  vector<double> lon;
-  //  vector<double> depth;
-  //  vector<double> ML;
-  //  vector<double> nstn;
-  //  vector<double> dmin;
-  //  vector<double> gap;
-  //  vector<double> trms;
-  //  vector<double> ERH;
-  //  vector<double> ERZ;
-  //  vector<int>    nph;
+    vector<double> lat;
+    vector<double> lon;
+    vector<double> depth;
+    vector<double> ML;
+    vector<double> nstn;
+    vector<double> dmin;
+    vector<double> gap;
+    vector<double> trms;
+    vector<double> ERH;
+    vector<double> ERZ;
+    vector<double> nph;
 };
 
 #endif
