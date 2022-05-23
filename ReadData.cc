@@ -20,7 +20,7 @@ class DataReader {
 public:
   DataReader() {}
   DataReader(double lat, double lon, double depth, double ML, double nstn, double dmin, double gap, double trms,
-             double ERH, double ERZ, double nph, TString datetime)
+             double ERH, double ERZ, double nph, const TString datetime)
     : lat_(lat), lon_(lon), depth_(depth), ML_(ML), nstn_(nstn), dmin_(dmin), gap_(gap), trms_(trms), ERH_(ERH),
       ERZ_(ERZ), nph_(nph), datetime_(datetime)
   {
@@ -29,19 +29,21 @@ public:
   ~DataReader() {}
   vector<DataReader> ReadRawData();
   void               EarthquakeDirectory();
+  TString            LoadDateTime();
+  void               Init();
 
   // private:
-  double lat_;
-  double lon_;
-  double depth_;
-  double ML_;
-  double nstn_;
-  double dmin_;
-  double gap_;
-  double trms_;
-  double ERH_;
-  double ERZ_;
-  double nph_;
+  double  lat_;
+  double  lon_;
+  double  depth_;
+  double  ML_;
+  double  nstn_;
+  double  dmin_;
+  double  gap_;
+  double  trms_;
+  double  ERH_;
+  double  ERZ_;
+  double  nph_;
   TString datetime_;
 
   vector<string> date_raw;
@@ -63,6 +65,7 @@ public:
 
 private:
   vector<DataReader> rawdata;
+  vector<TString>    datetime;
   //  vector<double> lat;
   //  vector<double> lon;
   //  vector<double> depth;
@@ -75,9 +78,8 @@ private:
   //  vector<double> ERZ;
   //  vector<double> nph;
 };
-vector<DataReader> DataReader::ReadRawData()
+void DataReader::Init()
 {
-
   string c1, c2, c13, c15, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c14;
 
   ifstream earthqakeDirInput;
@@ -106,61 +108,66 @@ vector<DataReader> DataReader::ReadRawData()
       quality_raw.push_back(c15);
     }
   }
-  TString datetime[65];
-//  datetime.resize(lat_raw.size() - 1);
+
+}
+vector<DataReader> DataReader::ReadRawData()
+{
+
+  datetime.resize(64);
+
   for (int i = 1; i < lat_raw.size(); i++) {
+
+					// date time combine
     datetime[i - 1].Form("%s%s", date_raw[i].c_str(), time_raw[i].c_str());
     datetime[i - 1].Remove(4, 1);
     datetime[i - 1].Remove(6, 1);
     datetime[i - 1].Remove(10, 9);
-		cout<<datetime[i - 1]<<endl;
+    TString s(datetime[i - 1](9, 10));
+    if (s == "1") {
+      datetime[i - 1].Replace(9, 1, "0");
+    } else if (s == "3") {
+      datetime[i - 1].Replace(9, 1, "2");
+    } else if (s == "5") {
+      datetime[i - 1].Replace(9, 1, "4");
+    } else if (s == "7") {
+      datetime[i - 1].Replace(9, 1, "6");
+    } else if (s == "9") {
+      datetime[i - 1].Replace(9, 1, "8");
+    }
+
+		
     rawdata[i - 1] = DataReader(stod(lat_raw[i]), stod(lon_raw[i]), stod(depth_raw[i]), stod(ML_raw[i]),
                                 stod(nstn_raw[i]), stod(dmin_raw[i]), stod(gap_raw[i]), stod(trms_raw[i]),
-                                stod(ERH_raw[i]), stod(ERZ_raw[i]), stod(nph_raw[i]), datetime[i]);
+                                stod(ERH_raw[i]), stod(ERZ_raw[i]), stod(nph_raw[i]), datetime[i - 1]);
   }
+
+					
   return rawdata;
 }
+
 int main()
 {
   vector<DataReader> rawdata;
-  DataReader         reader;
+
+  DataReader reader;
+  reader.Init();
   rawdata = reader.ReadRawData();
 
+  /*--debug--*/
+  cout << rawdata.size() << endl;
   vector<DataReader> TypeConverter;
-  for (int i = 0; i < rawdata.size(); i++) {
 
+  for (int i = 0; i < rawdata.size(); i++) {
     DataReader &cand = rawdata[i];
     TypeConverter.push_back(cand);
-    cout << "TypeConverter ML " << i << " " << TypeConverter[i].datetime_ << endl;
-    cout << "TypeConverter ML " << i << " " << TypeConverter[i].ML_ << endl;
+//    cout << TypeConverter[i].datetime_ << " ML " << i << " " << TypeConverter[i].ML_ << endl;
   }
 
-  // open earthquake directory
-  // odd time -> odd -1 time
-  // ex 13 -> 12
-  /*
-    for (int i = 0; i < lat_raw.size(); i++) {
-      TString s(datetime[i](9, 10));
-      //				cout<<datetime[i]<<" ";
-      if (s == "1") {
-        datetime[i].Replace(9, 1, "0");
-      } else if (s == "3") {
-        datetime[i].Replace(9, 1, "2");
-      } else if (s == "5") {
-        datetime[i].Replace(9, 1, "4");
-      } else if (s == "7") {
-        datetime[i].Replace(9, 1, "6");
-      } else if (s == "9") {
-        datetime[i].Replace(9, 1, "8");
-      }
-    }
-    //------------------------------------------
+	//open time file
     ifstream ifs2;
     ifs2.open("time.txt");
     vector<string> datetime_Rn;
     string         column;
-    double         N[4000];
-
     while (ifs2 >> column) {
       datetime_Rn.push_back(column);
     }
@@ -169,13 +176,12 @@ int main()
     data.resize(datetime_Rn.size());
 
     for (int rn = 0; rn < datetime_Rn.size(); rn++) {
-      for (int i = 0; i < lat_raw.size() - 1; i++) {
+      for (int i = 0; i < rawdata.size(); i++) {
 
-        if (datetime[i] == datetime_Rn[rn]) {
+        if (TypeConverter[i].datetime_ == datetime_Rn[rn]) {
           data[rn] = rawdata[i];
         }
       }
-      N[rn] = rn + 1;
     }
 
     vector<DataReader> Test;
@@ -187,6 +193,5 @@ int main()
       cout << datetime_Rn[rn] << " ";
       cout << "ML " << rn << " " << Test[rn].ML_ << endl;
     }
-    //  */
   return 0;
 }
