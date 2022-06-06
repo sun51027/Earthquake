@@ -25,12 +25,6 @@ using namespace std;
 #include "RooPlot.h"
 #include "RooDataHist.h"
 
-// significant values
-//const double Earthquake::minK40   = 1.3;
-//const double Earthquake::maxK40   = 1.5;
-//const double Earthquake::minRadon = 0.25;
-//const double Earthquake::maxRadon = 0.8;
-
 
 double Earthquake::FittingGausSigma(TH1 *h_diff)
 {
@@ -99,7 +93,7 @@ double Earthquake::PeakforK40(TH1 *obj, TFile *ofile, TString hist_name, bool fl
   RooRealVar x("x", "random variable", MINK40, MAXK40);
 
   // Gaussian model
-  RooRealVar  mu("mu", "mean parameter", 1.2, MINK40, MAXK40);
+  RooRealVar  mu("mu", "mean parameter", 1.4, MINK40, MAXK40);
   RooRealVar  sigma("sigma", "width parameter", 0.1, 0.0, 0.3);
   RooGaussian gaus("gaus", "Gaussian PDF", x, mu, sigma);
 
