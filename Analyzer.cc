@@ -61,7 +61,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
       obj       = SetZeroBinContent(obj);            // fill the empty bin with average of adjacent bins
 
       //      if (h < 720 && obj->Integral() != 0) { // before July
-      if (h > 1799 && obj->Integral() != 0) { // start from 9/15 h=1800)
+      if (h > 1799) { // start from 9/15 h=1800)
 
         // set hist name ex. 12/25;  time_name = 2021122522
         time_name[N].Form("%s%s", key->GetName(), key2->GetName());
@@ -73,21 +73,24 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         h_cfactor->Fill(cfactor[N]);
 
         for (int k = 0; k < 1024; k++) {
-          nMoveBin[k] = (1 - cfactor[N]) * obj->GetBinCenter(k + 1) / energyBin;
+          nMoveBin[k] = (cfactor[N]-1) * obj->GetBinCenter(k + 1) / energyBin;
         }
 
         // calibrate hourly and show K40 peak
         TH1D *obj_cali = (TH1D *)(obj->Clone("obj_cali"));
         for (int j = 0; j < 1024; j++) {
-          obj_cali->SetBinContent(j + 1, obj->GetBinContent(j + 1 + round(nMoveBin[j])));
+            obj_cali->SetBinContent(j + 1+1,
+                               obj->GetBinContent(j + 1+1) * (1-nMoveBin[j+1]) + obj->GetBinContent(j+1) *(nMoveBin[j]));
 
-          if (nMoveBin[j] != 0) {
-              cout << "obj " << obj->GetBinContent(j + 1) << "\t" << nMoveBin[j] << "\t obj_cali "
-                   << obj_cali->GetBinContent(j + 1) << endl;
-          }
+//          if (nMoveBin[j] != 0) {
+            cout << "obj " << obj->GetBinContent(j + 1) 
+								 << "\t" << nMoveBin[j] //<< "\t obj_cali "
+								 <<"\t\t cfactor "<<cfactor[N]
+                 <<"\t\tcali_obj "<< obj_cali->GetBinContent(j + 1) << endl;
+  //        }
         }
 
-        cfactor_cali[N] = PEAKFORCALI/ PeakforCalibration(obj_cali, ofile, time_name[N]);
+        cfactor_cali[N] = PEAKFORCALI / PeakforCalibration(obj_cali, ofile, time_name[N]);
         h_cfactor_cali->Fill(cfactor_cali[N]);
         K40peak_uncali[N] = PeakforK40(obj, ofile, time_name[N], 0);
         K40peak_cali[N]   = PeakforK40(obj_cali, ofile, time_name[N], 1);
@@ -143,20 +146,19 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   g_sigma_significant = new TGraph(N, N_, sigma_);
   g_pvalue            = new TGraph(N, N_, p_value_);
 
-	/*********************************************************
-	 		Fill TGraph
-	 *********************************************************/
-	double v[4000];
-	for(int i=0;i<N;i++)	v[i] = diff_[i]/fluct_sigma;
-	cout<<"fluct_peak "<<fluct_peak<<endl;
-	cout<<"fluct_sigma "<<fluct_sigma<<endl;
+  /*********************************************************
+      Fill TGraph
+   *********************************************************/
+  double v[4000];
+  for (int i = 0; i < N; i++) v[i] = diff_[i] / fluct_sigma;
+  cout << "fluct_peak " << fluct_peak << endl;
+  cout << "fluct_sigma " << fluct_sigma << endl;
 
   g_diffvsTime      = new TGraph(N, N_, v);
   g_cfactor         = new TGraph(N, N_, cfactor);
   g_cfactor_cali    = new TGraph(N, N_, cfactor_cali);
   g_K40_peak_cali   = new TGraph(N, N_, K40peak_cali);
   g_K40_peak_uncali = new TGraph(N, N_, K40peak_uncali);
-
 
   /**********************************************************
       Write object into output files

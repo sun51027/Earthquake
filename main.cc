@@ -9,7 +9,7 @@ using namespace std;
 int main()
 {
   // outputfile
-  TFile *ofile = new TFile("plots_root/oAnalyzer.root", "recreate");
+  TFile *ofile = new TFile("plots_root/oAnalyzer_caliCheck.root", "recreate");
   ofile->mkdir("cali_Hist");
   ofile->mkdir("K40_uncali_fit");
   ofile->mkdir("K40_cali_fit");
@@ -31,7 +31,7 @@ int main()
   eqAnalysis.DoAnalysis(Template, dir, ofile);
 	ofile->Close();
 
-	eqData.EarthquakeDirectory();
+	//eqData.EarthquakeDirectory();
 	eqAnalysis.DrawPlot();
   return 0;
 }
