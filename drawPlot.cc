@@ -207,37 +207,37 @@ void Earthquake::DrawPlot()
 
   /*----------------------------------------------*/
   // p value
-//  TCanvas *c5 = new TCanvas("c5", "", 1200, 600);
-//  g_pvalue->SetTitle("");
-//  g_pvalue->SetMaximum(1);
-//  g_pvalue->SetMinimum(1e-13);
-//  g_pvalue->Draw("");
-//  g_pvalue->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 80) * 60 * 60 * 2);
-//  g_pvalue->GetXaxis()->SetTitle("Time (mm/dd)");
-//  g_pvalue->GetYaxis()->SetTitle("p-value");
-//  //g_pvalue->GetXaxis()->SetTitleOffset(1.6);
-//  g_pvalue->GetXaxis()->SetTimeDisplay(1);
-//  g_pvalue->GetXaxis()->SetTimeFormat("%d/%m %F2021-09-015 00:00:00");
-//  for (int i = 0; i < 7; i++) {
-//    double p = 0.5 * (1 - TMath::Erf((i + 1) / sqrt(2)));
-//    TLine *l = new TLine(-30 * 60 * 60 * 2, p, (N + 80) * 60 * 60 * 2, p);
-//    l->SetLineStyle(7);
-//    l->SetLineColor(kRed);
-//    l->SetLineWidth(1);
-//    l->Draw();
-//		TString s;
-//		s.Form("%i",i+1);
-//    TLatex *tv1 = new TLatex((N+15) * 60 * 60 * 2, p,s+" #sigma");
-//    tv1->SetTextAlign(11);
-//		tv1->SetTextColor(kRed);
-//    tv1->SetTextSize(0.04);
-//    tv1->SetTextFont(12);
-//    tv1->Draw();
-//  }
-//
-//  c5->SetLogy();
-//  c5->SetTicks(1, 1);
-//  c5->Modified();
-//  c5->SaveAs("plots/p-value.pdf");
-//  delete c5;
+  TCanvas *c5 = new TCanvas("c5", "", 1200, 600);
+  g_pvalue->SetTitle("");
+  g_pvalue->SetMaximum(1);
+  g_pvalue->SetMinimum(1e-13);
+  g_pvalue->Draw("");
+  g_pvalue->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 80) * 60 * 60 * 2);
+  g_pvalue->GetXaxis()->SetTitle("Time (mm/dd)");
+  g_pvalue->GetYaxis()->SetTitle("p-value");
+  //g_pvalue->GetXaxis()->SetTitleOffset(1.6);
+  g_pvalue->GetXaxis()->SetTimeDisplay(1);
+  g_pvalue->GetXaxis()->SetTimeFormat("%d/%m %F2021-09-015 00:00:00");
+  for (int i = 0; i < 7; i++) {
+    double p = 0.5 * (1 - TMath::Erf((i + 1) / sqrt(2)));
+    TLine *l = new TLine(-30 * 60 * 60 * 2, p, (N + 80) * 60 * 60 * 2, p);
+    l->SetLineStyle(7);
+    l->SetLineColor(kRed);
+    l->SetLineWidth(1);
+    l->Draw();
+		TString s;
+		s.Form("%i",i+1);
+    TLatex *tv1 = new TLatex((N+15) * 60 * 60 * 2, p,s+" #sigma");
+    tv1->SetTextAlign(11);
+		tv1->SetTextColor(kRed);
+    tv1->SetTextSize(0.04);
+    tv1->SetTextFont(12);
+    tv1->Draw();
+  }
+
+  c5->SetLogy();
+  c5->SetTicks(1, 1);
+  c5->Modified();
+  c5->SaveAs("plots/p-value.pdf");
+  delete c5;
 }
