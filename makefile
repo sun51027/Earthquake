@@ -7,9 +7,9 @@ main.o: main.cc interface/EQ.h rootlogon.h interface/DataReader.h
 	g++ -c $(CFLAGS) $< -o $@
 analyzer.o : analyzer.cc interface/EQ.h rootlogon.h
 	g++ -c $(CFLAGS) $< -o $@
-readData.o : readData.cc interface/DataReader.h
-	g++ -c $(CFLAGS) $< -o $@
 doFitting.o : doFitting.cc 
+	g++ -c $(CFLAGS) $< -o $@
+readData.o : readData.cc interface/DataReader.h
 	g++ -c $(CFLAGS) $< -o $@
 drawPlot.o : drawPlot.cc
 	g++ -c $(CFLAGS) $< -o $@
