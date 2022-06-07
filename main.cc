@@ -15,10 +15,14 @@ int main()
   ofile->mkdir("K40_cali_fit");
   ofile->mkdir("Analysis_plot");
   ofile->cd();
+
   // inputfile
   TFile      *fin1 = new TFile("plots_root/output.root");
   TDirectory *dir  = (TDirectory *)fin1->Get("HistoCh0");
   dir->cd();
+
+  ifstream eqDirInput;
+  eqDirInput.open("data/GDMScatalog20210915-1231.txt");
 
   // get template
   TFile *fin2     = new TFile("plots_root/template.root");
@@ -31,7 +35,13 @@ int main()
   eqAnalysis.DoAnalysis(Template, dir, ofile);
 	ofile->Close();
 
-	eqData.ReadEQdata();
+	// read Eq directory
+  ifstream timeInput;
+  timeInput.open("time_name.txt");
+	eqData.ReadEQdata(eqDirInput,timeInput);
+
+	// draw plots
 	eqAnalysis.DrawPlot();
+
   return 0;
 }

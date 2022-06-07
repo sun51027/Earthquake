@@ -26,8 +26,8 @@ public:
   vector<DataReader> ReadRawData();
   void               EarthquakeDirectory();
   TString            LoadDateTime();
-  void               Init();
-  void               ReadEQdata();
+  void               Init(ifstream &input);
+  void               ReadEQdata(ifstream &eqDirInput, ifstream &timeInput);
 
   // private:
   double  lat_;

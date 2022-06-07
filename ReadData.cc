@@ -17,18 +17,15 @@ using namespace std;
 
 // void DataReader::EarthquakeDirectory(){
 
-void DataReader::Init()
+void DataReader::Init(ifstream &eqDirInput)
 {
   string c1, c2, c13, c15, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c14;
 
-  ifstream earthqakeDirInput;
-  earthqakeDirInput.open("data/GDMScatalog20210915-1231.txt");
-
   rawdata.resize(64);
-  if (!earthqakeDirInput.is_open()) {
+  if (!eqDirInput.is_open()) {
     cout << "Failed to open file" << endl;
   } else {
-    while (earthqakeDirInput >> c1 >> c2 >> c3 >> c4 >> c5 >> c6 >> c7 >> c8 >> c9 >> c10 >> c11 >> c12 >> c13 >> c14 >>
+    while (eqDirInput >> c1 >> c2 >> c3 >> c4 >> c5 >> c6 >> c7 >> c8 >> c9 >> c10 >> c11 >> c12 >> c13 >> c14 >>
            c15) {
       date_raw.push_back(c1);
       time_raw.push_back(c2);
@@ -85,30 +82,28 @@ vector<DataReader> DataReader::ReadRawData()
 
 
 //int main()
-void DataReader::ReadEQdata()
+void DataReader::ReadEQdata(ifstream &eqDirInput, ifstream &timeInput)
 {
   vector<DataReader> rawdata;
 
   DataReader reader;
-  reader.Init();
+  reader.Init(eqDirInput);
   rawdata = reader.ReadRawData();
 
   /*--debug--*/
   cout << rawdata.size() << endl;
-  vector<DataReader> TypeConverter;
+  vector<DataReader> converter;
 
   for (int i = 0; i < rawdata.size(); i++) {
     DataReader &cand = rawdata[i];
-    TypeConverter.push_back(cand);
-    cout << TypeConverter[i].datetime_ << " ML " << i << " " << TypeConverter[i].ML_ << endl;
+    converter.push_back(cand);
+//    cout << converter[i].datetime_ << " ML " << i << " " << converter[i].ML_ << endl;
   }
 
 	//open time file
-    ifstream ifs2;
-    ifs2.open("time_name.txt");
     vector<string> datetime_Rn;
     string         column;
-    while (ifs2 >> column) {
+    while (timeInput >> column) {
       datetime_Rn.push_back(column);
     }
 
@@ -118,9 +113,9 @@ void DataReader::ReadEQdata()
     for (int rn = 0; rn < datetime_Rn.size(); rn++) {
       for (int i = 0; i < rawdata.size(); i++) {
         
-        if (TypeConverter[i].datetime_ == datetime_Rn[rn]) {
+        if (converter[i].datetime_ == datetime_Rn[rn]) {
           data[rn] = rawdata[i];
-          cout<<TypeConverter[i].datetime_ <<" "<<datetime_Rn[rn]<<endl;
+          cout<<converter[i].datetime_ <<" "<<datetime_Rn[rn]<<endl;
         }
       }
     }
