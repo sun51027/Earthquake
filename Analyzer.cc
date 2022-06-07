@@ -61,8 +61,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
       obj       = SetZeroBinContent(obj);            // fill the empty bin with average of adjacent bins
 
       //      if (h < 720 && obj->Integral() != 0) { // before July
-      if (h > 1800 && obj->Integral() != 0)  { // start from 9/15 h=1800 or 9/16 12 h=1812
-																							 // note that 20211222 00-04 are empty
+      if (h > 1799 && obj->Integral() != 0) { // start from 9/15 h=1800)
 
         // set hist name ex. 12/25;  time_name = 2021122522
         time_name[N].Form("%s%s", key->GetName(), key2->GetName());

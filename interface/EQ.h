@@ -21,7 +21,7 @@
 #include "RooDataHist.h"
 using namespace std;
 
-class Earthquake :DataReader{
+class Earthquake : DataReader {
 public:
   Earthquake() {}
   ~Earthquake() {}
@@ -35,7 +35,8 @@ public:
   double PeakforCalibration(TH1 *obj, TFile *ofile, TString hist_name);
   double PeakforK40(TH1 *obj, TFile *ofile, TString hist_name, bool flag);
   void   DrawPlot();
-  void   ReadData();
+//  void   ReadData();
+
 
 private:
   // Histogram
@@ -56,7 +57,7 @@ private:
 
   // variables
   double K40_template = 0;
-  double N_[4000], diff_[4000];
+  double diff_[4000];
   double cfactor[4000];
   double cfactor_cali[4000];
   double K40peak_cali[4000];
@@ -64,12 +65,13 @@ private:
   double peakforCali[4000]; // 2.2MeV, unknown peak
   double nMoveBin[4000];
   double energyBin   = 5. / 1024.;
-  int    N           = 0;
   int    h           = 0; // # of hour
   double fluct_peak  = 0;
   double fluct_sigma = 0;
   double sigma_[4000];
   double p_value_[4000];
+  double N_[4000];
+  int    N = 0;
 
   TString time_name[2500];
 };

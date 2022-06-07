@@ -13,106 +13,134 @@ using namespace std;
 #include "TGraph.h"
 #include "TCanvas.h"
 
-
 #include "interface/DataReader.h"
+#include "interface/EQ.h"
 
-void DataReader::EarthquakeDirectory(){
+// void DataReader::EarthquakeDirectory(){
+
+void DataReader::Init(ifstream &eqDirInput)
+{
   string c1, c2, c13, c15, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c14;
 
-  ifstream earthqakeDirInput;
-  earthqakeDirInput.open("data/GDMScatalog20210915-1231.txt");
-
-  if (!earthqakeDirInput.is_open()) {
+  rawdata.resize(64);
+  if (!eqDirInput.is_open()) {
     cout << "Failed to open file" << endl;
   } else {
-    while (earthqakeDirInput >> c1 >> c2 >> c3 >> c4 >> c5 >> c6 >> c7 >> c8 >> c9 >> c10 >> c11 >> c12 >> c13 >> c14 >> c15) {
-      date_.push_back(c1);
-      time_.push_back(c2);
-      lat_.push_back(c3);
-      lon_.push_back(c4);
-      depth_.push_back(c5);
-      ML_.push_back(c6);
-      nstn_.push_back(c7);
-      dmin_.push_back(c8);
-      gap_.push_back(c9);
-      trms_.push_back(c10);
-      ERH_.push_back(c11);
-      ERZ_.push_back(c12);
-      fixed.push_back(c13);
-      nph_.push_back(c14);
-      quality.push_back(c15);
+    while (eqDirInput >> c1 >> c2 >> c3 >> c4 >> c5 >> c6 >> c7 >> c8 >> c9 >> c10 >> c11 >> c12 >> c13 >> c14 >>
+           c15) {
+      date_raw.push_back(c1);
+      time_raw.push_back(c2);
+      lat_raw.push_back(c3);
+      lon_raw.push_back(c4);
+      depth_raw.push_back(c5);
+      ML_raw.push_back(c6);
+      nstn_raw.push_back(c7);
+      dmin_raw.push_back(c8);
+      gap_raw.push_back(c9);
+      trms_raw.push_back(c10);
+      ERH_raw.push_back(c11);
+      ERZ_raw.push_back(c12);
+      fixed_raw.push_back(c13);
+      nph_raw.push_back(c14);
+      quality_raw.push_back(c15);
     }
   }
-  vector<TString> datetime;
-  datetime.resize(100);
-  for (int i = 1; i < lat_.size(); i++) {
-    datetime[i - 1].Form("%s%s", date_[i].c_str(), time_[i].c_str());
+}
+
+
+vector<DataReader> DataReader::ReadRawData()
+{
+
+  datetime.resize(64);
+
+  for (int i = 1; i < lat_raw.size(); i++) {
+
+    // date time combine
+    datetime[i - 1].Form("%s%s", date_raw[i].c_str(), time_raw[i].c_str());
     datetime[i - 1].Remove(4, 1);
     datetime[i - 1].Remove(6, 1);
     datetime[i - 1].Remove(10, 9);
-    lat.push_back(stod(lat_[i]));
-    lon.push_back(stod(lon_[i]));
-    depth.push_back(stod(depth_[i]));
-    ML.push_back(stod(ML_[i]));
-    nstn.push_back(stod(nstn_[i]));
-    dmin.push_back(stod(dmin_[i]));
-    gap.push_back(stod(gap_[i]));
-    trms.push_back(stod(trms_[i]));
-    ERH.push_back(stod(ERH_[i]));
-    ERZ.push_back(stod(ERZ_[i]));
-    nph.push_back(stod(nph_[i]));
-  }
-  // odd time -> odd -1 time
-  // ex 13 -> 12
-
-  for (int i = 0; i < lat_.size(); i++) {
-    TString s(datetime[i](9, 10));
-    //				cout<<datetime[i]<<" ";
+    TString s(datetime[i - 1](9, 10));
     if (s == "1") {
-      datetime[i].Replace(9, 1, "0");
+      datetime[i - 1].Replace(9, 1, "0");
     } else if (s == "3") {
-      datetime[i].Replace(9, 1, "2");
+      datetime[i - 1].Replace(9, 1, "2");
     } else if (s == "5") {
-      datetime[i].Replace(9, 1, "4");
+      datetime[i - 1].Replace(9, 1, "4");
     } else if (s == "7") {
-      datetime[i].Replace(9, 1, "6");
+      datetime[i - 1].Replace(9, 1, "6");
     } else if (s == "9") {
-      datetime[i].Replace(9, 1, "8");
+      datetime[i - 1].Replace(9, 1, "8");
     }
-    //	cout<<datetime[i]<<endl;
-  }
-  //------------------------------------------
 
-  ifstream ifs2;
-  ifs2.open("time_name.txt");
-  vector<string> datetime_Rn;
-  string         column;
-  double            N[4000];
-
-  while (ifs2 >> column) {
-    datetime_Rn.push_back(column);
+    rawdata[i - 1] = DataReader(stod(lat_raw[i]), stod(lon_raw[i]), stod(depth_raw[i]), stod(ML_raw[i]),
+                                stod(nstn_raw[i]), stod(dmin_raw[i]), stod(gap_raw[i]), stod(trms_raw[i]),
+                                stod(ERH_raw[i]), stod(ERZ_raw[i]), stod(nph_raw[i]), datetime[i - 1]);
   }
 
-  for (int j = 0; j < datetime_Rn.size(); j++) {
-					RichterML[j] = 0;
-	}
-  for (int j = 0; j < datetime_Rn.size(); j++) {
-    for (int i = 0; i < lat_.size() - 1; i++) {
+  return rawdata;
+}
 
-      if (datetime[i] == datetime_Rn[j]) {
-        cout << datetime[i] << " " << datetime_Rn[j] << " " << ML[i] << endl;
 
-        RichterML[j] = ML[i];
-				Depth[j] = depth[i];
-        cout << "RichterML[" << j << "] " << RichterML[j] << endl;
-      } 
+//int main()
+void DataReader::ReadEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *ofile)
+{
+  vector<DataReader> rawdata;
+
+  DataReader reader;
+  reader.Init(eqDirInput);
+  rawdata = reader.ReadRawData();
+
+  /*--debug--*/
+  cout << rawdata.size() << endl;
+  vector<DataReader> converter;
+
+  for (int i = 0; i < rawdata.size(); i++) {
+    DataReader &cand = rawdata[i];
+    converter.push_back(cand);
+//    cout << converter[i].datetime_ << " ML " << i << " " << converter[i].ML_ << endl;
+  }
+
+	//open time file
+    vector<string> datetime_Rn;
+    string         column;
+    while (timeInput >> column) {
+      datetime_Rn.push_back(column);
     }
-        N[j]=j+1;
-  }
 
-  for (int j = 0; j < datetime_Rn.size(); j++) {
-    cout << "RichterML[" << j << "] " << RichterML[j] << endl;
-		cout<< "N["<<j<<"] "<<N[j]<<endl;
-  }
+    vector<DataReader> data(10);
+    data.resize(datetime_Rn.size());
 
+		
+  	double N_[4000];
+    for (int rn = 0; rn < datetime_Rn.size(); rn++) {
+
+        N_[rn]    = (double)(rn + 1) * 60 * 60 * 2; // number of 2hour
+      for (int i = 0; i < rawdata.size(); i++) {
+        
+        if (converter[i].datetime_ == datetime_Rn[rn]) {
+          data[rn] = rawdata[i];
+          cout<<converter[i].datetime_ <<" "<<datetime_Rn[rn]<<endl;
+        }
+      }
+    }
+
+
+    vector<DataReader> Test;
+    for (int rn = 0; rn < datetime_Rn.size(); rn++) {
+      DataReader &cand = data[rn];
+      Test.push_back(cand);
+    }
+		double ML[4000];
+    for (int rn = 0; rn < datetime_Rn.size(); rn++) {
+      cout << datetime_Rn[rn] << " ";
+      cout << "ML " << rn << " " << Test[rn].ML_ << " " << Test[rn].depth_<<endl;
+			ML[rn] = Test[rn].ML_;
+    }
+		TGraph *g_ML ;
+		g_ML = new TGraph(datetime_Rn.size(),N_,ML);
+		ofile->cd("EQ_directory");
+		g_ML->SetName("g_ML");
+		g_ML->Write();	
+//  return 0;
 }
