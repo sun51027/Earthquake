@@ -3,7 +3,7 @@ CFLAGS = -g -m64 -O2 -Wall $(shell root-config --cflags )
 OBJS = main.o analyzer.o doFitting.o drawPlot.o readData.o
 main: ${OBJS}
 	g++ $^ -o $@ $(LIBS)
-main.o: main.cc interface/EQ.h rootlogon.h
+main.o: main.cc interface/EQ.h rootlogon.h interface/DataReader.h
 	g++ -c $(CFLAGS) $< -o $@
 analyzer.o : analyzer.cc interface/EQ.h rootlogon.h
 	g++ -c $(CFLAGS) $< -o $@
