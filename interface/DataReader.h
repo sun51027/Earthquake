@@ -4,15 +4,22 @@
 #include "TString.h"
 #include "TGraph.h"
 #include "TCanvas.h"
+#include "TFile.h"
 
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include <string>
+
+//#include "EQ.h"
+
 using namespace std;
 
-class DataReader {
+class Earthquake;
+
+class DataReader
+{
 public:
   DataReader() {}
   DataReader(double lat, double lon, double depth, double ML, double nstn, double dmin, double gap, double trms,
@@ -27,7 +34,7 @@ public:
   void               EarthquakeDirectory();
   TString            LoadDateTime();
   void               Init(ifstream &input);
-  void               ReadEQdata(ifstream &eqDirInput, ifstream &timeInput);
+  void               ReadEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile* ofile);
 
   // private:
   double  lat_;

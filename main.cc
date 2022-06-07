@@ -14,6 +14,7 @@ int main()
   ofile->mkdir("K40_uncali_fit");
   ofile->mkdir("K40_cali_fit");
   ofile->mkdir("Analysis_plot");
+  ofile->mkdir("EQ_directory");
   ofile->cd();
 
   // inputfile
@@ -33,12 +34,12 @@ int main()
 
   // do analysis
   eqAnalysis.DoAnalysis(Template, dir, ofile);
-	ofile->Close();
 
 	// read Eq directory
   ifstream timeInput;
   timeInput.open("time_name.txt");
-	eqData.ReadEQdata(eqDirInput,timeInput);
+	eqData.ReadEQdata(eqDirInput,timeInput,ofile);
+	ofile->Close();
 
 	// draw plots
 	eqAnalysis.DrawPlot();

@@ -36,6 +36,7 @@ void Earthquake::DrawPlot()
 
   // difference vs time
   // create canvas
+	cout<<"Begin difference vs time"<<endl;
   TCanvas *c  = new TCanvas("c", "", 10, 10, 1800, 900);
   TPad    *pL = mgr::NewLeftPad();
   TPad    *pR = mgr::NewRightPad();
@@ -78,6 +79,7 @@ void Earthquake::DrawPlot()
 
   /*----------------------------------------------*/
   // K40 stability
+	cout<<"K40"<<endl;
   TCanvas     *c2  = new TCanvas("c2", "", 10, 10, 1800, 900);
   TPad        *pL2 = mgr::NewLeftPad();
   TPad        *pR2 = mgr::NewRightPad();

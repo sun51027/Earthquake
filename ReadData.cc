@@ -14,6 +14,7 @@ using namespace std;
 #include "TCanvas.h"
 
 #include "interface/DataReader.h"
+#include "interface/EQ.h"
 
 // void DataReader::EarthquakeDirectory(){
 
@@ -82,7 +83,7 @@ vector<DataReader> DataReader::ReadRawData()
 
 
 //int main()
-void DataReader::ReadEQdata(ifstream &eqDirInput, ifstream &timeInput)
+void DataReader::ReadEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *ofile)
 {
   vector<DataReader> rawdata;
 
@@ -110,7 +111,11 @@ void DataReader::ReadEQdata(ifstream &eqDirInput, ifstream &timeInput)
     vector<DataReader> data(10);
     data.resize(datetime_Rn.size());
 
+		
+  	double N_[4000];
     for (int rn = 0; rn < datetime_Rn.size(); rn++) {
+
+        N_[rn]    = (double)(rn + 1) * 60 * 60 * 2; // number of 2hour
       for (int i = 0; i < rawdata.size(); i++) {
         
         if (converter[i].datetime_ == datetime_Rn[rn]) {
@@ -120,14 +125,22 @@ void DataReader::ReadEQdata(ifstream &eqDirInput, ifstream &timeInput)
       }
     }
 
+
     vector<DataReader> Test;
     for (int rn = 0; rn < datetime_Rn.size(); rn++) {
       DataReader &cand = data[rn];
       Test.push_back(cand);
     }
+		double ML[4000];
     for (int rn = 0; rn < datetime_Rn.size(); rn++) {
       cout << datetime_Rn[rn] << " ";
       cout << "ML " << rn << " " << Test[rn].ML_ << " " << Test[rn].depth_<<endl;
+			ML[rn] = Test[rn].ML_;
     }
+		TGraph *g_ML ;
+		g_ML = new TGraph(datetime_Rn.size(),N_,ML);
+		ofile->cd("EQ_directory");
+		g_ML->SetName("g_ML");
+		g_ML->Write();	
 //  return 0;
 }
