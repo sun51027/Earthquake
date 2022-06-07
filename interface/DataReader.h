@@ -65,4 +65,54 @@ public:
     vector<double> nph;
 };
 
+class DataReader {
+public:
+  DataReader() {}
+  DataReader(double lat, double lon, double depth, double ML, double nstn, double dmin, double gap, double trms,
+             double ERH, double ERZ, double nph, const TString datetime)
+    : lat_(lat), lon_(lon), depth_(depth), ML_(ML), nstn_(nstn), dmin_(dmin), gap_(gap), trms_(trms), ERH_(ERH),
+      ERZ_(ERZ), nph_(nph), datetime_(datetime)
+  {
+  }
+
+  ~DataReader() {}
+  vector<DataReader> ReadRawData();
+  void               EarthquakeDirectory();
+  TString            LoadDateTime();
+  void               Init();
+
+  // private:
+  double  lat_;
+  double  lon_;
+  double  depth_;
+  double  ML_;
+  double  nstn_;
+  double  dmin_;
+  double  gap_;
+  double  trms_;
+  double  ERH_;
+  double  ERZ_;
+  double  nph_;
+  TString datetime_;
+
+  vector<string> date_raw;
+  vector<string> time_raw;
+  vector<string> fixed_raw;
+  vector<string> quality_raw;
+
+  vector<string> lat_raw;
+  vector<string> lon_raw;
+  vector<string> depth_raw;
+  vector<string> ML_raw;
+  vector<string> nstn_raw;
+  vector<string> dmin_raw;
+  vector<string> gap_raw;
+  vector<string> trms_raw;
+  vector<string> ERH_raw;
+  vector<string> ERZ_raw;
+  vector<string> nph_raw;
+
+private:
+  vector<DataReader> rawdata;
+  vector<TString>    datetime;
 #endif

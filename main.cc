@@ -31,7 +31,7 @@ int main()
   eqAnalysis.DoAnalysis(Template, dir, ofile);
 	ofile->Close();
 
-//	eqData.EarthquakeDirectory();
+	eqData.ReadEQdata();
 	eqAnalysis.DrawPlot();
   return 0;
 }
