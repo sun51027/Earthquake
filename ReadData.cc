@@ -14,9 +14,8 @@ using namespace std;
 #include "TCanvas.h"
 
 #include "interface/DataReader.h"
-#include "interface/EQ.h"
+//#include "interface/EQ.h"
 
-// void DataReader::EarthquakeDirectory(){
 
 void DataReader::Init(ifstream &eqDirInput)
 {
@@ -81,12 +80,6 @@ vector<DataReader> DataReader::ReadRawData()
 
 void DataReader::ReadEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *ofile)
 {
-  // Initialize rawdata from EQ directory (CWB)
-  vector<DataReader> rawdata;
-  DataReader         reader;
-  reader.Init(eqDirInput);
-  rawdata = reader.ReadRawData();
-
   // open timeInput
   string column;
   if (!timeInput.is_open()) {
@@ -97,43 +90,58 @@ void DataReader::ReadEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *of
     }
   }
 
-  vector<DataReader> Rndata;
-  Rndata.resize(datetime_Rn.size());
-  cout << "Rndata " << Rndata.size() << endl;
-  cout << "rawdata " << rawdata.size() << endl;
-
+  // Initialize rawdata from EQ directory (CWB) and 
+	// create newArray to match match the date-time of Rn 
+	// to the EQ directory
+	//
+  vector<DataReader> newArray;
+  newArray.resize(datetime_Rn.size());
   for (int rn = 0; rn < datetime_Rn.size(); rn++) {
-          Rndata[rn].ML_ =0;
-          Rndata[rn].depth_ =0;
-					cout<<"Rndata["<<rn<<"] "<<Rndata[rn].datetime_<<" "<<Rndata[rn].ML_<<endl;
+    newArray[rn].ML_    = 0;
+    newArray[rn].depth_ = 0;
+    //cout << "newArray[" << rn << "] " << newArray[rn].datetime_ << " " << newArray[rn].ML_ << endl;
   }
-  cout<<"after equal"<<endl;
-  double N_[4000];
-  for (int rn = 0; rn < datetime_Rn.size(); rn++) {
+
+  DataReader         reader;
+  reader.Init(eqDirInput);
+  rawdata = reader.ReadRawData();
+
+	// Match the two arrays
+
+  double N_[4000]; // for time
+
+	for (int rn = 0; rn < datetime_Rn.size(); rn++) {
 
     N_[rn] = (double)(rn + 1) * 60 * 60 * 2; // number of 2hour
-		
+
     for (int i = 0; i < rawdata.size(); i++) {
 
       if (rawdata[i].datetime_ == datetime_Rn[rn]) {
-        Rndata[rn] = rawdata[i];
-        cout << rawdata[i].datetime_ << " " << datetime_Rn[rn] << " "<<Rndata[rn].datetime_<<endl;
-      }
-			else continue;
-//        cout << rawdata[i].ML_<< " " << datetime_Rn[rn] << " Rndata["<<rn<<"] "<<Rndata[rn].ML_<<endl;
+        newArray[rn] = rawdata[i];
+        //cout << rawdata[i].datetime_ << " " << datetime_Rn[rn] << " " << newArray[rn].datetime_ << endl;
+      } else
+        continue;
     }
   }
 
-  double ML[4000];
   for (int rn = 0; rn < datetime_Rn.size(); rn++) {
-					cout<<"Rndata["<<rn<<"] "<<Rndata[rn].datetime_<<" "<<Rndata[rn].ML_<<" "<<Rndata[rn].depth_<<endl;
-    ML[rn] = Rndata[rn].ML_;
+    cout << "newArray[" << rn << "] " 
+						<< newArray[rn].datetime_ << " " 
+						<< newArray[rn].ML_ << " " 
+						<< newArray[rn].depth_
+         		<< endl;
+    ML[rn] = newArray[rn].ML_;
+    depth[rn] = newArray[rn].depth_;
   }
 
-  TGraph *g_ML;
-  g_ML = new TGraph(datetime_Rn.size(), N_, ML);
+	// 
   ofile->cd("EQ_directory");
+
+  g_ML = new TGraph(datetime_Rn.size(), N_, ML);
   g_ML->SetName("g_ML");
   g_ML->Write();
-  //  return 0;
+
+  g_depth = new TGraph(datetime_Rn.size(), N_, depth);
+  g_depth->SetName("g_depth");
+  g_depth->Write();
 }
