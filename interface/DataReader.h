@@ -33,7 +33,7 @@ public:
   vector<DataReader> ReadRawData();
   void               EarthquakeDirectory();
   TString            LoadDateTime();
-  void               Init(ifstream &input);
+  void               Init(ifstream &eqDirInput);
   void               ReadEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile* ofile);
 
   // private:
@@ -66,6 +66,8 @@ public:
   vector<string> ERH_raw;
   vector<string> ERZ_raw;
   vector<string> nph_raw;
+
+  vector<string> datetime_Rn;
 
 private:
   vector<DataReader> rawdata;
