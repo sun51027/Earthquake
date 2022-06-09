@@ -43,6 +43,7 @@ int main()
 
 	// draw plots
 	eqAnalysis.DrawPlot();
+	eqData.DrawPlots();
 
   return 0;
 }

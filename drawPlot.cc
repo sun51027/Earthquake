@@ -7,7 +7,7 @@ using namespace std;
 #include <sstream>
 // my header
 #include "interface/EQ.h"
-
+#include "interface/DataReader.h"
 // ROOT include
 #include "TCanvas.h"
 #include "TDirectory.h"
@@ -21,12 +21,11 @@ using namespace std;
 #include "TH1D.h"
 #include "TKey.h"
 #include "TStyle.h"
-#include "rootlogon.h"
+#include "interface/rootlogon.h"
 using namespace mgr;
 
 void Earthquake::DrawPlot()
 {
-		
 
   // difference vs time
   // create canvas
@@ -41,8 +40,8 @@ void Earthquake::DrawPlot()
   c->cd();
   pL->cd();
   g_diffvsTime->SetTitle("");
-  g_diffvsTime->SetMaximum(20000/fluct_sigma);
-  g_diffvsTime->SetMinimum(-20000/fluct_sigma);
+  g_diffvsTime->SetMaximum(20000 / fluct_sigma);
+  g_diffvsTime->SetMinimum(-20000 / fluct_sigma);
   g_diffvsTime->SetMarkerStyle(20);
   g_diffvsTime->SetMarkerColor(kBlue);
   g_diffvsTime->Draw("AP");
@@ -147,9 +146,9 @@ void Earthquake::DrawPlot()
   g_cfactor_cali->SetMarkerStyle(20);
   mgr::SetLeftPlotAxis(g_cfactor_cali);
 
-  TMultiGraph *mg2  = new TMultiGraph();
-	mg2->Add(g_cfactor_cali);
-	mg2->Add(g_cfactor);
+  TMultiGraph *mg2 = new TMultiGraph();
+  mg2->Add(g_cfactor_cali);
+  mg2->Add(g_cfactor);
   mg2->SetTitle("");
   mg2->SetMaximum(1.01); // 1.01
   mg2->SetMinimum(0.99); // 0.98
@@ -178,7 +177,6 @@ void Earthquake::DrawPlot()
   h_cfactor_cali->SetFillColor(kRed);
   h_cfactor_cali->SetStats(0);
   mgr::SetRightPlotAxis(h_cfactor_cali);
-
 
   pR3->Modified();
   pL3->Modified();
@@ -210,26 +208,30 @@ void Earthquake::DrawPlot()
   TCanvas *c5 = new TCanvas("c5", "", 1200, 600);
   g_pvalue->SetTitle("");
   g_pvalue->SetMaximum(1);
-  g_pvalue->SetMinimum(1e-13);
+  g_pvalue->SetMinimum(1e-7);
+  //  g_pvalue->SetMinimum(1e-13);
   g_pvalue->Draw("");
   g_pvalue->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 80) * 60 * 60 * 2);
   g_pvalue->GetXaxis()->SetTitle("Time (mm/dd)");
   g_pvalue->GetYaxis()->SetTitle("p-value");
-  //g_pvalue->GetXaxis()->SetTitleOffset(1.6);
+  g_pvalue->GetXaxis()->SetLabelSize(0);
+  g_pvalue->GetXaxis()->SetTitleSize(0);
+  g_pvalue->GetYaxis()->SetTitleSize(0.05);
+  g_pvalue->GetYaxis()->SetTitleOffset(0.7);
   g_pvalue->GetXaxis()->SetTimeDisplay(1);
   g_pvalue->GetXaxis()->SetTimeFormat("%d/%m %F2021-09-015 00:00:00");
-  for (int i = 0; i < 7; i++) {
+  for (int i = 0; i < 5; i++) {
     double p = 0.5 * (1 - TMath::Erf((i + 1) / sqrt(2)));
     TLine *l = new TLine(-30 * 60 * 60 * 2, p, (N + 80) * 60 * 60 * 2, p);
     l->SetLineStyle(7);
     l->SetLineColor(kRed);
     l->SetLineWidth(1);
     l->Draw();
-		TString s;
-		s.Form("%i",i+1);
-    TLatex *tv1 = new TLatex((N+15) * 60 * 60 * 2, p,s+" #sigma");
+    TString s;
+    s.Form("%i", i + 1);
+    TLatex *tv1 = new TLatex((N + 15) * 60 * 60 * 2, p, s + " #sigma");
     tv1->SetTextAlign(11);
-		tv1->SetTextColor(kRed);
+    tv1->SetTextColor(kRed);
     tv1->SetTextSize(0.04);
     tv1->SetTextFont(12);
     tv1->Draw();
@@ -240,4 +242,62 @@ void Earthquake::DrawPlot()
   c5->Modified();
   c5->SaveAs("plots/p-value.pdf");
   delete c5;
+}
+
+void DataReader::DrawPlots()
+{
+
+  // EQ
+  TCanvas *c6 = new TCanvas("c5", "", 1200, 200);
+  c6->SetBottomMargin(0.3);
+
+  g_ML->SetTitle("");
+  g_ML->Draw("AP");
+  g_ML->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (datetime_Rn.size() + 80) * 60 * 60 * 2);
+  g_ML->GetXaxis()->SetTitle("Time (dd/mm)");
+  g_ML->GetYaxis()->SetTitle("M_{L}");
+  g_ML->SetMinimum(3.8);
+  g_ML->SetMaximum(6.2);
+  g_ML->SetMarkerStyle(20);
+  g_ML->GetXaxis()->SetTimeDisplay(1);
+  g_ML->GetXaxis()->SetTimeFormat("%d/%m %F2021-09-015 00:00:00");
+  g_ML->GetXaxis()->SetLabelSize(0);
+  g_ML->GetXaxis()->SetTitleSize(0);
+
+  g_ML->GetYaxis()->SetLabelSize(0.12);
+  g_ML->GetYaxis()->SetTitleSize(0.17);
+  g_ML->GetYaxis()->SetTitleOffset(0.2);
+  g_ML->GetYaxis()->SetNdivisions(503);
+  c6->SetTicks(1, 1);
+  c6->SetGrid(0, 1);
+  c6->Modified();
+  c6->SaveAs("plots/EQ_ML.pdf");
+  delete c6;
+  // depth
+  TCanvas *c7 = new TCanvas("c5", "", 1200, 200);
+  c7->SetBottomMargin(0.3);
+
+  g_depth->SetTitle("");
+  g_depth->Draw("AP");
+  g_depth->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (datetime_Rn.size() + 80) * 60 * 60 * 2);
+  g_depth->GetXaxis()->SetTitle("Time (dd/mm)");
+  g_depth->GetYaxis()->SetTitle("Depth(km)");
+  g_depth->SetMinimum(-55);
+  g_depth->SetMaximum(-0.5);
+  g_depth->SetMarkerStyle(20);
+  g_depth->GetXaxis()->SetTimeDisplay(1);
+  g_depth->GetXaxis()->SetTimeFormat("%d/%m %F2021-09-015 00:00:00");
+  g_depth->GetXaxis()->SetLabelSize(0.15);
+  g_depth->GetXaxis()->SetTitleSize(0.15);
+  g_depth->GetXaxis()->SetTitleOffset(1.0);
+
+  g_depth->GetYaxis()->SetLabelSize(0.12);
+  g_depth->GetYaxis()->SetTitleSize(0.17);
+  g_depth->GetYaxis()->SetTitleOffset(0.2);
+  g_depth->GetYaxis()->SetNdivisions(503);
+  c7->SetTicks(1, 1);
+  c7->SetGrid(0, 1);
+  c7->Modified();
+  c7->SaveAs("plots/EQ_depth.pdf");
+  delete c7;
 }

@@ -1,5 +1,7 @@
 //
-//	read earthquake data
+//	read earthquake directory from CWB
+//	deal with eq raw data to match the form of Rn data
+//	create: Lin Shih
 //
 //
 #include <iostream>
@@ -12,9 +14,19 @@ using namespace std;
 #include "TString.h"
 #include "TGraph.h"
 #include "TCanvas.h"
+#include "TDirectory.h"
+#include "TF1.h"
+#include "TFile.h"
+#include "TGraph.h"
+#include "TMultiGraph.h"
+#include "TPad.h"
+#include "TLegend.h"
+#include "TLatex.h"
+#include "TH1D.h"
+#include "TKey.h"
+#include "TStyle.h"
 
 #include "interface/DataReader.h"
-//#include "interface/EQ.h"
 
 
 void DataReader::Init(ifstream &eqDirInput)
@@ -99,7 +111,6 @@ void DataReader::ReadEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *of
   for (int rn = 0; rn < datetime_Rn.size(); rn++) {
     newArray[rn].ML_    = 0;
     newArray[rn].depth_ = 0;
-    //cout << "newArray[" << rn << "] " << newArray[rn].datetime_ << " " << newArray[rn].ML_ << endl;
   }
 
   DataReader         reader;
@@ -125,16 +136,18 @@ void DataReader::ReadEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *of
   }
 
   for (int rn = 0; rn < datetime_Rn.size(); rn++) {
-    cout << "newArray[" << rn << "] " 
-						<< newArray[rn].datetime_ << " " 
-						<< newArray[rn].ML_ << " " 
-						<< newArray[rn].depth_
-         		<< endl;
+   // cout << "newArray[" << rn << "] " 
+	 // 				<< newArray[rn].datetime_ << " " 
+	 // 				<< newArray[rn].ML_ << " " 
+	 // 				<< newArray[rn].depth_
+   //      		<< endl;
+		if(newArray[rn].ML_ >= 4 && newArray[rn].depth_ <= 50){
     ML[rn] = newArray[rn].ML_;
-    depth[rn] = newArray[rn].depth_;
+    depth[rn] = 0. - newArray[rn].depth_;
+		}
   }
 
-	// 
+	// store into root file 
   ofile->cd("EQ_directory");
 
   g_ML = new TGraph(datetime_Rn.size(), N_, ML);
@@ -145,3 +158,4 @@ void DataReader::ReadEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *of
   g_depth->SetName("g_depth");
   g_depth->Write();
 }
+

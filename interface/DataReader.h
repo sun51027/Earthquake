@@ -16,7 +16,7 @@
 
 using namespace std;
 
-// class Earthquake;
+//class Earthquake;
 
 class DataReader {
 public:
@@ -30,12 +30,13 @@ public:
 
   ~DataReader() {}
   vector<DataReader> ReadRawData();
-  void               EarthquakeDirectory();
-  TString            LoadDateTime();
   void               Init(ifstream &eqDirInput);
   void               ReadEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *ofile);
+  void               DrawPlots();
+
 
 private:
+
   double  lat_;
   double  lon_;
   double  depth_;
@@ -53,7 +54,6 @@ private:
   vector<string> time_raw;
   vector<string> fixed_raw;
   vector<string> quality_raw;
-
   vector<string> lat_raw;
   vector<string> lon_raw;
   vector<string> depth_raw;
@@ -66,12 +66,12 @@ private:
   vector<string> ERZ_raw;
   vector<string> nph_raw;
 
+	vector<TString>    datetime;
   vector<string>     datetime_Rn;
   vector<DataReader> rawdata;
-  vector<TString>    datetime;
 
-  double  ML[4000];
-  double  depth[4000];
+  double ML[4000];
+  double depth[4000];
   TGraph *g_ML;
   TGraph *g_depth;
 };
