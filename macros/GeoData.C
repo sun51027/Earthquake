@@ -24,44 +24,43 @@ void GeoData(string infileName)
   if (fChain == 0) return;
 
   Long64_t nentries = fChain->GetEntriesFast();
-  double   data_c[10000];
-  double   ts_c[10000];
-  cout << "nentries " << nentries << endl;
-  for (Long64_t ientry = 0; ientry < 10000; ientry++) {
+  for (Long64_t ientry = 0; ientry < nentries; ientry++) {
 
     fChain->GetEntry(ientry);
-    data_c[ientry] = data;
-    ts_c[ientry]   = (timestamp + timestamp_ns * 1e-9);
     if (ientry % 10000000 == 0)
       std::cout << ientry << " " << std::setprecision(3) << float(ientry) / float(nentries) * 100 << "%" << std::endl;
-    //    cout << "timestamp " << timestamp << " timetmp " << timetmp <<" timestamp_ns "<<timestamp_ns<< " data
-    //    "<<data<<endl;
+
+
     if (ientry > 0 && timestamp == timetmp) {
-      n++;
-      data_collection.push_back(data); // input data every second
+      if (abs(data) > abs(datatmp)) datatmp = data;
     } else {
       // include ientry = 0, that is in first entry we set timetmp = timestamp
+  //    cout << "timestamp " << timestamp << " timetmp " << timetmp <<" timestamp_ns "<<timestamp_ns<<endl;
       timetmp = timestamp;
-      ts_collection.push_back(timestamp);
-      //    cout << "n " << n << endl;
+      data_collection.push_back(datatmp); // input data every second
+			n++;
+			ts_collection.push_back(n);
+      //ts_collection.push_back(timestamp+timestamp_ns*1e-9);
+      datatmp = 0;
     }
 
     // if (Cut(ientry) < 0) continue;
   }
-  //    for(int i =0;i< data_collection.size();i++){
-  //          cout<<" data_collection "<< data_collection[i]<<endl;
-  //  }
-  for (int i = 0; i < 10000; i++) {
-    cout << (Long64_t)ts_c[i] << endl;
-  }
-  //  cout<<"data_collection size "<<data_collection.size()<<endl;
   //   TFile* f = new TFile("test.root","RECREATE");
-  //     TGraph* gdata = new TGraph(data_collection.size(),&ts_collection,&data_collection);
-  TGraph *gdata = new TGraph(10000, ts_c, data_c);
-  gdata->Draw("AP");
+  TCanvas *c = new TCanvas("c","",800,600);
+  TGraph *gdata = new TGraph(ts_collection.size(), ts_collection.data(), data_collection.data());
+  gdata->Draw("AL");
   gdata->SetMarkerStyle(20);
+  gdata->GetXaxis()->SetTimeDisplay(1);
+  gdata->GetXaxis()->SetTimeFormat("%m/%d %H %F2022-03-23 00:00:00");
+	gdata->GetXaxis()->SetLimits(-10000,n+10000);
+  c->SaveAs("EQtimestamp(s)_maxsignal.png");
+  cout << "nentries " << nentries << endl;
+	cout <<"size "<<data_collection.size()<<endl;
+	cout <<"size "<<ts_collection.size()<<endl;
+	cout<<"n "<<n<<endl;
   //   gdata->Write();
   //   f->Write();
   //   f->Close();
-  return;
+  //  return;
 }
