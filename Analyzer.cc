@@ -73,21 +73,21 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         h_cfactor->Fill(cfactor[N]);
 
         for (int k = 0; k < 1024; k++) {
-          nMoveBin[k] = (cfactor[N]-1) * obj->GetBinCenter(k + 1) / energyBin;
+          nMoveBin[k] = (cfactor[N] - 1) * obj->GetBinCenter(k + 1) / energyBin;
         }
 
         // calibrate hourly and show K40 peak
         TH1D *obj_cali = (TH1D *)(obj->Clone("obj_cali"));
         for (int j = 0; j < 1024; j++) {
-            obj_cali->SetBinContent(j + 1+1,
-                               obj->GetBinContent(j + 1+1) * (1-nMoveBin[j+1]) + obj->GetBinContent(j+1) *(nMoveBin[j]));
+          obj_cali->SetBinContent(j + 1 + 1, obj->GetBinContent(j + 1 + 1) * (1 - nMoveBin[j + 1]) +
+                                               obj->GetBinContent(j + 1) * (nMoveBin[j]));
 
-//          if (nMoveBin[j] != 0) {
-            cout << "obj " << obj->GetBinContent(j + 1) 
-								 << "\t" << nMoveBin[j] //<< "\t obj_cali "
-								 <<"\t\t cfactor "<<cfactor[N]
-                 <<"\t\tcali_obj "<< obj_cali->GetBinContent(j + 1) << endl;
-  //        }
+          //          if (nMoveBin[j] != 0) {
+          //            cout << "obj " << obj->GetBinContent(j + 1)
+          //								 << "\t" << nMoveBin[j] //<< "\t obj_cali "
+          //								 <<"\t\t cfactor "<<cfactor[N]
+          //                 <<"\t\tcali_obj "<< obj_cali->GetBinContent(j + 1) << endl;
+          //        }
         }
 
         cfactor_cali[N] = PEAKFORCALI / PeakforCalibration(obj_cali, ofile, time_name[N]);
@@ -114,10 +114,9 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         double nDailySig =
           obj_cali->Integral(obj_cali->GetXaxis()->FindBin(MINRADON), obj_cali->GetXaxis()->FindBin(MAXRADON));
         double diff = nDailySig - nTemplateSig;
-        N_[N]    = (double)(N + 1) * 60 * 60 * 2; // number of 2hour
-        diff_[N] = diff;
+        N_[N]       = (double)(N + 1) * 60 * 60 * 2; // number of 2hour
+        diff_[N]    = diff;
         h_diff->Fill(diff);
-
 
         delete obj;
         delete scaledTemplate;
