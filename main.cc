@@ -23,7 +23,8 @@ int main()
   dir->cd();
 
   ifstream eqDirInput;
-  eqDirInput.open("data/GDMScatalog20210915-1231.txt");
+  eqDirInput.open("data/GDMScatalog20220323-0324.txt");
+  //eqDirInput.open("data/GDMScatalog20210915-1231.txt");
 
   // get template
   TFile *fin2     = new TFile("plots_root/template.root");
@@ -33,16 +34,16 @@ int main()
 	DataReader eqData;
 
   // do analysis
-  eqAnalysis.DoAnalysis(Template, dir, ofile);
+//  eqAnalysis.DoAnalysis(Template, dir, ofile);
 
 	// read Eq directory
   ifstream timeInput;
-  timeInput.open("time_name.txt");
+  timeInput.open("doc/time_name_test.txt");
 	eqData.ReadEQdata(eqDirInput,timeInput,ofile);
 	ofile->Close();
 
 	// draw plots
-	eqAnalysis.DrawPlot();
+//	eqAnalysis.DrawPlot();
 	eqData.DrawPlots();
 
   return 0;

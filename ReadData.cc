@@ -25,18 +25,20 @@ using namespace std;
 #include "TH1D.h"
 #include "TKey.h"
 #include "TStyle.h"
+#include "TTimeStamp.h"
 
 #include "interface/DataReader.h"
-
 
 void DataReader::Init(ifstream &eqDirInput)
 {
   string c1, c2, c13, c15, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c14;
 
-  rawdata.resize(64);
+  //  rawdata.resize(64);
+  rawdata.resize(80);
   if (!eqDirInput.is_open()) {
     cout << "Failed to open file" << endl;
   } else {
+    cout << "open file " << endl;
     while (eqDirInput >> c1 >> c2 >> c3 >> c4 >> c5 >> c6 >> c7 >> c8 >> c9 >> c10 >> c11 >> c12 >> c13 >> c14 >> c15) {
       date_raw.push_back(c1);
       time_raw.push_back(c2);
@@ -60,31 +62,53 @@ void DataReader::Init(ifstream &eqDirInput)
 vector<DataReader> DataReader::ReadRawData()
 {
 
-  datetime.resize(64);
+  vector<TString> date;
+  vector<TString> time;
+  date.resize(lat_raw.size());
+  time.resize(lat_raw.size());
+  datetime.resize(lat_raw.size());
 
   for (int i = 1; i < lat_raw.size(); i++) {
+    time[i] = time_raw[i];
+    time[i].Remove(2, 1);
+    time[i].Remove(4, 1);
+    time[i].Remove(6, 3);
+    //					cout<<"time["<<i<<"] "<<time[i]<<endl;
+    date[i] = date_raw[i];
+    date[i].Remove(4, 1);
+    date[i].Remove(6, 1);
+    //					cout<<"date["<<i<<"] "<<date[i]<<endl;
 
+    TTimeStamp test(date[i].Atoi(), time[i].Atoi(), 0, kTRUE, 8 * 3600);
+    //					cout<<"GMT "<<test.GetDate()<<" "<<test.GetTime()<<endl;
+    if ((test.GetTime() / 100000) != 0) {
+      // cout<<"time "<<test.GetTime()<<endl;
+      datetime[i].Form("%i%i", test.GetDate(), test.GetTime());
+      // cout<<"datetime["<<i<<"] "<<datetime[i]<<endl;
+    } else {
+      datetime[i].Form("%i0%i", test.GetDate(), test.GetTime());
+      // cout<<"datetime["<<i<<"] "<<datetime[i]<<endl;
+    }
+    datetime[i].Remove(10, 4);
+    //						cout<<"datetime["<<i<<"] "<<datetime[i]<<endl;
     // combine date and time into datatime to match Rn data array
-    datetime[i - 1].Form("%s%s", date_raw[i].c_str(), time_raw[i].c_str());
-    datetime[i - 1].Remove(4, 1);
-    datetime[i - 1].Remove(6, 1);
-    datetime[i - 1].Remove(10, 9);
-    TString s(datetime[i - 1](9, 10));
+    TString s(datetime[i](9, 10));
     if (s == "1") {
-      datetime[i - 1].Replace(9, 1, "0");
+      datetime[i].Replace(9, 1, "0");
     } else if (s == "3") {
-      datetime[i - 1].Replace(9, 1, "2");
+      datetime[i].Replace(9, 1, "2");
     } else if (s == "5") {
-      datetime[i - 1].Replace(9, 1, "4");
+      datetime[i].Replace(9, 1, "4");
     } else if (s == "7") {
-      datetime[i - 1].Replace(9, 1, "6");
+      datetime[i].Replace(9, 1, "6");
     } else if (s == "9") {
-      datetime[i - 1].Replace(9, 1, "8");
+      datetime[i].Replace(9, 1, "8");
     }
 
+    // rawdata begin with i = 0
     rawdata[i - 1] = DataReader(stod(lat_raw[i]), stod(lon_raw[i]), stod(depth_raw[i]), stod(ML_raw[i]),
                                 stod(nstn_raw[i]), stod(dmin_raw[i]), stod(gap_raw[i]), stod(trms_raw[i]),
-                                stod(ERH_raw[i]), stod(ERZ_raw[i]), stod(nph_raw[i]), datetime[i - 1]);
+                                stod(ERH_raw[i]), stod(ERZ_raw[i]), stod(nph_raw[i]), datetime[i]);
   }
 
   return rawdata;
@@ -102,10 +126,10 @@ void DataReader::ReadEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *of
     }
   }
 
-  // Initialize rawdata from EQ directory (CWB) and 
-	// create newArray to match match the date-time of Rn 
-	// to the EQ directory
-	//
+  // Initialize rawdata from EQ directory (CWB) and
+  // create newArray to match match the date-time of Rn
+  // to the EQ directory
+  //
   vector<DataReader> newArray;
   newArray.resize(datetime_Rn.size());
   for (int rn = 0; rn < datetime_Rn.size(); rn++) {
@@ -113,49 +137,62 @@ void DataReader::ReadEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *of
     newArray[rn].depth_ = 0;
   }
 
-  DataReader         reader;
+  DataReader reader;
   reader.Init(eqDirInput);
   rawdata = reader.ReadRawData();
 
-	// Match the two arrays
+  // sort(rawdata.begin(),rawdata.end()+rawdata.size());
+  //  Match the two arrays
 
   double N_[4000]; // for time
-
-	for (int rn = 0; rn < datetime_Rn.size(); rn++) {
+  double MLtmp = 0;
+  double ntmp  = 0;
+  for (int rn = 0; rn < datetime_Rn.size(); rn++) {
 
     N_[rn] = (double)(rn + 1) * 60 * 60 * 2; // number of 2hour
 
     for (int i = 0; i < rawdata.size(); i++) {
 
       if (rawdata[i].datetime_ == datetime_Rn[rn]) {
-        newArray[rn] = rawdata[i];
-        //cout << rawdata[i].datetime_ << " " << datetime_Rn[rn] << " " << newArray[rn].datetime_ << endl;
-      } else
+        if (rawdata[i].ML_ > MLtmp) {
+          MLtmp = rawdata[i].ML_;
+          ntmp  = i;
+        }
+        cout << ntmp << " " << rawdata[i].datetime_ << " ML[" << i << "] " << rawdata[i].ML_ << " Rndatetime[" << rn
+             << "] " << datetime_Rn[rn] << " " << endl;
+
+        //        cout << rawdata[i].datetime_ << " " << datetime_Rn[rn] << " " << newArray[rn].datetime_ << endl;
+      } else {
+        if (MLtmp != 0) {
+
+          cout << ntmp << " MLtmp " << MLtmp << endl;
+          newArray[rn] = rawdata[ntmp];
+        }
+        // cout<<"rn "<<rn<<" i "<<i<<endl;
+        MLtmp = 0;
         continue;
+      }
+    }
+  }
+  for (int rn = 0; rn < datetime_Rn.size(); rn++) {
+    cout << "newArray[" << rn << "] " << newArray[rn].datetime_ << " " << newArray[rn].ML_ << " " << newArray[rn].depth_
+         << endl;
+    if (newArray[rn].ML_ >= 4) {
+      // if(newArray[rn].ML_ >= 4 && newArray[rn].depth_ <= 300){
+      ML[rn]    = newArray[rn].ML_;
+      depth[rn] = 0. - newArray[rn].depth_;
     }
   }
 
-  for (int rn = 0; rn < datetime_Rn.size(); rn++) {
-   // cout << "newArray[" << rn << "] " 
-	 // 				<< newArray[rn].datetime_ << " " 
-	 // 				<< newArray[rn].ML_ << " " 
-	 // 				<< newArray[rn].depth_
-   //      		<< endl;
-		if(newArray[rn].ML_ >= 4 && newArray[rn].depth_ <= 50){
-    ML[rn] = newArray[rn].ML_;
-    depth[rn] = 0. - newArray[rn].depth_;
-		}
-  }
-
-	// store into root file 
-  ofile->cd("EQ_directory");
-
-  g_ML = new TGraph(datetime_Rn.size(), N_, ML);
-  g_ML->SetName("g_ML");
-  g_ML->Write();
-
-  g_depth = new TGraph(datetime_Rn.size(), N_, depth);
-  g_depth->SetName("g_depth");
-  g_depth->Write();
+  //  // store into root file
+  //  ofile->cd("EQ_directory");
+  //
+  //  g_ML = new TGraph(datetime_Rn.size(), N_, ML);
+  //  g_ML->SetName("g_ML");
+  //  g_ML->Write();
+  //
+  //  g_depth = new TGraph(datetime_Rn.size(), N_, depth);
+  //  g_depth->SetName("g_depth");
+  //  g_depth->Write();
 }
 

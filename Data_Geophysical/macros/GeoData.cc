@@ -1,7 +1,20 @@
+#include "GeoData.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TString.h"
+#include "TDatime.h"
+#include "TGraph.h"
+#include "TAxis.h"
+#include "TCanvas.h"
+#include <string>
+#include <vector>
+#include "TStyle.h"
+
+using namespace std;
+
 void GeoData(string infileName)
 {
 
-  TCanvas *c     = new TCanvas("c", "", 800, 600);
   TFile *infile = new TFile(infileName.c_str(), "READ");
   TTree *fChain = (TTree *)infile->Get("GeoData");
   // Declaration of leaf types
@@ -16,15 +29,18 @@ void GeoData(string infileName)
   fChain->SetBranchAddress("timestamp", &timestamp, &b_timestamp);
   fChain->SetBranchAddress("timestamp_ns", &timestamp_ns, &b_timestamp_ns);
 
-  std::vector<float> data_collection;
-  std::vector<float> ts_collection;
+  vector<float> data_collection;
+  vector<float> ts_collection;
   float              datatmp = 0;
   Long64_t           timetmp = 0;
   int                n       = 0;
   
   TString name = infileName;
+	TString channel = infileName;
   name.Remove(0,12);
   name.Remove(28,5);
+	channel.Remove(0,19);
+	channel.Remove(3,23);
 
   if (fChain == 0) return;
 
@@ -34,7 +50,7 @@ void GeoData(string infileName)
 
     fChain->GetEntry(ientry);
     if (ientry % 10000000 == 0)
-      std::cout << ientry << " " << std::setprecision(3) << float(ientry) / float(nentries) * 100 << "%" << std::endl;
+      cout << ientry << " " << setprecision(3) << float(ientry) / float(nentries) * 100 << "%" << endl;
 
 
     if (ientry > 0 && timestamp == timetmp) {
@@ -53,17 +69,18 @@ void GeoData(string infileName)
   TDatime da(1970, 1,1, 00, 00, 00);
   gStyle->SetTimeOffset(da.Convert());
 
+  TCanvas *c     = new TCanvas("c", "", 1200, 600);
   TGraph *gdata = new TGraph(data_collection.size(), ts_collection.data(), data_collection.data());
   gdata->Draw("AL");
-  gdata->SetMarkerStyle(20);
+  gdata->SetTitle("");
   gdata->GetXaxis()->SetTimeDisplay(1);
   gdata->GetXaxis()->SetTimeOffset(1,"gmt");
-	gdata->GetXaxis()->SetTimeFormat("%m/%d");
-	gdata->GetXaxis()->SetNdivisions(520);
-
+	gdata->GetXaxis()->SetTimeFormat("%m/%d %Hh");
+	gdata->GetXaxis()->SetTitle("Date time (mm/dd/hh)");
+ 	gdata->GetYaxis()->SetTitle("Data ("+channel+")");	
   c->SetGrid(1,0);
 	c->Modified();
-  c->SaveAs(name+".png");
+  c->SaveAs("plot/"+name+".png");
 
   //   TFile* f = new TFile("test.root","RECREATE");
   //   gdata->Write();
