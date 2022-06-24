@@ -9,6 +9,7 @@
 #include "TGraph.h"
 #include "TH1D.h"
 #include "TKey.h"
+#include "TDatime.h"
 #include "RooFit.h"
 #include "RooRealVar.h"
 #include "RooGaussian.h"
@@ -73,6 +74,7 @@ private:
   double N_[4000];
   int    N = 0;
 
-  TString time_name[2500];
+  TString datetime[2500];
+	TDatime timeoffset;
 };
 #endif

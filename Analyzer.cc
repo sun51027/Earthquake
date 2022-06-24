@@ -20,6 +20,7 @@ using namespace std;
 #include "TKey.h"
 #include "TStyle.h"
 #include "TMath.h"
+#include "TDatime.h"
 
 TH1 *Earthquake::SetZeroBinContent(TH1 *hist)
 {
@@ -63,12 +64,12 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
       //      if (h < 720 && obj->Integral() != 0) { // before July
       if (h > 1799 && obj->Integral() != 0) { // start from 9/15 h=1800)
 
-        // set hist name ex. 12/25;  time_name = 2021122522
-        time_name[N].Form("%s%s", key->GetName(), key2->GetName());
-        time_name[N].Remove(10, 4);
+        // set hist name ex. 12/25;  datetime = 2021122522
+        datetime[N].Form("%s%s", key->GetName(), key2->GetName());
+        datetime[N].Remove(10, 4);
 
         // get the calibration factor
-        peakforCali[N] = PeakforCalibration(obj, ofile, time_name[N]);
+        peakforCali[N] = PeakforCalibration(obj, ofile, datetime[N]);
         cfactor[N]     = PEAKFORCALI / peakforCali[N]; // After Sep
         h_cfactor->Fill(cfactor[N]);
 
@@ -90,10 +91,10 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
           //        }
         }
 
-        cfactor_cali[N] = PEAKFORCALI / PeakforCalibration(obj_cali, ofile, time_name[N]);
+        cfactor_cali[N] = PEAKFORCALI / PeakforCalibration(obj_cali, ofile, datetime[N]);
         h_cfactor_cali->Fill(cfactor_cali[N]);
-        K40peak_uncali[N] = PeakforK40(obj, ofile, time_name[N], 0);
-        K40peak_cali[N]   = PeakforK40(obj_cali, ofile, time_name[N], 1);
+        K40peak_uncali[N] = PeakforK40(obj, ofile, datetime[N], 0);
+        K40peak_cali[N]   = PeakforK40(obj_cali, ofile, datetime[N], 1);
         h_K40_peak_cali->Fill(K40peak_cali[N]);
         h_K40_peak_uncali->Fill(K40peak_uncali[N]);
 
@@ -165,16 +166,28 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 
   // save time name into txt
   ofstream ofs;
-  ofs.open("time_name.txt");
+  ofs.open("datetime.txt");
   if (!ofs.is_open()) {
     cout << "Fail to open txt file" << endl;
   } else {
     for (int i = 0; i < N; i++) {
-      ofs << time_name[i] << endl;
+      ofs << datetime[i] << endl;
     }
   }
   ofs.close();
 
+  TString date_Rn[N];
+  TString time_Rn[N];
+  for (int rn = 0; rn < N; rn++) {
+    date_Rn[rn] = datetime[rn];
+    date_Rn[rn].Remove(8, 2);
+    time_Rn[rn] = datetime[rn];
+    time_Rn[rn].Remove(0, 8);
+    time_Rn[rn].Insert(2, "0000");
+  }
+
+  timeoffset.Set(date_Rn[0].Atoi(), time_Rn[0].Atoi());
+	timeoffset.Print();
   // write analysis plots into oAnalyzr.root
   ofile->cd("Analysis_plot");
 

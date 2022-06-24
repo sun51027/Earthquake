@@ -27,6 +27,7 @@ using namespace mgr;
 void Earthquake::DrawPlot()
 {
 
+  gStyle->SetTimeOffset(timeoffset.Convert()+8*3600);
   // difference vs time
   // create canvas
   TCanvas *c  = new TCanvas("c", "", 10, 10, 1800, 900);
@@ -46,12 +47,12 @@ void Earthquake::DrawPlot()
   g_diffvsTime->SetMarkerColor(kBlue);
   g_diffvsTime->Draw("AP");
   mgr::SetLeftPlotAxis(g_diffvsTime);
-  g_diffvsTime->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 29) * 60 * 60 * 2);
+//  g_diffvsTime->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 29) * 60 * 60 * 2);
   g_diffvsTime->GetXaxis()->SetTitle("Time (mm/dd)");
   g_diffvsTime->GetYaxis()->SetTitle("N_{radon} - <N_{radon}> / #sigma");
   g_diffvsTime->GetXaxis()->SetTitleOffset(1.6);
   g_diffvsTime->GetXaxis()->SetTimeDisplay(1);
-  g_diffvsTime->GetXaxis()->SetTimeFormat("%d/%m %F2021-09-15 00:00:00");
+  g_diffvsTime->GetXaxis()->SetTimeFormat("%m/%d");
   g_diffvsTime->GetYaxis()->SetTitleSize(30);
   g_diffvsTime->GetYaxis()->SetLabelSize(30);
 
@@ -98,7 +99,7 @@ void Earthquake::DrawPlot()
   mg->GetYaxis()->SetTitle("K40 peak (MeV)");
   mg->GetXaxis()->SetTitle("Time (mm/dd)");
   mg->GetXaxis()->SetTimeDisplay(1);
-  mg->GetXaxis()->SetTimeFormat("%d/%m %F2021-09-15 00:00:00");
+  mg->GetXaxis()->SetTimeFormat("%m/%d");
 
   TLegend *leg2 = new TLegend(0.65, 0.65, 0.80, 0.80);
   leg2->SetBorderSize(0);
@@ -153,11 +154,11 @@ void Earthquake::DrawPlot()
   mg2->SetMaximum(1.01); // 1.01
   mg2->SetMinimum(0.99); // 0.98
   mg2->Draw("AP");
-  mg2->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 29) * 60 * 60 * 2);
+//  mg2->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 29) * 60 * 60 * 2);
   mg2->GetYaxis()->SetTitle("calibration factor");
   mg2->GetXaxis()->SetTitle("Time (mm/dd)");
   mg2->GetXaxis()->SetTimeDisplay(1);
-  mg2->GetXaxis()->SetTimeFormat("%d/%m %F2021-09-15 00:00:00");
+  mg2->GetXaxis()->SetTimeFormat("%m/%d");
 
   TLegend *leg3 = new TLegend(0.65, 0.65, 0.80, 0.80);
   leg3->SetBorderSize(0);
@@ -188,18 +189,24 @@ void Earthquake::DrawPlot()
   /*----------------------------------------------*/
   // sigma significant
   TCanvas *c4 = new TCanvas("c4", "", 1200, 600);
+//	TPad *pad4 = new TPad();
+//	mgr::SetSinglePad(pad4);
+//	pad4->Draw();
+//	pad4->cd();
   g_sigma_significant->SetTitle("");
   g_sigma_significant->SetMaximum(9);
   g_sigma_significant->SetMinimum(0);
   g_sigma_significant->Draw("");
-  g_sigma_significant->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 29) * 60 * 60 * 2);
+	g_sigma_significant->GetXaxis()->SetLimits(-14 * 60 * 60 * 2, (N + 29) * 60 * 60 * 2);
   g_sigma_significant->GetXaxis()->SetTitle("Time (mm/dd)");
   g_sigma_significant->GetYaxis()->SetTitle("No. of #sigma");
   g_sigma_significant->GetXaxis()->SetTitleOffset(1.6);
   g_sigma_significant->GetXaxis()->SetTimeDisplay(1);
-  g_sigma_significant->GetXaxis()->SetTimeFormat("%d/%m %F2021-09-15 00:00:00");
+  g_sigma_significant->GetXaxis()->SetTimeFormat("%m/%d");
   c4->SetGrid(1, 1);
-  c4->Modified();
+	mgr::SetAxis(g_sigma_significant);
+//	pad4->Update();
+  c4->Update();
   c4->SaveAs("plots/Significant_sigma.pdf");
   delete c4;
 
@@ -211,7 +218,7 @@ void Earthquake::DrawPlot()
   g_pvalue->SetMinimum(1e-7);
   //  g_pvalue->SetMinimum(1e-13);
   g_pvalue->Draw("");
-  g_pvalue->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 80) * 60 * 60 * 2);
+  //g_pvalue->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 80) * 60 * 60 * 2);
   g_pvalue->GetXaxis()->SetTitle("Time (mm/dd)");
   g_pvalue->GetYaxis()->SetTitle("p-value");
   g_pvalue->GetXaxis()->SetLabelSize(0);
@@ -219,7 +226,7 @@ void Earthquake::DrawPlot()
   g_pvalue->GetYaxis()->SetTitleSize(0.05);
   g_pvalue->GetYaxis()->SetTitleOffset(0.7);
   g_pvalue->GetXaxis()->SetTimeDisplay(1);
-  g_pvalue->GetXaxis()->SetTimeFormat("%d/%m %F2021-09-015 00:00:00");
+  g_pvalue->GetXaxis()->SetTimeFormat("%m/%d");
   for (int i = 0; i < 5; i++) {
     double p = 0.5 * (1 - TMath::Erf((i + 1) / sqrt(2)));
     TLine *l = new TLine(-30 * 60 * 60 * 2, p, (N + 80) * 60 * 60 * 2, p);
@@ -247,22 +254,25 @@ void Earthquake::DrawPlot()
 void DataReader::DrawPlots()
 {
 
+  gStyle->SetTimeOffset(timeoffset.Convert()+8*3600);
+
+	timeoffset.Print();
   // EQ
   TCanvas *c6 = new TCanvas("c5", "", 1200, 200);
   c6->SetBottomMargin(0.3);
 
   g_ML->SetTitle("");
   g_ML->Draw("AP");
-  //  g_ML->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (datetime_Rn.size() + 80) * 60 * 60 * 2);
-  // g_ML->GetXaxis()->SetLimits(-60 * 60 * 10, (44)* 60 * 60  );
+//  //g_ML->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (datetime_Rn.size() + 80) * 60 * 60 * 2);
+//	g_ML->GetXaxis()->SetLimits(-10*60*60*2,(datetime_Rn.size()+10)*60*60*2);
   g_ML->GetXaxis()->SetTitle("Time (mm/dd)");
   g_ML->GetYaxis()->SetTitle("M_{L}");
   g_ML->SetMinimum(3.8);
   g_ML->SetMaximum(7);
   g_ML->SetMarkerStyle(20);
   g_ML->GetXaxis()->SetTimeDisplay(1);
-  g_ML->GetXaxis()->SetTimeOffset(1, "gmt");
-  g_ML->GetXaxis()->SetTimeFormat("%m/%d-%Hh %F2022-03-23 00:00:00");
+  //g_ML->GetXaxis()->SetTimeOffset(0,"local");
+  g_ML->GetXaxis()->SetTimeFormat("%Y %m/%d-%Hh");
   // g_ML->GetXaxis()->SetTimeFormat("%d/%m %F2021-09-015 00:00:00");
   // g_ML->GetXaxis()->SetLabelSize(0);
   // g_ML->GetXaxis()->SetTitleSize(0);
@@ -273,6 +283,7 @@ void DataReader::DrawPlots()
   g_ML->GetYaxis()->SetLabelSize(0.12);
   g_ML->GetYaxis()->SetTitleSize(0.17);
   g_ML->GetYaxis()->SetTitleOffset(0.2);
+	//mgr::SetAxis(g_ML);
   // g_ML->GetYaxis()->SetNdivisions(503);
   c6->SetTicks(1, 1);
   c6->SetGrid(0, 1);
@@ -285,14 +296,14 @@ void DataReader::DrawPlots()
 
   g_depth->SetTitle("");
   g_depth->Draw("AP");
-  g_depth->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (datetime_Rn.size() + 80) * 60 * 60 * 2);
+//  //g_depth->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (datetime_Rn.size() + 80) * 60 * 60 * 2);
   g_depth->GetXaxis()->SetTitle("Time (dd/mm)");
   g_depth->GetYaxis()->SetTitle("Depth(km)");
   g_depth->SetMinimum(-55);
   g_depth->SetMaximum(-0.5);
   g_depth->SetMarkerStyle(20);
   g_depth->GetXaxis()->SetTimeDisplay(1);
-  g_depth->GetXaxis()->SetTimeFormat("%d/%m %F2021-09-015 00:00:00");
+  g_depth->GetXaxis()->SetTimeFormat("%d/%m");
   g_depth->GetXaxis()->SetLabelSize(0.15);
   g_depth->GetXaxis()->SetTitleSize(0.15);
   g_depth->GetXaxis()->SetTitleOffset(1.0);

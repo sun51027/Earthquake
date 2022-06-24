@@ -34,7 +34,6 @@ void DataReader::Init(ifstream &eqDirInput)
   string c1, c2, c13, c15, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c14;
 
   //  rawdata.resize(64);
-  rawdata.resize(80);
   if (!eqDirInput.is_open()) {
     cout << "Failed to open file" << endl;
   } else {
@@ -57,13 +56,11 @@ void DataReader::Init(ifstream &eqDirInput)
       quality_raw.push_back(c15);
     }
   }
+  rawdata.resize(date_raw.size());
 }
-
 vector<DataReader> DataReader::ReadRawData()
 {
 
-  vector<TString> date;
-  vector<TString> time;
   date.resize(lat_raw.size());
   time.resize(lat_raw.size());
   datetime.resize(lat_raw.size());
@@ -73,21 +70,15 @@ vector<DataReader> DataReader::ReadRawData()
     time[i].Remove(2, 1);
     time[i].Remove(4, 1);
     time[i].Remove(6, 3);
-    //					cout<<"time["<<i<<"] "<<time[i]<<endl;
     date[i] = date_raw[i];
     date[i].Remove(4, 1);
     date[i].Remove(6, 1);
-    //					cout<<"date["<<i<<"] "<<date[i]<<endl;
 
     TTimeStamp test(date[i].Atoi(), time[i].Atoi(), 0, kTRUE, 8 * 3600);
-    //					cout<<"GMT "<<test.GetDate()<<" "<<test.GetTime()<<endl;
     if ((test.GetTime() / 100000) != 0) {
-      // cout<<"time "<<test.GetTime()<<endl;
       datetime[i].Form("%i%i", test.GetDate(), test.GetTime());
-      // cout<<"datetime["<<i<<"] "<<datetime[i]<<endl;
     } else {
       datetime[i].Form("%i0%i", test.GetDate(), test.GetTime());
-      // cout<<"datetime["<<i<<"] "<<datetime[i]<<endl;
     }
     datetime[i].Remove(10, 4);
     //						cout<<"datetime["<<i<<"] "<<datetime[i]<<endl;
@@ -106,11 +97,10 @@ vector<DataReader> DataReader::ReadRawData()
     }
 
     // rawdata begin with i = 0
-    rawdata[i - 1] = DataReader(stod(lat_raw[i]), stod(lon_raw[i]), stod(depth_raw[i]), stod(ML_raw[i]),
-                                stod(nstn_raw[i]), stod(dmin_raw[i]), stod(gap_raw[i]), stod(trms_raw[i]),
-                                stod(ERH_raw[i]), stod(ERZ_raw[i]), stod(nph_raw[i]), datetime[i]);
+    rawdata[i - 1] = DataReader(date[i].Atoi(), time[i].Atoi(), stod(lat_raw[i]), stod(lon_raw[i]), stod(depth_raw[i]),
+                                stod(ML_raw[i]), stod(nstn_raw[i]), stod(dmin_raw[i]), stod(gap_raw[i]),
+                                stod(trms_raw[i]), stod(ERH_raw[i]), stod(ERZ_raw[i]), stod(nph_raw[i]), datetime[i]);
   }
-
   return rawdata;
 }
 
@@ -125,21 +115,29 @@ void DataReader::ReadEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *of
       datetime_Rn.push_back(column);
     }
   }
-
   // Initialize rawdata from EQ directory (CWB) and
   // create newArray to match match the date-time of Rn
   // to the EQ directory
   //
   vector<DataReader> newArray;
+  TString            date_Rn[datetime_Rn.size()];
+  TString            time_Rn[datetime_Rn.size()];
   newArray.resize(datetime_Rn.size());
   for (int rn = 0; rn < datetime_Rn.size(); rn++) {
     newArray[rn].ML_    = 0;
     newArray[rn].depth_ = 0;
+    date_Rn[rn]         = datetime_Rn[rn];
+    date_Rn[rn].Remove(8, 2);
+    time_Rn[rn] = datetime_Rn[rn];
+    time_Rn[rn].Remove(0, 8);
+    time_Rn[rn].Insert(2, "0000");
   }
+
 
   DataReader reader;
   reader.Init(eqDirInput);
   rawdata = reader.ReadRawData();
+  timeoffset.Set(date_Rn[0].Atoi(), time_Rn[0].Atoi());
 
   //  Match the two arrays
 
@@ -160,24 +158,17 @@ void DataReader::ReadEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *of
         newArray[rn] = rawdata[ntmp];
         // cout << ntmp << " " << rawdata[i].datetime_ << " ML[" << i << "] " << rawdata[i].ML_ << " Rndatetime[" << rn
         //      << "] " << datetime_Rn[rn] << " " << endl;
-
-        //        cout << rawdata[i].datetime_ << " " << datetime_Rn[rn] << " " << newArray[rn].datetime_ << endl;
       } else {
-        if (MLtmp != 0) {
-
-          // cout << ntmp << " MLtmp " << MLtmp << endl;
-        }
-        // cout<<"rn "<<rn<<" i "<<i<<endl;
         MLtmp = 0;
         continue;
       }
     }
   }
   for (int rn = 0; rn < datetime_Rn.size(); rn++) {
-    cout << "newArray[" << rn << "] " << newArray[rn].datetime_ << " " << newArray[rn].ML_ << " " << newArray[rn].depth_
-         << endl;
-    if (newArray[rn].ML_ >= 4) {
-      // if(newArray[rn].ML_ >= 4 && newArray[rn].depth_ <= 300){
+    // cout << "newArray[" << rn << "] " << newArray[rn].datetime_ << " " << newArray[rn].ML_ << " " <<
+    // newArray[rn].depth_
+    //      << endl;
+    if (newArray[rn].ML_ >= 4 && newArray[rn].depth_ <= 50) {
       ML[rn]    = newArray[rn].ML_;
       depth[rn] = 0. - newArray[rn].depth_;
     }

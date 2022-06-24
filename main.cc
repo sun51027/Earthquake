@@ -8,6 +8,8 @@
 using namespace std;
 void   main_doAnalysis();
 void   main_eqDir();
+void   main_drawPlots();
+void   Help();
 string outputFile    = "";
 string inputFile     = "";
 string inputFile2    = "";
@@ -34,6 +36,9 @@ int main(int argc, char **argv)
     } else if (arg == "-dir" || arg == "--eqdir") {
       anaType = 2;
       iarg++;
+    } else if (arg == "-draw" || arg == "--draw") {
+      anaType = 3;
+      iarg++;
     } else if (arg == "-i" || arg == "--inputFile") {
       iarg++;
       inputFile = argv[iarg];
@@ -46,11 +51,16 @@ int main(int argc, char **argv)
       iarg++; // first is -o ,then is name
       outputFile = argv[iarg];
       iarg++;
+    } else if (arg == "-h" || arg == "--help") {
+      anaType = 0;
+      break;
     }
   }
   switch (anaType) {
+  case 0: Help(); break;
   case 1: main_doAnalysis(); break;
   case 2: main_eqDir(); break;
+  case 3: main_drawPlots(); break;
   }
 
   return 0;
@@ -70,29 +80,53 @@ void main_doAnalysis()
   TDirectory *dir  = (TDirectory *)fin1->Get("HistoCh0");
   dir->cd();
 
-  TFile     *fin2     = new TFile(inputTemplate.c_str());
+  TFile     *fin2     = new TFile(inputFile2.c_str());
   TH1D      *Template = (TH1D *)fin2->Get("Template");
   Earthquake eqAnalysis;
   eqAnalysis.DoAnalysis(Template, dir, ofile);
-  eqAnalysis.DrawPlot();
+  ofile->Close();
+//  eqAnalysis.DrawPlot();
 }
 
 void main_eqDir()
 {
   cout << "Working for earthquake directory....." << endl;
+
+
   TFile *ofile = new TFile(outputFile.c_str(), "recreate");
   ofile->mkdir("EQ_directory");
   ofile->cd();
+
   ifstream eqDirInput;
   eqDirInput.open(inputFile.c_str());
-  // eqDirInput.open("data/GDMScatalog20210915-1231.txt");
+
+
   DataReader eqData;
-  // read Eq directory
   ifstream timeInput;
   timeInput.open(inputFile2.c_str());
   eqData.ReadEQdata(eqDirInput, timeInput, ofile);
   ofile->Close();
-  // draw plots
-  eqData.DrawPlots();
-}
 
+  // draw plots
+//  eqData.DrawPlots();
+}
+void main_drawPlots(){
+				cout<<"Drawing Plots...."<<endl;
+//  Earthquake eqAnalysis;
+//  eqAnalysis.DrawPlot();
+//
+//  DataReader eqData;
+//  eqData.DrawPlots();
+}
+void Help()
+{
+  cout << endl;
+  cout << "Anlysis type  -------------------" << endl;
+  cout << "-an  || --analysis \t\t Do Radon analysis" << endl;
+  cout << "-dir || --eqdir \t\t Treat EQ directory from CWB and draw plots" << endl;
+  cout << endl;
+  cout << "File type  ----------------------" << endl;
+  cout << "-i   || --inputFile \t\t 1st inputfile, radon data for -an, GDMScatalog for -dir" << endl;
+  cout << "-i2  || --inputFile2 \t\t 2ns inputfile, template for -an, timelist for -dir " << endl;
+  cout << "-o   || --outputFile \t\t root file output name " << endl;
+}
