@@ -253,19 +253,19 @@ void DataReader::DrawPlots()
 
   g_ML->SetTitle("");
   g_ML->Draw("AP");
-//  g_ML->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (datetime_Rn.size() + 80) * 60 * 60 * 2);
-  //g_ML->GetXaxis()->SetLimits(-60 * 60 * 10, (44)* 60 * 60  );
+  //  g_ML->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (datetime_Rn.size() + 80) * 60 * 60 * 2);
+  // g_ML->GetXaxis()->SetLimits(-60 * 60 * 10, (44)* 60 * 60  );
   g_ML->GetXaxis()->SetTitle("Time (mm/dd)");
   g_ML->GetYaxis()->SetTitle("M_{L}");
   g_ML->SetMinimum(3.8);
   g_ML->SetMaximum(7);
   g_ML->SetMarkerStyle(20);
   g_ML->GetXaxis()->SetTimeDisplay(1);
-	g_ML->GetXaxis()->SetTimeOffset(0,"gmt");
+  g_ML->GetXaxis()->SetTimeOffset(1, "gmt");
   g_ML->GetXaxis()->SetTimeFormat("%m/%d-%Hh %F2022-03-23 00:00:00");
-  //g_ML->GetXaxis()->SetTimeFormat("%d/%m %F2021-09-015 00:00:00");
-  //g_ML->GetXaxis()->SetLabelSize(0);
-  //g_ML->GetXaxis()->SetTitleSize(0);
+  // g_ML->GetXaxis()->SetTimeFormat("%d/%m %F2021-09-015 00:00:00");
+  // g_ML->GetXaxis()->SetLabelSize(0);
+  // g_ML->GetXaxis()->SetTitleSize(0);
 
   g_ML->GetXaxis()->SetLabelSize(0.08);
   g_ML->GetXaxis()->SetTitleSize(0.15);
@@ -273,7 +273,7 @@ void DataReader::DrawPlots()
   g_ML->GetYaxis()->SetLabelSize(0.12);
   g_ML->GetYaxis()->SetTitleSize(0.17);
   g_ML->GetYaxis()->SetTitleOffset(0.2);
-  //g_ML->GetYaxis()->SetNdivisions(503);
+  // g_ML->GetYaxis()->SetNdivisions(503);
   c6->SetTicks(1, 1);
   c6->SetGrid(0, 1);
   c6->Modified();

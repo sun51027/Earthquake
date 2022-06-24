@@ -141,7 +141,6 @@ void DataReader::ReadEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *of
   reader.Init(eqDirInput);
   rawdata = reader.ReadRawData();
 
-  // sort(rawdata.begin(),rawdata.end()+rawdata.size());
   //  Match the two arrays
 
   double N_[4000]; // for time
@@ -149,7 +148,7 @@ void DataReader::ReadEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *of
   double ntmp  = 0;
   for (int rn = 0; rn < datetime_Rn.size(); rn++) {
 
-    N_[rn] = (double)(rn + 1) * 60 * 60 * 2; // number of 2hour
+    N_[rn] = (double)(rn + 1) * 60 * 60 * 2 - 8 * 3600; // number of 2hour
 
     for (int i = 0; i < rawdata.size(); i++) {
 
@@ -158,15 +157,15 @@ void DataReader::ReadEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *of
           MLtmp = rawdata[i].ML_;
           ntmp  = i;
         }
-        cout << ntmp << " " << rawdata[i].datetime_ << " ML[" << i << "] " << rawdata[i].ML_ << " Rndatetime[" << rn
-             << "] " << datetime_Rn[rn] << " " << endl;
+        newArray[rn] = rawdata[ntmp];
+        // cout << ntmp << " " << rawdata[i].datetime_ << " ML[" << i << "] " << rawdata[i].ML_ << " Rndatetime[" << rn
+        //      << "] " << datetime_Rn[rn] << " " << endl;
 
         //        cout << rawdata[i].datetime_ << " " << datetime_Rn[rn] << " " << newArray[rn].datetime_ << endl;
       } else {
         if (MLtmp != 0) {
 
-          cout << ntmp << " MLtmp " << MLtmp << endl;
-          newArray[rn] = rawdata[ntmp];
+          // cout << ntmp << " MLtmp " << MLtmp << endl;
         }
         // cout<<"rn "<<rn<<" i "<<i<<endl;
         MLtmp = 0;
@@ -184,15 +183,15 @@ void DataReader::ReadEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *of
     }
   }
 
-  //  // store into root file
-  //  ofile->cd("EQ_directory");
-  //
-  //  g_ML = new TGraph(datetime_Rn.size(), N_, ML);
-  //  g_ML->SetName("g_ML");
-  //  g_ML->Write();
-  //
-  //  g_depth = new TGraph(datetime_Rn.size(), N_, depth);
-  //  g_depth->SetName("g_depth");
-  //  g_depth->Write();
+  // store into root file
+  ofile->cd("EQ_directory");
+
+  g_ML = new TGraph(datetime_Rn.size(), N_, ML);
+  g_ML->SetName("g_ML");
+  g_ML->Write();
+
+  g_depth = new TGraph(datetime_Rn.size(), N_, depth);
+  g_depth->SetName("g_depth");
+  g_depth->Write();
 }
 
