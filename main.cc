@@ -8,7 +8,8 @@
 using namespace std;
 void   main_doAnalysis();
 void   main_eqDir();
-void   main_drawPlots();
+void   main_drawPlots_radon();
+void   main_drawPlots_eqdir();
 void   Help();
 string outputFile    = "";
 string inputFile     = "";
@@ -36,8 +37,11 @@ int main(int argc, char **argv)
     } else if (arg == "-dir" || arg == "--eqdir") {
       anaType = 2;
       iarg++;
-    } else if (arg == "-draw" || arg == "--draw") {
+    } else if (arg == "-drawAn" || arg == "--drawAnalysis") {
       anaType = 3;
+      iarg++;
+    } else if (arg == "-drawDir" || arg == "--drawEQdir") {
+      anaType = 4;
       iarg++;
     } else if (arg == "-i" || arg == "--inputFile") {
       iarg++;
@@ -60,7 +64,8 @@ int main(int argc, char **argv)
   case 0: Help(); break;
   case 1: main_doAnalysis(); break;
   case 2: main_eqDir(); break;
-  case 3: main_drawPlots(); break;
+  case 3: main_drawPlots_radon(); break;
+  case 4: main_drawPlots_eqdir(); break;
   }
 
   return 0;
@@ -73,7 +78,7 @@ void main_doAnalysis()
   ofile->mkdir("K40_uncali_fit");
   ofile->mkdir("K40_cali_fit");
   ofile->mkdir("Analysis_plot");
-  ofile->mkdir("EQ_directory");
+//  ofile->mkdir("EQ_directory");
   ofile->cd();
   // inputfile
   TFile      *fin1 = new TFile(inputFile.c_str());
@@ -110,8 +115,24 @@ void main_eqDir()
   // draw plots
 //  eqData.DrawPlots();
 }
-void main_drawPlots(){
+void main_drawPlots_radon(){
 				cout<<"Drawing Plots...."<<endl;
+				
+  TFile      *fin1 = new TFile(inputFile.c_str());
+  TDirectory *dir  = (TDirectory *)fin1->Get("Analysis_plot");
+  dir->cd();
+  Earthquake eqAnalysis;
+  eqAnalysis.DrawPlot(dir);
+//
+//  DataReader eqData;
+//  eqData.DrawPlots();
+}
+void main_drawPlots_eqdir(){
+				cout<<"Drawing Plots...."<<endl;
+				
+  TFile      *fin1 = new TFile(inputFile.c_str());
+  TDirectory *dir  = (TDirectory *)fin1->Get("EQ_directory");
+  dir->cd();
 //  Earthquake eqAnalysis;
 //  eqAnalysis.DrawPlot();
 //
