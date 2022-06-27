@@ -16,27 +16,45 @@
 
 using namespace std;
 
-//class Earthquake;
+// class Earthquake;
 
 class DataReader {
 public:
   DataReader() {}
-  DataReader(double lat, double lon, double depth, double ML, double nstn, double dmin, double gap, double trms,
-             double ERH, double ERZ, double nph, const TString datetime)
-    : lat_(lat), lon_(lon), depth_(depth), ML_(ML), nstn_(nstn), dmin_(dmin), gap_(gap), trms_(trms), ERH_(ERH),
-      ERZ_(ERZ), nph_(nph), datetime_(datetime)
+  DataReader(int date, int time, double lat, double lon, double depth, double ML, double nstn, double dmin, double gap,
+             double trms, double ERH, double ERZ, double nph, const TString datetime)
+    : date_(date), time_(time), lat_(lat), lon_(lon), depth_(depth), ML_(ML), nstn_(nstn), dmin_(dmin), gap_(gap),
+      trms_(trms), ERH_(ERH), ERZ_(ERZ), nph_(nph), datetime_(datetime)
   {
   }
-
+  DataReader(const DataReader &da)
+    : date_(da.date_), time_(da.time_), lat_(da.lat_), lon_(da.lon_), depth_(da.depth_), ML_(da.ML_), nstn_(da.nstn_),
+      dmin_(da.dmin_), gap_(da.gap_), trms_(da.trms_), ERH_(da.ERH_), ERZ_(da.ERZ_), nph_(da.nph_),
+      datetime_(da.datetime_)
+  {
+  }
   ~DataReader() {}
   vector<DataReader> ReadRawData();
   void               Init(ifstream &eqDirInput);
   void               ReadEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *ofile);
   void               DrawPlots();
 
+  bool operator<(const DataReader &da) const
+  {
+    if (ML_ > da.ML_)
+      return true;
+    else if (ML_ == da.ML_) {
+      if (depth_ > da.depth_)
+        return true;
+      else
+        return false;
+    } else
+      return false;
+  }
 
 private:
-
+  int     date_;
+  int     time_;
   double  lat_;
   double  lon_;
   double  depth_;
@@ -66,12 +84,16 @@ private:
   vector<string> ERZ_raw;
   vector<string> nph_raw;
 
-	vector<TString>    datetime;
+  vector<TString>    datetime;
+  vector<TString>    date;
+  vector<TString>    time;
   vector<string>     datetime_Rn;
   vector<DataReader> rawdata;
 
-  double ML[4000];
-  double depth[4000];
+  TDatime timeoffset;
+
+  double  ML[4000];
+  double  depth[4000];
   TGraph *g_ML;
   TGraph *g_depth;
 };
