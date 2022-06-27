@@ -168,8 +168,8 @@ void DataReader::ReadEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *of
     // cout << "newArray[" << rn << "] " << newArray[rn].datetime_ << " " << newArray[rn].ML_ << " " <<
     // newArray[rn].depth_
     //      << endl;
-    if (newArray[rn].ML_ >= 4) {
-    //if (newArray[rn].ML_ >= 4 && newArray[rn].depth_ <= 50) {
+  //  if (newArray[rn].ML_ >= 4) {
+    if (newArray[rn].ML_ >= 4 && newArray[rn].depth_ <= 50) {
       ML[rn]    = newArray[rn].ML_;
       depth[rn] = 0. - newArray[rn].depth_;
     }
