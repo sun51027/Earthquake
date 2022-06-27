@@ -74,7 +74,7 @@ void GeoData(string infileName)
   gdata->Draw("AL");
   gdata->SetTitle("");
   gdata->GetXaxis()->SetTimeDisplay(1);
-  gdata->GetXaxis()->SetTimeOffset(1,"gmt");
+  gdata->GetXaxis()->SetTimeOffset(0);
 	gdata->GetXaxis()->SetTimeFormat("%m/%d %Hh");
 	gdata->GetXaxis()->SetTitle("Date time (mm/dd/hh)");
  	gdata->GetYaxis()->SetTitle("Data ("+channel+")");	

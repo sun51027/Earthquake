@@ -86,7 +86,7 @@ void main_doAnalysis()
   Earthquake eqAnalysis;
   eqAnalysis.DoAnalysis(Template, dir, ofile);
   ofile->Close();
-  eqAnalysis.DrawPlot();
+//  eqAnalysis.DrawPlot();
 }
 
 void main_eqDir()
@@ -115,7 +115,7 @@ void main_pvalue_eqDir()
 //  ifstream datetime;
 //  datetime.open("datetime.txt");
   int date = 20210915;
-  int time = 00;
+  int time = 80000;
   timeoffset.Set(date, time);
   TFile      *fin1 = new TFile("plots_root/oAnalyzer.root");
   TDirectory *dir1 = (TDirectory *)fin1->Get("Analysis_plot");

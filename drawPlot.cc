@@ -29,10 +29,9 @@ void Earthquake::DrawPlot()
 
   gStyle->SetTimeOffset(timeoffset.Convert());
 
-
   // difference vs time
   // create canvas
-	TCanvas *c  = new TCanvas("c", "", 10, 10, 1800, 900);
+  TCanvas *c  = new TCanvas("c", "", 10, 10, 1800, 900);
   TPad    *pL = mgr::NewLeftPad();
   TPad    *pR = mgr::NewRightPad();
 
@@ -195,7 +194,7 @@ void Earthquake::DrawPlot()
   g_sigma_significant->SetMaximum(9);
   g_sigma_significant->SetMinimum(0);
   g_sigma_significant->Draw("");
-	g_sigma_significant->GetXaxis()->SetLimits(-14 * 60 * 60 * 2, (N + 29) * 60 * 60 * 2);
+  g_sigma_significant->GetXaxis()->SetLimits(-14 * 60 * 60 * 2, (N + 29) * 60 * 60 * 2);
   g_sigma_significant->GetXaxis()->SetTitle("Time (mm/dd)");
   g_sigma_significant->GetYaxis()->SetTitle("No. of #sigma");
   g_sigma_significant->GetXaxis()->SetTitleOffset(1.6);
@@ -250,33 +249,50 @@ void Earthquake::DrawPlot()
 void DataReader::DrawPlots()
 {
 
-	/*  Just draw EQ directory, not */
+  /*  Just draw EQ directory, not */
   gStyle->SetTimeOffset(timeoffset.Convert());
-	timeoffset.Print();
+  timeoffset.Print();
 
+  int lowerlimit = 0;
+  int upperlimit = 0;
+  int limitdays  = 0;
+  int N          = datetime_Rn.size();
+  cout << "N " << N << endl;
+  if (N > 1000) {
+    lowerlimit = -30 * 60 * 60 * 2;
+    upperlimit = (N + 80) * 60 * 60 * 2;
+  } else {
+    cout << "There are " << (double)(N / 12) << " days in the graph! " << endl;
+    cout << "Input limit days: ";
+    cin >> limitdays;
+
+    lowerlimit = -(limitdays)*60 * 60 * 2;
+    upperlimit = (N + limitdays) * 60 * 60 * 2;
+  }
   // EQ
   TCanvas *c6 = new TCanvas("c5", "", 1200, 200);
   c6->SetBottomMargin(0.3);
 
   g_ML->SetTitle("");
   g_ML->Draw("AP");
-	g_ML->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (datetime_Rn.size() + 80) * 60 * 60 * 2);
+  // g_ML->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (datetime_Rn.size() + 80) * 60 * 60 * 2);
+  g_ML->GetXaxis()->SetLimits(lowerlimit, upperlimit);
   g_ML->GetXaxis()->SetTitle("Time (mm/dd)");
   g_ML->GetYaxis()->SetTitle("M_{L}");
   g_ML->SetMinimum(3.8);
   g_ML->SetMaximum(7);
   g_ML->SetMarkerStyle(20);
   g_ML->GetXaxis()->SetTimeDisplay(1);
-  g_ML->GetXaxis()->SetTimeFormat("%Y %m/%d-%Hh");
-  g_ML->GetXaxis()->SetLabelSize(0.08);
-  g_ML->GetXaxis()->SetTitleSize(0.15);
+  g_ML->GetXaxis()->SetTimeFormat("%m/%d-%Hh");
+  g_ML->GetXaxis()->SetLabelSize(0.1);
+  g_ML->GetXaxis()->SetTitleSize(0.1);
 
-  g_ML->GetYaxis()->SetLabelSize(0.12);
-  g_ML->GetYaxis()->SetTitleSize(0.17);
-  g_ML->GetYaxis()->SetTitleOffset(0.2);
-
+  g_ML->GetYaxis()->SetLabelSize(0.1);
+  g_ML->GetYaxis()->SetTitleSize(0.1);
+  g_ML->GetYaxis()->SetTitleOffset(0.5);
+	
   c6->SetTicks(1, 1);
-  c6->SetGrid(0, 1);
+  c6->SetGrid(1, 1);
   c6->Modified();
   c6->SaveAs("plots/EQ_ML.pdf");
   delete c6;
@@ -287,14 +303,15 @@ void DataReader::DrawPlots()
 
   g_depth->SetTitle("");
   g_depth->Draw("AP");
-	g_depth->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (datetime_Rn.size() + 80) * 60 * 60 * 2);
+  g_depth->GetXaxis()->SetLimits(lowerlimit, upperlimit);
+  //	g_depth->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (datetime_Rn.size() + 80) * 60 * 60 * 2);
   g_depth->GetXaxis()->SetTitle("Time (dd/mm)");
   g_depth->GetYaxis()->SetTitle("Depth(km)");
   g_depth->SetMinimum(-55);
   g_depth->SetMaximum(-0.5);
   g_depth->SetMarkerStyle(20);
   g_depth->GetXaxis()->SetTimeDisplay(1);
-  g_depth->GetXaxis()->SetTimeFormat("%m/%d");
+  g_depth->GetXaxis()->SetTimeFormat("%m/%d-%Hh");
   g_depth->GetXaxis()->SetLabelSize(0.09);
   g_depth->GetXaxis()->SetTitleSize(0.15);
   g_depth->GetXaxis()->SetTitleOffset(1.0);
@@ -313,12 +330,13 @@ void drawPvalue(TDirectory *dir1, TDirectory *dir2, TDatime timeoffset)
 {
 
   gStyle->SetTimeOffset(timeoffset.Convert());
+	timeoffset.Print();
   dir1->cd();
   dir2->cd();
 
-  TCanvas *c  = new TCanvas("c", "", 1200, 800);
-//  TPad    *pT = mgr::NewTopPad();
-//  TPad    *pB = mgr::NewBottomPad();
+  TCanvas *c = new TCanvas("c", "", 1200, 800);
+  //  TPad    *pT = mgr::NewTopPad();
+  //  TPad    *pB = mgr::NewBottomPad();
   TPad *pT = new TPad("toppT", "", 0, 0.45, 1., 1.0); // xlow ylow xup yup
   pT->SetTicks(1, 1);
   pT->SetBottomMargin(0.05);
@@ -326,15 +344,14 @@ void drawPvalue(TDirectory *dir1, TDirectory *dir2, TDatime timeoffset)
   pT->SetRightMargin(1 - 0.95);
   pT->SetTopMargin((1 - 0.9) / (1 - 0.3));
 
-
-  TPad *pB = new TPad("botpB", "", 0, 0.45/2, 1, 0.45);
+  TPad *pB = new TPad("botpB", "", 0, 0.45 / 2, 1, 0.45);
   pB->SetTicks(1, 1);
   pB->SetTopMargin(0.025);
   pB->SetLeftMargin(0.13);
   pB->SetRightMargin(1 - 0.95);
   pB->SetBottomMargin((0.105) / (0.3));
 
-  TPad *pB2 = new TPad("botpB2", "", 0, 0., 1, 0.45/2);
+  TPad *pB2 = new TPad("botpB2", "", 0, 0., 1, 0.45 / 2);
   pB2->SetTicks(1, 1);
   pB2->SetTopMargin(0.025);
   pB2->SetLeftMargin(0.13);
@@ -351,11 +368,11 @@ void drawPvalue(TDirectory *dir1, TDirectory *dir2, TDatime timeoffset)
   // TGraph
   TGraph *g_pvalue = (TGraph *)dir1->Get("g_pvalue");
   TGraph *g_ML     = (TGraph *)dir2->Get("g_ML");
-  TGraph *g_depth     = (TGraph *)dir2->Get("g_depth");
+  TGraph *g_depth  = (TGraph *)dir2->Get("g_depth");
 
   int N = 0;
   if (g_ML->GetN() != g_pvalue->GetN())
-    cout<<"N = 0 "<<endl;
+    cout << "N = 0 " << endl;
   else
     N = g_ML->GetN();
 
@@ -381,11 +398,11 @@ void drawPvalue(TDirectory *dir1, TDirectory *dir2, TDatime timeoffset)
   g_pvalue->GetXaxis()->SetTitle("Time (mm/dd)");
   g_pvalue->GetYaxis()->SetTitle("p-value");
 
-	g_pvalue->GetXaxis()->SetLabelSize(0);
+  g_pvalue->GetXaxis()->SetLabelSize(0);
   g_pvalue->GetXaxis()->SetTitleSize(0);
   g_pvalue->GetXaxis()->SetTimeDisplay(1);
   g_pvalue->GetXaxis()->SetTimeFormat("%m/%d");
-  g_pvalue->GetXaxis()->SetNdivisions(510);
+  g_pvalue->GetXaxis()->SetNdivisions(511);
 
   g_pvalue->GetYaxis()->SetTitleSize(0.05);
   g_pvalue->GetYaxis()->SetTitleOffset(0.7);
@@ -413,7 +430,7 @@ void drawPvalue(TDirectory *dir1, TDirectory *dir2, TDatime timeoffset)
   g_ML->SetTitle("");
   g_ML->Draw("AP");
   g_ML->GetXaxis()->SetLimits(lowerlimit, upperlimit);
-//  g_ML->GetXaxis()->SetTitle("Time (mm/dd)");
+  //  g_ML->GetXaxis()->SetTitle("Time (mm/dd)");
   g_ML->GetYaxis()->SetTitle("M_{L}");
   g_ML->SetMinimum(3.8);
   g_ML->SetMaximum(7);
@@ -423,7 +440,7 @@ void drawPvalue(TDirectory *dir1, TDirectory *dir2, TDatime timeoffset)
 
   g_ML->GetXaxis()->SetLabelSize(0.0);
   g_ML->GetXaxis()->SetTitleSize(0.0);
-  g_ML->GetXaxis()->SetNdivisions(510);
+  g_ML->GetXaxis()->SetNdivisions(511);
 
   g_ML->GetYaxis()->SetLabelSize(0.08);
   g_ML->GetYaxis()->SetTitleSize(0.1);
@@ -445,14 +462,15 @@ void drawPvalue(TDirectory *dir1, TDirectory *dir2, TDatime timeoffset)
   g_depth->GetXaxis()->SetLabelSize(0.125);
   g_depth->GetXaxis()->SetTitleSize(0.12);
   g_depth->GetXaxis()->SetTitleOffset(1.0);
+  g_depth->GetXaxis()->SetNdivisions(511);
 
   g_depth->GetYaxis()->SetLabelSize(0.08);
   g_depth->GetYaxis()->SetTitleSize(0.1);
   g_depth->GetYaxis()->SetTitleOffset(0.4);
 
   pT->SetLogy();
-	pB->SetGrid(0,1);
-	pB2->SetGrid(0,1);
+  pB->SetGrid(0, 1);
+  pB2->SetGrid(0, 1);
 
   pT->Modified();
   pB->Modified();
