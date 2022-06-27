@@ -35,7 +35,7 @@ public:
   double FittingGausPeak(TH1 *h_diff);
   double PeakforCalibration(TH1 *obj, TFile *ofile, TString hist_name);
   double PeakforK40(TH1 *obj, TFile *ofile, TString hist_name, bool flag);
-  void   DrawPlot(TDirectory *dir);
+  void   DrawPlot();
 //  void   ReadData();
 
 

@@ -37,12 +37,12 @@ int main(int argc, char **argv)
     } else if (arg == "-dir" || arg == "--eqdir") {
       anaType = 2;
       iarg++;
-    } else if (arg == "-drawAn" || arg == "--drawAnalysis") {
-      anaType = 3;
-      iarg++;
-    } else if (arg == "-drawDir" || arg == "--drawEQdir") {
-      anaType = 4;
-      iarg++;
+//    } else if (arg == "-drawAn" || arg == "--drawAnalysis") {
+//      anaType = 3;
+//      iarg++;
+//    } else if (arg == "-drawDir" || arg == "--drawEQdir") {
+//      anaType = 4;
+//      iarg++;
     } else if (arg == "-i" || arg == "--inputFile") {
       iarg++;
       inputFile = argv[iarg];
@@ -64,8 +64,8 @@ int main(int argc, char **argv)
   case 0: Help(); break;
   case 1: main_doAnalysis(); break;
   case 2: main_eqDir(); break;
-  case 3: main_drawPlots_radon(); break;
-  case 4: main_drawPlots_eqdir(); break;
+//  case 3: main_drawPlots_radon(); break;
+//  case 4: main_drawPlots_eqdir(); break;
   }
 
   return 0;
@@ -78,8 +78,8 @@ void main_doAnalysis()
   ofile->mkdir("K40_uncali_fit");
   ofile->mkdir("K40_cali_fit");
   ofile->mkdir("Analysis_plot");
-//  ofile->mkdir("EQ_directory");
   ofile->cd();
+
   // inputfile
   TFile      *fin1 = new TFile(inputFile.c_str());
   TDirectory *dir  = (TDirectory *)fin1->Get("HistoCh0");
@@ -90,7 +90,7 @@ void main_doAnalysis()
   Earthquake eqAnalysis;
   eqAnalysis.DoAnalysis(Template, dir, ofile);
   ofile->Close();
-//  eqAnalysis.DrawPlot();
+  eqAnalysis.DrawPlot();
 }
 
 void main_eqDir()
@@ -113,32 +113,32 @@ void main_eqDir()
   ofile->Close();
 
   // draw plots
-//  eqData.DrawPlots();
+  eqData.DrawPlots();
 }
-void main_drawPlots_radon(){
-				cout<<"Drawing Plots...."<<endl;
-				
-  TFile      *fin1 = new TFile(inputFile.c_str());
-  TDirectory *dir  = (TDirectory *)fin1->Get("Analysis_plot");
-  dir->cd();
-  Earthquake eqAnalysis;
-  eqAnalysis.DrawPlot(dir);
-//
-//  DataReader eqData;
-//  eqData.DrawPlots();
-}
-void main_drawPlots_eqdir(){
-				cout<<"Drawing Plots...."<<endl;
-				
-  TFile      *fin1 = new TFile(inputFile.c_str());
-  TDirectory *dir  = (TDirectory *)fin1->Get("EQ_directory");
-  dir->cd();
+//void main_drawPlots_radon(){
+//				cout<<"Drawing Plots...."<<endl;
+//				
+//  TFile      *fin1 = new TFile(inputFile.c_str());
+//  TDirectory *dir  = (TDirectory *)fin1->Get("Analysis_plot");
+//  dir->cd();
 //  Earthquake eqAnalysis;
-//  eqAnalysis.DrawPlot();
-//
+//  eqAnalysis.DrawPlot(dir);
+////
 //  DataReader eqData;
-//  eqData.DrawPlots();
-}
+//  //eqData.DrawPlots();
+//}
+//void main_drawPlots_eqdir(){
+//				cout<<"Drawing Plots...."<<endl;
+//				
+//  TFile      *fin1 = new TFile(inputFile.c_str());
+//  TDirectory *dir  = (TDirectory *)fin1->Get("EQ_directory");
+//  dir->cd();
+////  Earthquake eqAnalysis;
+////  eqAnalysis.DrawPlot();
+////
+////  DataReader eqData;
+////  eqData.DrawPlots();
+//}
 void Help()
 {
   cout << endl;
