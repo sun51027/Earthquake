@@ -1,6 +1,6 @@
 # Earthquake
 
-##Radon data
+## Radon data
 
 Radon data input : plots_root/RadonData.root
 
@@ -13,7 +13,7 @@ Radon data input : plots_root/RadonData.root
 + benchmark for normaliz. $\epsilon\$ [2.2,2.5] (MeV)
 
 
-##Data from CWBSN
+## Data from CWBSN
 
 **Timezone are UTC**
 
@@ -21,7 +21,7 @@ Radon data input : plots_root/RadonData.root
 
 + To match with the datetime of radon data, please download GMT time data:
 
-ex. Radon data 9/15 00:00:00 ~ 12/31 23:59:59 -> Event category 9/14 16:00:00 ~ 12/31 15:59:59
++ ex. Radon data 9/15 00:00:00 ~ 12/31 23:59:59 -> Event category 9/14 16:00:00 ~ 12/31 15:59:59
 
 2. [Continuous Waveform Data 連續波形資料](https://gdmsn.cwb.gov.tw/eqconDownload.php)
 
@@ -31,13 +31,14 @@ ex. Radon data 9/15 00:00:00 ~ 12/31 23:59:59 -> Event category 9/14 16:00:00 ~ 
 
 So far three class have been built for radon data, eq dir, and wavefrom data.	
 
-|				| radon data | EQ directory| waveform data|
-|class	| Earthquake | DataReader  | GeoData      |
-|include| EQ.h			 | DataReader.h| GeoData.h		|
+|           | radon data | EQ directory | waveform data   |
+| --------- | ---------- | ------------ | --------------- |
+| class     | Earthquake | DataReader   | GeoData         |
+| include   | EQ.h       | DataReader.h | GeoData.h       |
 
 **Note that the function in DataReader (ReadData()) and GeoData are already transform the UTC to GMT+8, thus you don't need to change it again when you draw plots!!!**
 
-+ command
+### command
 
 `./main -h` : open argument list
 
