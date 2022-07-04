@@ -4,8 +4,8 @@ using namespace std;
 #include <fstream>
 #include <cmath>
 // my header
-#include "interface/EQ.h"
-#include "interface/Constants.h"
+#include "../include/EQ.h"
+#include "../include/Constants.h"
 
 // ROOT include
 #include "TCanvas.h"

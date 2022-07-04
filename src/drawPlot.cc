@@ -6,8 +6,8 @@ using namespace std;
 #include <vector>
 #include <sstream>
 // my header
-#include "interface/EQ.h"
-#include "interface/DataReader.h"
+#include "../include/EQ.h"
+#include "../include/DataReader.h"
 // ROOT include
 #include "TCanvas.h"
 #include "TDirectory.h"
@@ -21,7 +21,7 @@ using namespace std;
 #include "TH1D.h"
 #include "TKey.h"
 #include "TStyle.h"
-#include "interface/rootlogon.h"
+#include "../include/rootlogon.h"
 using namespace mgr;
 
 void Earthquake::DrawPlot()

@@ -1,22 +1,42 @@
+SRCDIR=src
+BUILDDIR=obj
+TARGET=main
+
+SRCTXT=cc
+SOURCES=$(shell find $(SRCDIR) -type f -name *.cc)
+#OBJECTS=$(patsubst $(SRCDIR)/%, $(BUILDDIR)/%, $(SOURCES:.cc=.o))
+
+INC=-Iinclude
+INCDIR=include
+
+
 LIBS = -g -m64  $(shell root-config --libs) -lMathMore  -lGenVector -lRooFit -lRooFitCore -lm
 CFLAGS = -g -m64 -O2 -Wall $(shell root-config --cflags )
-OBJS = main.o analyzer.o doFitting.o GeoData.o drawPlot.o readData.o 
-main: ${OBJS}
+
+#all: $(TARGET)
+
+OBJS = obj/main.o obj/Analyzer.o obj/doFitting.o obj/ReadData.o obj/GeoData.o obj/drawPlot.o 
+main: $(OBJS)
 	g++ $^ -o $@ $(LIBS)
-main.o: main.cc interface/EQ.h interface/DataReader.h
+obj/main.o : src/main.cc include/EQ.h include/DataReader.h
 	g++ -c $(CFLAGS) $< -o $@
-analyzer.o : analyzer.cc interface/EQ.h interface/rootlogon.h
+obj/Analyzer.o : src/Analyzer.cc include/EQ.h include/rootlogon.h
 	g++ -c $(CFLAGS) $< -o $@
-doFitting.o : doFitting.cc 
+obj/doFitting.o : src/doFitting.cc 
 	g++ -c $(CFLAGS) $< -o $@
-GeoData.o : GeoData.cc interface/GeoData.h
+obj/ReadData.o : src/ReadData.cc include/DataReader.h 
 	g++ -c $(CFLAGS) $< -o $@
-drawPlot.o : drawPlot.cc
+obj/GeoData.o : src/GeoData.cc include/GeoData.h
 	g++ -c $(CFLAGS) $< -o $@
-readData.o : readData.cc interface/DataReader.h	
+obj/drawPlot.o : src/drawPlot.cc
 	g++ -c $(CFLAGS) $< -o $@
-#drawPvalue.o : drawPvalue.cc
-#	g++ -c $(CFLAGS) $< -o $@
+#$(TARGET):	$(OBJECTS)
+#	g++	-c	$^ $@	$<	$(LIBS)	$(OBJECTS) 
+#$(BUILDDIR)/main.o:	$(SRCDIR)/main.cc 
+#	g++	-c	$(CFLAGS)	$<	-o	$@
+#$(BUILDDIR)/%.o:	$(SRCDIR)/%.cc $(INCDIR)/%.h
+#	g++ -c $< -o $@ $(CFLAGS) 
 
 clean:
-	rm -f *.o
+	rm -f $(TARGET) $(BUILDDIR)/*.o
+

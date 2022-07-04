@@ -3,8 +3,8 @@ using namespace std;
 #include <iostream>
 
 // my header
-#include "interface/EQ.h"
-#include "interface/Constants.h"
+#include "../include/EQ.h"
+#include "../include/Constants.h"
 
 // ROOT include
 #include "TCanvas.h"

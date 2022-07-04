@@ -1,7 +1,7 @@
 #include <iostream>
-#include "interface/EQ.h"
-#include "interface/DataReader.h"
-#include "interface/GeoData.h"
+#include "../include/EQ.h"
+#include "../include/DataReader.h"
+#include "../include/GeoData.h"
 #include "TDirectory.h"
 #include "TFile.h"
 #include "TH1D.h"

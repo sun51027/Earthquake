@@ -27,7 +27,7 @@ using namespace std;
 #include "TStyle.h"
 #include "TTimeStamp.h"
 
-#include "interface/DataReader.h"
+#include "../include/DataReader.h"
 
 void DataReader::Init(ifstream &eqDirInput)
 {
