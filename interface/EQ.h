@@ -36,8 +36,7 @@ public:
   double PeakforCalibration(TH1 *obj, TFile *ofile, TString hist_name);
   double PeakforK40(TH1 *obj, TFile *ofile, TString hist_name, bool flag);
   void   DrawPlot();
-//  void   ReadData();
-
+  //  void   ReadData();
 
 private:
   // Histogram
@@ -75,6 +74,23 @@ private:
   int    N = 0;
 
   TString datetime[2500];
-	TDatime timeoffset;
+  TDatime timeoffset;
 };
 #endif
+
+
+//#ifdef Earthquake_cxx
+inline TH1 *Earthquake::SetZeroBinContent(TH1 *hist)
+{
+
+  for (int i = 0; i < hist->GetNbinsX(); i++) {
+    if (hist->GetBinContent(i) == 0 && hist->GetBinContent(i + 1) == 0 && hist->GetBinContent(i + 2) == 0) {
+      continue;
+    } else if (hist->GetBinContent(i) == 0) {
+      hist->SetBinContent(i, (hist->GetBinContent(i - 1) + hist->GetBinContent(i + 1)) / 2);
+    }
+  }
+
+  return hist;
+}
+//#endif

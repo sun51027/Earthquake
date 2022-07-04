@@ -1,6 +1,7 @@
 #include <iostream>
 #include "interface/EQ.h"
 #include "interface/DataReader.h"
+#include "interface/GeoData.h"
 #include "TDirectory.h"
 #include "TFile.h"
 #include "TH1D.h"
@@ -8,6 +9,7 @@
 using namespace std;
 void   main_doAnalysis();
 void   main_eqDir();
+void main_geodata();
 void   main_pvalue_eqDir();
 void   drawPvalue(TDirectory *dir1, TDirectory *dir2, TDatime timeoffset);
 void   Help();
@@ -40,6 +42,9 @@ int main(int argc, char **argv)
     } else if (arg == "-p" || arg == "--pvalue") {
       anaType = 3;
       iarg++;
+    } else if (arg == "-geo" || arg == "--geodata") {
+      anaType = 4;
+      iarg++;
     } else if (arg == "-i" || arg == "--inputFile") {
       iarg++;
       inputFile = argv[iarg];
@@ -62,6 +67,7 @@ int main(int argc, char **argv)
   case 1: main_doAnalysis(); break;
   case 2: main_eqDir(); break;
   case 3: main_pvalue_eqDir(); break;
+  case 4: main_geodata(); break;
   }
 
   return 0;
@@ -86,7 +92,7 @@ void main_doAnalysis()
   Earthquake eqAnalysis;
   eqAnalysis.DoAnalysis(Template, dir, ofile);
   ofile->Close();
-//  eqAnalysis.DrawPlot();
+  eqAnalysis.DrawPlot();
 }
 
 void main_eqDir()
@@ -123,12 +129,22 @@ void main_pvalue_eqDir()
   TDirectory *dir2 = (TDirectory *)fin2->Get("EQ_directory");
   drawPvalue(dir1, dir2, timeoffset);
 }
+void main_geodata()
+{
+  cout<<"Geodata...."<<endl;
+
+  GeoData geodata;
+  geodata.Combine(inputFile.c_str());
+  
+}
 void Help()
 {
   cout << endl;
   cout << "Anlysis type  -------------------" << endl;
   cout << "-an  || --analysis \t\t Do Radon analysis" << endl;
   cout << "-dir || --eqdir \t\t Treat EQ directory from CWB and draw plots" << endl;
+  cout << "-geo || --geodata \t\t Treat waveform data from CWB and draw plots" << endl;
+  cout << "-p   || --pvalue \t\t Draw p-value with eqdir and radon data"<<endl;
   cout << endl;
   cout << "File type  ----------------------" << endl;
   cout << "-i   || --inputFile \t\t 1st inputfile, radon data for -an, GDMScatalog for -dir" << endl;

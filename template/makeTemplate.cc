@@ -26,19 +26,6 @@ const double Earthquake::minK40   = 1.3;
 const double Earthquake::maxK40   = 1.5;
 const double Earthquake::minRadon = 0.25;
 const double Earthquake::maxRadon = 0.8;
-TH1         *Earthquake::SetZeroBinContent(TH1 *hist)
-{
-
-  for (int i = 0; i < hist->GetNbinsX(); i++) {
-    if (hist->GetBinContent(i) == 0 && hist->GetBinContent(i + 1) == 0 && hist->GetBinContent(i + 2) == 0) {
-      continue;
-    } else if (hist->GetBinContent(i) == 0) {
-      hist->SetBinContent(i, (hist->GetBinContent(i - 1) + hist->GetBinContent(i + 1)) / 2);
-    }
-  }
-
-  return hist;
-}
 TH1 *Earthquake::AddHist(TDirectory *dir)
 {
   int count = 0;

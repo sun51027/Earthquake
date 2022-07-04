@@ -12,7 +12,8 @@
 
 using namespace std;
 
-void GeoData(string infileName)
+int main(string infileName)
+//void GeoData(string infileName)
 {
 
   TFile *infile = new TFile(infileName.c_str(), "READ");
@@ -34,7 +35,8 @@ void GeoData(string infileName)
   float              datatmp = 0;
   Long64_t           timetmp = 0;
   int                n       = 0;
-  
+	
+
   TString name = infileName;
 	TString channel = infileName;
   name.Remove(0,12);
@@ -43,7 +45,8 @@ void GeoData(string infileName)
 	channel.Remove(3,23);
 
   if (fChain == 0) return;
-
+GeoData geodata;
+  geodata.Show(1);
   Long64_t nentries = fChain->GetEntriesFast();
 
   for (Long64_t ientry = 0; ientry < nentries; ientry++) {
@@ -68,23 +71,23 @@ void GeoData(string infileName)
   }
   TDatime da(1970, 1,1, 00, 00, 00);
   gStyle->SetTimeOffset(da.Convert());
-
-  TCanvas *c     = new TCanvas("c", "", 1200, 600);
-  TGraph *gdata = new TGraph(data_collection.size(), ts_collection.data(), data_collection.data());
-  gdata->Draw("AL");
-  gdata->SetTitle("");
-  gdata->GetXaxis()->SetTimeDisplay(1);
-  gdata->GetXaxis()->SetTimeOffset(0);
-	gdata->GetXaxis()->SetTimeFormat("%m/%d %Hh");
-	gdata->GetXaxis()->SetTitle("Date time (mm/dd/hh)");
- 	gdata->GetYaxis()->SetTitle("Data ("+channel+")");	
-  c->SetGrid(1,0);
-	c->Modified();
-  c->SaveAs("plot/"+name+".png");
+//
+//  TCanvas *c     = new TCanvas("c", "", 1200, 600);
+//  TGraph *gdata = new TGraph(data_collection.size(), ts_collection.data(), data_collection.data());
+//  gdata->Draw("AL");
+//  gdata->SetTitle("");
+//  gdata->GetXaxis()->SetTimeDisplay(1);
+//  gdata->GetXaxis()->SetTimeOffset(0);
+//	gdata->GetXaxis()->SetTimeFormat("%m/%d %Hh");
+//	gdata->GetXaxis()->SetTitle("Date time (mm/dd/hh)");
+// 	gdata->GetYaxis()->SetTitle("Data ("+channel+")");	
+//  c->SetGrid(1,0);
+//	c->Modified();
+//  c->SaveAs("plot/"+name+".png");
 
   //   TFile* f = new TFile("test.root","RECREATE");
   //   gdata->Write();
   //   f->Write();
   //   f->Close();
-  //  return;
+    return;
 }

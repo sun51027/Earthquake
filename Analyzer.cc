@@ -22,19 +22,6 @@ using namespace std;
 #include "TMath.h"
 #include "TDatime.h"
 
-TH1 *Earthquake::SetZeroBinContent(TH1 *hist)
-{
-
-  for (int i = 0; i < hist->GetNbinsX(); i++) {
-    if (hist->GetBinContent(i) == 0 && hist->GetBinContent(i + 1) == 0 && hist->GetBinContent(i + 2) == 0) {
-      continue;
-    } else if (hist->GetBinContent(i) == 0) {
-      hist->SetBinContent(i, (hist->GetBinContent(i - 1) + hist->GetBinContent(i + 1)) / 2);
-    }
-  }
-
-  return hist;
-}
 void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 {
 
@@ -56,78 +43,85 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
     TIter next2(dir2->GetListOfKeys());
 
     while ((keyAsObj2 = (TKey *)next2())) {
-
       auto key2 = (TKey *)keyAsObj2;
-      obj       = (TH1 *)dir2->Get(key2->GetName()); // copy every th1 histogram to
-      obj       = SetZeroBinContent(obj);            // fill the empty bin with average of adjacent bins
+      cout << "name " << key->GetName() << key2->GetName() << endl;
+      obj = (TH1 *)dir2->Get(key2->GetName());  // copy every th1 histogram to
+      obj = Earthquake::SetZeroBinContent(obj); // fill the empty bin with average of adjacent bins
 
-      //      if (h < 720 && obj->Integral() != 0) { // before July
-      if (h > 1799 ) { // start from 9/15 h=1800)
-      //if (h > 1799 && obj->Integral() != 0) { // start from 9/15 h=1800)
+      //      if (h < 720 && obj->Integral() != 0)  // before July
+      if (h > 1799) { // start from 9/15 h=1800)
 
         // set hist name ex. 12/25;  datetime = 2021122522
         datetime[N].Form("%s%s", key->GetName(), key2->GetName());
         datetime[N].Remove(10, 4);
 
-        // get the calibration factor
-        peakforCali[N] = PeakforCalibration(obj, ofile, datetime[N]);
-        cfactor[N]     = PEAKFORCALI / peakforCali[N]; // After Sep
-        h_cfactor->Fill(cfactor[N]);
+        peakforCali[N]    = NULL;
+        cfactor[N]        = NULL;
+        cfactor_cali[N]   = NULL;
+        K40peak_uncali[N] = NULL;
+        K40peak_cali[N]   = NULL;
+        N_[N]             = NULL;
+        diff_[N]          = NULL;
+        if (obj->Integral() != 0) {
+          // get the calibration factor
+          peakforCali[N] = PeakforCalibration(obj, ofile, datetime[N]);
+          cfactor[N]     = PEAKFORCALI / peakforCali[N]; // After Sep
+          h_cfactor->Fill(cfactor[N]);
 
-        for (int k = 0; k < 1024; k++) {
-          nMoveBin[k] = (cfactor[N] - 1) * obj->GetBinCenter(k + 1) / energyBin;
+          for (int k = 0; k < 1024; k++) {
+            nMoveBin[k] = (cfactor[N] - 1) * obj->GetBinCenter(k + 1) / energyBin;
+          }
+
+          // calibrate hourly and show K40 peak
+          TH1D *obj_cali = (TH1D *)(obj->Clone("obj_cali"));
+          for (int j = 0; j < 1024; j++) {
+            obj_cali->SetBinContent(j + 1 + 1, obj->GetBinContent(j + 1 + 1) * (1 - nMoveBin[j + 1]) +
+                                                 obj->GetBinContent(j + 1) * (nMoveBin[j]));
+
+            //          if (nMoveBin[j] != 0) {
+            //            cout << "obj " << obj->GetBinContent(j + 1)
+            //								 << "\t" << nMoveBin[j] //<< "\t obj_cali "
+            //								 <<"\t\t cfactor "<<cfactor[N]
+            //                 <<"\t\tcali_obj "<< obj_cali->GetBinContent(j + 1) << endl;
+            //        }
+          }
+
+          cfactor_cali[N] = PEAKFORCALI / PeakforCalibration(obj_cali, ofile, datetime[N]);
+          h_cfactor_cali->Fill(cfactor_cali[N]);
+          K40peak_uncali[N] = PeakforK40(obj, ofile, datetime[N], 0);
+          K40peak_cali[N]   = PeakforK40(obj_cali, ofile, datetime[N], 1);
+          h_K40_peak_cali->Fill(K40peak_cali[N]);
+          h_K40_peak_uncali->Fill(K40peak_uncali[N]);
+
+          /**********************************************************
+              After the calibration, calculate the difference
+              between template and each plots.
+           **********************************************************/
+
+          // Normalize template to yiels of every hour (use K40)
+          double K40_obj_cali =
+            obj_cali->Integral(obj_cali->GetXaxis()->FindBin(MINK40), obj_cali->GetXaxis()->FindBin(MAXK40));
+
+          TH1D *scaledTemplate = (TH1D *)(Template->Clone("scaledTemplate"));
+          scaledTemplate->Scale(K40_obj_cali / K40_template); // template scale to same as the hourly plot
+
+          double nTemplateSig = scaledTemplate->Integral(scaledTemplate->GetXaxis()->FindBin(MINRADON),
+                                                         scaledTemplate->GetXaxis()->FindBin(MAXRADON));
+          double nDailySig =
+            obj_cali->Integral(obj_cali->GetXaxis()->FindBin(MINRADON), obj_cali->GetXaxis()->FindBin(MAXRADON));
+          double diff = nDailySig - nTemplateSig;
+          N_[N]       = (double)(N + 1) * 60 * 60 * 2; // number of 2hour
+          diff_[N]    = diff;
+          h_diff->Fill(diff);
+
+          delete obj;
+          delete scaledTemplate;
         }
-
-        // calibrate hourly and show K40 peak
-        TH1D *obj_cali = (TH1D *)(obj->Clone("obj_cali"));
-        for (int j = 0; j < 1024; j++) {
-          obj_cali->SetBinContent(j + 1 + 1, obj->GetBinContent(j + 1 + 1) * (1 - nMoveBin[j + 1]) +
-                                               obj->GetBinContent(j + 1) * (nMoveBin[j]));
-
-          //          if (nMoveBin[j] != 0) {
-          //            cout << "obj " << obj->GetBinContent(j + 1)
-          //								 << "\t" << nMoveBin[j] //<< "\t obj_cali "
-          //								 <<"\t\t cfactor "<<cfactor[N]
-          //                 <<"\t\tcali_obj "<< obj_cali->GetBinContent(j + 1) << endl;
-          //        }
-        }
-
-        cfactor_cali[N] = PEAKFORCALI / PeakforCalibration(obj_cali, ofile, datetime[N]);
-        h_cfactor_cali->Fill(cfactor_cali[N]);
-        K40peak_uncali[N] = PeakforK40(obj, ofile, datetime[N], 0);
-        K40peak_cali[N]   = PeakforK40(obj_cali, ofile, datetime[N], 1);
-        h_K40_peak_cali->Fill(K40peak_cali[N]);
-        h_K40_peak_uncali->Fill(K40peak_uncali[N]);
-
-        /**********************************************************
-            After the calibration, calculate the difference
-            between template and each plots.
-         **********************************************************/
-
-        // Normalize template to yiels of every hour (use K40)
-        double K40_obj_cali =
-          obj_cali->Integral(obj_cali->GetXaxis()->FindBin(MINK40), obj_cali->GetXaxis()->FindBin(MAXK40));
-
-        TH1D *scaledTemplate = (TH1D *)(Template->Clone("scaledTemplate"));
-        scaledTemplate->Scale(K40_obj_cali / K40_template); // template scale to same as the hourly plot
-
-        double nTemplateSig = scaledTemplate->Integral(scaledTemplate->GetXaxis()->FindBin(MINRADON),
-                                                       scaledTemplate->GetXaxis()->FindBin(MAXRADON));
-        double nDailySig =
-          obj_cali->Integral(obj_cali->GetXaxis()->FindBin(MINRADON), obj_cali->GetXaxis()->FindBin(MAXRADON));
-        double diff = nDailySig - nTemplateSig;
-        N_[N]       = (double)(N + 1) * 60 * 60 * 2; // number of 2hour
-        diff_[N]    = diff;
-        h_diff->Fill(diff);
-
-        delete obj;
-        delete scaledTemplate;
-        N++;
+          N++;
       }
       h++;
     }
   }
-
   /**********************************************************
       Calculate the sigma between template and each plots.
    **********************************************************/
@@ -188,7 +182,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   }
 
   timeoffset.Set(date_Rn[0].Atoi(), time_Rn[0].Atoi());
-	timeoffset.Print();
+  timeoffset.Print();
   // write analysis plots into oAnalyzr.root
   ofile->cd("Analysis_plot");
 
