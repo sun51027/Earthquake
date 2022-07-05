@@ -8,6 +8,7 @@ using namespace std;
 // my header
 #include "../include/EQ.h"
 #include "../include/DataReader.h"
+#include "../include/GeoData.h"
 // ROOT include
 #include "TCanvas.h"
 #include "TDirectory.h"
@@ -328,7 +329,6 @@ void DataReader::DrawPlots()
 
 void drawPvalue(TDirectory *dir1, TDirectory *dir2, TDatime timeoffset)
 {
-
   gStyle->SetTimeOffset(timeoffset.Convert());
 	timeoffset.Print();
   dir1->cd();
@@ -478,4 +478,36 @@ void drawPvalue(TDirectory *dir1, TDirectory *dir2, TDatime timeoffset)
   c->Modified();
   c->SaveAs("plots/Pvalue_ML_depth_test.pdf");
   delete c;
+}
+
+
+void GeoData::DrawGeoData(TString name, TString channel,TDatime timeoffset){
+  TCanvas *c     = new TCanvas("c", "", 1200, 600);
+  g_data->Draw("AL");
+  g_data->SetTitle("");
+  g_data->GetXaxis()->SetTimeDisplay(1);
+  g_data->GetXaxis()->SetTimeOffset(0);
+  g_data->GetXaxis()->SetTimeFormat("%m/%d %Hh");
+  g_data->GetXaxis()->SetTitle("Date time (mm/dd/hh)");
+  g_data->GetYaxis()->SetTitle("Data (" + channel + ")");
+  c->SetGrid(1, 0);
+  c->Modified();
+  c->SaveAs(name + ".png");
+  delete c;
+
+  gStyle->SetTimeOffset(timeoffset.Convert());
+  TCanvas *c2           = new TCanvas("c2", "", 1200, 600);
+  g_binarydata->Draw("AP");
+  g_binarydata->SetMarkerStyle(20);
+  g_binarydata->SetTitle("");
+  g_binarydata->SetMinimum(-0.5);
+  g_binarydata->SetMaximum(1.5);
+  g_binarydata->GetXaxis()->SetTimeDisplay(1);
+  g_binarydata->GetXaxis()->SetNdivisions(511);
+  g_binarydata->GetXaxis()->SetTimeFormat("%m/%d %Hh");
+  g_binarydata->GetXaxis()->SetTitle("Date time (mm/dd/hh)");
+  g_binarydata->GetYaxis()->SetTitle("Data (" + channel + ")");
+  c2->SetGrid(1, 0);
+  c2->Modified();
+  c2->SaveAs(name + "_binary.pdf");
 }

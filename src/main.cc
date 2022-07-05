@@ -134,7 +134,9 @@ void main_geodata()
   cout<<"Geodata...."<<endl;
 
   GeoData geodata;
-  geodata.Combine(inputFile.c_str());
+  ifstream   timeInput;
+  timeInput.open(inputFile2.c_str());
+  geodata.Combine(inputFile.c_str(),timeInput);
   
 }
 void Help()

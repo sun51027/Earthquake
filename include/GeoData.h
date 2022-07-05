@@ -11,6 +11,10 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
+#include <string>
+#include <vector>
+#include "TGraph.h"
+#include "TDatime.h"
 using namespace std;
 // Header file for the classes stored in the TTree if any.
 
@@ -30,10 +34,13 @@ public:
   TBranch *b_data;         //!
   TBranch *b_timestamp;    //!
   TBranch *b_timestamp_ns; //!
-//  GeoData(){};
-  GeoData(TTree *tree = 0);
-  void Combine(string infile);
-  ~GeoData();
+  GeoData(){};
+  ~GeoData(){};
+  void Combine(string infile, ifstream &timeInput);
+  void DrawGeoData(TString name, TString ch, TDatime timeoffset);
+
+  void SetDatetime(vector<double> t, vector<double> data);
+
   Int_t    Cut(Long64_t entry);
   Int_t    GetEntry(Long64_t entry);
   Long64_t LoadTree(Long64_t entry);
@@ -41,95 +48,15 @@ public:
   void     Loop();
   Bool_t   Notify();
   void     Show(Long64_t entry = -1);
+
+  vector<TString> datetime;
+  TGraph         *g_data;
+  TGraph         *g_binarydata;
+  vector<TString> datetime_Rn;
+  vector<double>  data_binary;
+  vector<double>  ts_binary;
+  vector<double>  data_collection;
+  vector<double>  ts_collection;
 };
 
 #endif
-//#ifdef GeoData_cxx
-inline GeoData::GeoData(TTree *tree) : fChain(0)
-{
-  // if parameter tree is not specified (or zero), connect the file
-  // used to generate this class and read the Tree.
-  if (tree == 0) {
-    TFile *f = (TFile *)gROOT->GetListOfFiles()->FindObject("output_root/HWA_00_EHE_20211001_20211229.root");
-    if (!f || !f->IsOpen()) {
-      f = new TFile("output_root/HWA_00_EHE_20211001_20211229.root");
-    }
-    f->GetObject("GeoData", tree);
-  }
-  Init(tree);
-}
-
-inline GeoData::~GeoData()
-{
-  if (!fChain) return;
-  delete fChain->GetCurrentFile();
-}
-
-inline Int_t GeoData::GetEntry(Long64_t entry)
-{
-  // Read contents of entry.
-  if (!fChain) return 0;
-  return fChain->GetEntry(entry);
-}
-inline Long64_t GeoData::LoadTree(Long64_t entry)
-{
-  // Set the environment to read one entry
-  if (!fChain) return -5;
-  Long64_t centry = fChain->LoadTree(entry);
-  if (centry < 0) return centry;
-  if (fChain->GetTreeNumber() != fCurrent) {
-    fCurrent = fChain->GetTreeNumber();
-    Notify();
-  }
-  return centry;
-}
-
-inline void GeoData::Init(TTree *tree)
-{
-  // The Init() function is called when the selector needs to initialize
-  // a new tree or chain. Typically here the branch addresses and branch
-  // pointers of the tree will be set.
-  // It is normally not necessary to make changes to the generated
-  // code, but the routine can be extended by the user if needed.
-  // Init() will be called many times when running on PROOF
-  // (once per file to be processed).
-
-  // Set branch addresses and branch pointers
-  if (!tree) return;
-  fChain   = tree;
-  fCurrent = -1;
-  fChain->SetMakeClass(1);
-
-  fChain->SetBranchAddress("data", &data, &b_data);
-  fChain->SetBranchAddress("timestamp", &timestamp, &b_timestamp);
-  fChain->SetBranchAddress("timestamp_ns", &timestamp_ns, &b_timestamp_ns);
-  Notify();
-}
-
-inline Bool_t GeoData::Notify()
-{
-  // The Notify() function is called when a new file is opened. This
-  // can be either for a new TTree in a TChain or when when a new TTree
-  // is started when using PROOF. It is normally not necessary to make changes
-  // to the generated code, but the routine can be extended by the
-  // user if needed. The return value is currently not used.
-
-  return kTRUE;
-}
-
-inline void GeoData::Show(Long64_t entry)
-{
-  cout<<"Hiiii"<<endl;
-  // Print contents of entry.
-  // If entry is not specified, print current entry
-  if (!fChain) return;
-  fChain->Show(entry);
-}
-inline Int_t GeoData::Cut(Long64_t entry)
-{
-  // This function may be called from Loop.
-  // returns  1 if entry is accepted.
-  // returns -1 otherwise.
-  return 1;
-}
-//#endif // #ifdef GeoData_cxx
