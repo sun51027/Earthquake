@@ -5,8 +5,8 @@
 // found on file: output_root/HWA_00_EHE_20211001_20211229.root
 //////////////////////////////////////////////////////////
 
-#ifndef GeoData_h
-#define GeoData_h
+#ifndef GEODATA_h
+#define GEODATA_h
 
 #include <TROOT.h>
 #include <TChain.h>
@@ -15,48 +15,52 @@
 #include <vector>
 #include "TGraph.h"
 #include "TDatime.h"
+#include <iostream>
+#include <fstream>
+#include <sstream>
 using namespace std;
 // Header file for the classes stored in the TTree if any.
 
 class GeoData {
 public:
+  GeoData()
+  {
+//    data_collection.clear();
+//    ts_collection.clear();
+  }
+  ~GeoData()
+  {
+//    delete[] & data_collection;
+//    delete[] & ts_collection;
+  }
   TTree *fChain;   //! pointer to the analyzed TTree or TChain
-  Int_t  fCurrent; //! current Tree number in a TChain
 
   // Fixed size dimensions of array or collections stored in the TTree if any.
 
   // Declaration of leaf types
-  Float_t data;
+  float data;
   Int_t   timestamp;
-  Int_t   timestamp_ns;
+  int   timestamp_ns;
 
   // List of branches
   TBranch *b_data;         //!
   TBranch *b_timestamp;    //!
   TBranch *b_timestamp_ns; //!
-  GeoData(){};
-  ~GeoData(){};
+//  void Combine();
   void Combine(string infile, ifstream &timeInput);
   void DrawGeoData(TString name, TString ch, TDatime timeoffset);
-
-  void SetDatetime(vector<double> t, vector<double> data);
-
-  Int_t    Cut(Long64_t entry);
-  Int_t    GetEntry(Long64_t entry);
-  Long64_t LoadTree(Long64_t entry);
-  void     Init(TTree *tree);
-  void     Loop();
-  Bool_t   Notify();
-  void     Show(Long64_t entry = -1);
+//  void SetDatetime(vector<double> t, vector<double> data);
+  void SetDatetime();
+  void Init(TTree *tree);
 
   vector<TString> datetime;
-  TGraph         *g_data;
-  TGraph         *g_binarydata;
   vector<TString> datetime_Rn;
   vector<double>  data_binary;
   vector<double>  ts_binary;
-  vector<double>  data_collection;
-  vector<double>  ts_collection;
+  vector<float>   data_collection;
+  vector<float>     ts_collection;
+  TGraph         *g_data;
+  TGraph         *g_binarydata;
 };
 
 #endif

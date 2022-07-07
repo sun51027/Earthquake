@@ -9,7 +9,7 @@
 using namespace std;
 void   main_doAnalysis();
 void   main_eqDir();
-void main_geodata();
+void   main_geodata();
 void   main_pvalue_eqDir();
 void   drawPvalue(TDirectory *dir1, TDirectory *dir2, TDatime timeoffset);
 void   Help();
@@ -133,10 +133,10 @@ void main_geodata()
 {
   cout<<"Geodata...."<<endl;
 
-  GeoData geodata;
+  GeoData geo;
   ifstream   timeInput;
   timeInput.open(inputFile2.c_str());
-  geodata.Combine(inputFile.c_str(),timeInput);
+  geo.Combine(inputFile.c_str(),timeInput);
   
 }
 void Help()
