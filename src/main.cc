@@ -109,7 +109,7 @@ void main_eqDir()
   DataReader eqData;
   ifstream   timeInput;
   timeInput.open(inputFile2.c_str());
-  eqData.ReadEQdata(eqDirInput, timeInput, ofile);
+  eqData.SetEQdata(eqDirInput, timeInput, ofile);
   ofile->Close();
 
   // draw plots
@@ -136,7 +136,7 @@ void main_geodata()
   GeoData geo;
   ifstream   timeInput;
   timeInput.open(inputFile2.c_str());
-  geo.Combine(inputFile.c_str(),timeInput);
+  geo.SetGeoData(inputFile.c_str(),timeInput);
   
 }
 void Help()

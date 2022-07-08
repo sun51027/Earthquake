@@ -15,6 +15,7 @@
 #include <vector>
 #include "TGraph.h"
 #include "TDatime.h"
+#include "TTimeStamp.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -25,40 +26,40 @@ class GeoData {
 public:
   GeoData()
   {
-//    data_collection.clear();
-//    ts_collection.clear();
+    //    data_collection.clear();
+    //    ts_collection.clear();
   }
   ~GeoData()
   {
-//    delete[] & data_collection;
-//    delete[] & ts_collection;
+    //    delete[] & data_collection;
+    //    delete[] & ts_collection;
   }
-  TTree *fChain;   //! pointer to the analyzed TTree or TChain
+  TTree *fChain; //! pointer to the analyzed TTree or TChain
 
   // Fixed size dimensions of array or collections stored in the TTree if any.
 
   // Declaration of leaf types
   float data;
-  Int_t   timestamp;
+  Int_t timestamp;
   int   timestamp_ns;
 
   // List of branches
   TBranch *b_data;         //!
   TBranch *b_timestamp;    //!
   TBranch *b_timestamp_ns; //!
-//  void Combine();
-  void Combine(string infile, ifstream &timeInput);
-  void DrawGeoData(TString name, TString ch, TDatime timeoffset);
-//  void SetDatetime(vector<double> t, vector<double> data);
-  void SetDatetime();
-  void Init(TTree *tree);
+  void     SetGeoData(string infile, ifstream &timeInput);
+  void     DrawGeoData(TString name, TString ch, TDatime timeoffset);
+  TString SetDatetime(TTimeStamp t);
+  TDatime SetTimeOffset();
+  void    LoadTree(TTree *tree);
+  void    Cut();
 
   vector<TString> datetime;
   vector<TString> datetime_Rn;
   vector<double>  data_binary;
   vector<double>  ts_binary;
   vector<float>   data_collection;
-  vector<float>     ts_collection;
+  vector<float>   ts_collection;
   TGraph         *g_data;
   TGraph         *g_binarydata;
 };

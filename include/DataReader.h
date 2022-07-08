@@ -36,7 +36,7 @@ public:
   ~DataReader() {}
   vector<DataReader> ReadRawData();
   void               Init(ifstream &eqDirInput);
-  void               ReadEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *ofile);
+  void               SetEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *ofile);
   void               DrawPlots();
 
   bool operator<(const DataReader &da) const

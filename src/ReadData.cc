@@ -104,7 +104,7 @@ vector<DataReader> DataReader::ReadRawData()
   return rawdata;
 }
 
-void DataReader::ReadEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *ofile)
+void DataReader::SetEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *ofile)
 {
   // open timeInput
   string column;
