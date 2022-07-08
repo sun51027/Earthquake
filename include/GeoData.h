@@ -8,6 +8,8 @@
 #ifndef GEODATA_h
 #define GEODATA_h
 
+#include "../include/DataReader.h"
+
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
@@ -22,17 +24,13 @@
 using namespace std;
 // Header file for the classes stored in the TTree if any.
 
-class GeoData {
+class GeoData : public DataReader{
 public:
   GeoData()
   {
-    //    data_collection.clear();
-    //    ts_collection.clear();
   }
   ~GeoData()
   {
-    //    delete[] & data_collection;
-    //    delete[] & ts_collection;
   }
   TTree *fChain; //! pointer to the analyzed TTree or TChain
 
@@ -49,15 +47,11 @@ public:
   TBranch *b_timestamp_ns; //!
   void     SetGeoData(string infile, ifstream &timeInput);
   void     DrawGeoData(TString name, TString ch, TDatime timeoffset);
-  TString SetDatetime(TTimeStamp t);
-  TDatime SetTimeOffset();
   void    LoadTree(TTree *tree);
   void    Cut();
 
-  vector<TString> datetime;
-  vector<TString> datetime_Rn;
-  vector<double>  data_binary;
-  vector<double>  ts_binary;
+private:
+  vector<TString> geodatetime;
   vector<float>   data_collection;
   vector<float>   ts_collection;
   TGraph         *g_data;

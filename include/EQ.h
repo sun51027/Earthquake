@@ -27,6 +27,7 @@ public:
   Earthquake() {}
   ~Earthquake() {}
   TH1   *AddHist(TDirectory *dir);
+  TH1   *AddHistforTemplate(TDirectory *dir);
   TH1   *SetZeroBinContent(TH1 *hist);
   double FittingGaus(TH1 *h_diff);
   void   DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile);

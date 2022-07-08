@@ -11,6 +11,7 @@ void   main_doAnalysis();
 void   main_eqDir();
 void   main_geodata();
 void   main_pvalue_eqDir();
+void   main_makeTemplate();
 void   drawPvalue(TDirectory *dir1, TDirectory *dir2, TDatime timeoffset);
 void   Help();
 string outputFile    = "";
@@ -25,7 +26,7 @@ int main(int argc, char **argv)
   for (int i = 0; i < argc; ++i) {
     arg_str = argv[i];
     arg_list.push_back(arg_str);
-    std::cout << arg_list[i] << std::endl;
+//    std::cout << arg_list[i] << std::endl;
   }
   int iarg    = 1;
   int anaType = 0;
@@ -33,7 +34,10 @@ int main(int argc, char **argv)
   while (iarg < argc) {
     string arg = arg_list[iarg];
 
-    if (arg == "-an" || arg == "--analysis") {
+    if (arg == "-t" || arg == "--template") {
+      anaType = 0;
+      iarg++;
+    } else if(arg == "-an" || arg == "--analysis") {
       anaType = 1;
       iarg++;
     } else if (arg == "-dir" || arg == "--eqdir") {
@@ -58,12 +62,13 @@ int main(int argc, char **argv)
       outputFile = argv[iarg];
       iarg++;
     } else if (arg == "-h" || arg == "--help") {
-      anaType = 0;
+      anaType = -1;
       break;
     }
   }
   switch (anaType) {
-  case 0: Help(); break;
+  case -1: Help(); break;
+  case 0: main_makeTemplate(); break;
   case 1: main_doAnalysis(); break;
   case 2: main_eqDir(); break;
   case 3: main_pvalue_eqDir(); break;
@@ -71,6 +76,33 @@ int main(int argc, char **argv)
   }
 
   return 0;
+}
+void main_makeTemplate()
+{
+
+  TFile *ofile = new TFile(outputFile.c_str(),"recreate");
+  ofile->mkdir("K40_peak");
+  ofile->mkdir("cali_peak");
+
+  TFile      *fin1 = new TFile(inputFile.c_str());
+  TDirectory *dir  = (TDirectory *)fin1->Get("HistoCh0");
+  dir->cd();
+  // init
+  Earthquake EQ;
+
+  // make a template
+  TH1 *Template;
+  Template = EQ.AddHistforTemplate(dir);
+  Template = EQ.SetZeroBinContent(Template);
+
+  ofile->cd();
+  Template->Write("Template");
+  double caliPeak = EQ.PeakforCalibration(Template, ofile, "cali_peak");
+  double K40Peak  = EQ.PeakforK40(Template, ofile, "K40_peak", 0);
+	cout<<"\n\n\n";
+  cout << "cali_peak " << caliPeak<< "  K40_peak " << K40Peak << endl;
+	cout<<"\n\n\n";
+
 }
 void main_doAnalysis()
 {
@@ -123,9 +155,9 @@ void main_pvalue_eqDir()
   int date = 20210915;
   int time = 80000;
   timeoffset.Set(date, time);
-  TFile      *fin1 = new TFile("plots_root/oAnalyzer.root");
+  TFile      *fin1 = new TFile("root_output/oAnalyzer.root");
   TDirectory *dir1 = (TDirectory *)fin1->Get("Analysis_plot");
-  TFile      *fin2 = new TFile("plots_root/EQdiroutput.root");
+  TFile      *fin2 = new TFile("root_output/EQdiroutput.root");
   TDirectory *dir2 = (TDirectory *)fin2->Get("EQ_directory");
   drawPvalue(dir1, dir2, timeoffset);
 }

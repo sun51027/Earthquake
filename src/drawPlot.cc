@@ -276,7 +276,6 @@ void DataReader::DrawPlots()
 
   g_ML->SetTitle("");
   g_ML->Draw("AP");
-  // g_ML->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (datetime_Rn.size() + 80) * 60 * 60 * 2);
   g_ML->GetXaxis()->SetLimits(lowerlimit, upperlimit);
   g_ML->GetXaxis()->SetTitle("Time (mm/dd)");
   g_ML->GetYaxis()->SetTitle("M_{L}");
@@ -305,7 +304,6 @@ void DataReader::DrawPlots()
   g_depth->SetTitle("");
   g_depth->Draw("AP");
   g_depth->GetXaxis()->SetLimits(lowerlimit, upperlimit);
-  //	g_depth->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (datetime_Rn.size() + 80) * 60 * 60 * 2);
   g_depth->GetXaxis()->SetTitle("Time (dd/mm)");
   g_depth->GetYaxis()->SetTitle("Depth(km)");
   g_depth->SetMinimum(-55);
@@ -492,7 +490,7 @@ void GeoData::DrawGeoData(TString name, TString channel,TDatime timeoffset){
   g_data->GetYaxis()->SetTitle("Data (" + channel + ")");
   c->SetGrid(1, 0);
   c->Modified();
-  c->SaveAs(name + ".png");
+  c->SaveAs("plots/geodata/"+name + ".png");
   delete c;
 
   gStyle->SetTimeOffset(timeoffset.Convert());
@@ -509,5 +507,5 @@ void GeoData::DrawGeoData(TString name, TString channel,TDatime timeoffset){
   g_binarydata->GetYaxis()->SetTitle("Data (" + channel + ")");
   c2->SetGrid(1, 0);
   c2->Modified();
-  c2->SaveAs(name + "_binary.pdf");
+  c2->SaveAs("plots/geodata/"+name + "_binary.pdf");
 }

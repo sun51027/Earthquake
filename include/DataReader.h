@@ -5,6 +5,7 @@
 #include "TGraph.h"
 #include "TCanvas.h"
 #include "TFile.h"
+#include "TTimeStamp.h"
 
 #include <iostream>
 #include <fstream>
@@ -38,6 +39,8 @@ public:
   void               Init(ifstream &eqDirInput);
   void               SetEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *ofile);
   void               DrawPlots();
+  TString SetDatetime(TTimeStamp t);
+  TDatime SetTimeOffset();
 
   bool operator<(const DataReader &da) const
   {
@@ -52,6 +55,7 @@ public:
       return false;
   }
 
+  vector<string>     datetime_Rn;
 private:
   int     date_;
   int     time_;
@@ -87,7 +91,6 @@ private:
   vector<TString>    datetime;
   vector<TString>    date;
   vector<TString>    time;
-  vector<string>     datetime_Rn;
   vector<DataReader> rawdata;
 
   TDatime timeoffset;
@@ -97,4 +100,45 @@ private:
   TGraph *g_ML;
   TGraph *g_depth;
 };
+
+inline TString DataReader::SetDatetime(TTimeStamp t)
+{
+  TString twohrstamp;
+  if ((t.GetTime() / 100000) != 0) {
+    twohrstamp.Form("%i%i", t.GetDate(), t.GetTime());
+  } else {
+    twohrstamp.Form("%i0%i", t.GetDate(), t.GetTime());
+  }
+  cout<<"twohrstamp "<<twohrstamp<<endl;
+  twohrstamp.Remove(10, 4);
+  TString s(twohrstamp(9, 10));
+  if (s == "1") {
+    twohrstamp.Replace(9, 1, "0");
+  } else if (s == "3") {
+    twohrstamp.Replace(9, 1, "2");
+  } else if (s == "5") {
+    twohrstamp.Replace(9, 1, "4");
+  } else if (s == "7") {
+    twohrstamp.Replace(9, 1, "6");
+  } else if (s == "9") {
+    twohrstamp.Replace(9, 1, "8");
+  }
+  return twohrstamp;
+}
+inline TDatime DataReader::SetTimeOffset()
+{
+  TString date_Rn[datetime_Rn.size()];
+  TString time_Rn[datetime_Rn.size()];
+  for (int rn = 0; rn < datetime_Rn.size(); rn++) {
+    date_Rn[rn] = datetime_Rn[rn];
+    date_Rn[rn].Remove(8, 2);
+    time_Rn[rn] = datetime_Rn[rn];
+    time_Rn[rn].Remove(0, 8);
+    time_Rn[rn].Insert(2, "0000");
+  }
+  TDatime timeoffset;
+  timeoffset.Set(date_Rn[0].Atoi(), time_Rn[0].Atoi());
+  timeoffset.Print();
+  return timeoffset;
+}
 #endif

@@ -33,7 +33,6 @@ void DataReader::Init(ifstream &eqDirInput)
 {
   string c1, c2, c13, c15, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c14;
 
-  //  rawdata.resize(64);
   if (!eqDirInput.is_open()) {
     cout << "Failed to open file" << endl;
   } else {
@@ -73,28 +72,10 @@ vector<DataReader> DataReader::ReadRawData()
     date[i] = date_raw[i];
     date[i].Remove(4, 1);
     date[i].Remove(6, 1);
-
-    TTimeStamp test(date[i].Atoi(), time[i].Atoi(), 0, kTRUE, 8 * 3600);
-    if ((test.GetTime() / 100000) != 0) {
-      datetime[i].Form("%i%i", test.GetDate(), test.GetTime());
-    } else {
-      datetime[i].Form("%i0%i", test.GetDate(), test.GetTime());
-    }
-    datetime[i].Remove(10, 4);
-    //						cout<<"datetime["<<i<<"] "<<datetime[i]<<endl;
-    // combine date and time into datatime to match Rn data array
-    TString s(datetime[i](9, 10));
-    if (s == "1") {
-      datetime[i].Replace(9, 1, "0");
-    } else if (s == "3") {
-      datetime[i].Replace(9, 1, "2");
-    } else if (s == "5") {
-      datetime[i].Replace(9, 1, "4");
-    } else if (s == "7") {
-      datetime[i].Replace(9, 1, "6");
-    } else if (s == "9") {
-      datetime[i].Replace(9, 1, "8");
-    }
+    
+    // EQdir time must be UTC+8
+    TTimeStamp t(date[i].Atoi(), time[i].Atoi(), 0, kTRUE,8*60*60);
+    datetime[i] = SetDatetime(t);
 
     // rawdata begin with i = 0
     rawdata[i - 1] = DataReader(date[i].Atoi(), time[i].Atoi(), stod(lat_raw[i]), stod(lon_raw[i]), stod(depth_raw[i]),
@@ -115,38 +96,30 @@ void DataReader::SetEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *ofi
       datetime_Rn.push_back(column);
     }
   }
+
   // Initialize rawdata from EQ directory (CWB) and
   // create newArray to match match the date-time of Rn
   // to the EQ directory
   //
   vector<DataReader> newArray;
-  TString            date_Rn[datetime_Rn.size()];
-  TString            time_Rn[datetime_Rn.size()];
   newArray.resize(datetime_Rn.size());
   for (int rn = 0; rn < datetime_Rn.size(); rn++) {
     newArray[rn].ML_    = 0;
     newArray[rn].depth_ = 0;
-    date_Rn[rn]         = datetime_Rn[rn];
-    date_Rn[rn].Remove(8, 2);
-    time_Rn[rn] = datetime_Rn[rn];
-    time_Rn[rn].Remove(0, 8);
-    time_Rn[rn].Insert(2, "0000");
   }
+  timeoffset = SetTimeOffset();
+	timeoffset.Print();
 
   DataReader reader;
   reader.Init(eqDirInput);
   rawdata = reader.ReadRawData();
-  // timeoffset.Set(20220322,80000);
-  timeoffset.Set(date_Rn[0].Atoi(), time_Rn[0].Atoi() + 80000);
-	timeoffset.Print();
-  //  Match the two arrays
 
   double N_[4000]; // for time
   double MLtmp = 0;
   double ntmp  = 0;
   for (int rn = 0; rn < datetime_Rn.size(); rn++) {
 
-    N_[rn] = (double)(rn + 1) * 60 * 60 * 2 - 8 * 3600; // number of 2hour
+    N_[rn] = (double)(rn + 1) * 60 * 60 * 2 ; // number of 2hour
 
     for (int i = 0; i < rawdata.size(); i++) {
 
@@ -156,8 +129,6 @@ void DataReader::SetEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *ofi
           ntmp  = i;
         }
         newArray[rn] = rawdata[ntmp];
-        // cout << ntmp << " " << rawdata[i].datetime_ << " ML[" << i << "] " << rawdata[i].ML_ << " Rndatetime[" << rn
-        //      << "] " << datetime_Rn[rn] << " " << endl;
       } else {
         MLtmp = 0;
         continue;
