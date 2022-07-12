@@ -508,4 +508,9 @@ void GeoData::DrawGeoData(TString name, TString channel,TDatime timeoffset){
   c2->SetGrid(1, 0);
   c2->Modified();
   c2->SaveAs("plots/geodata/"+name + "_binary.pdf");
+
+
+ // TCanvas *c3           = new TCanvas("c3", "", 1200, 600);
+ // h_test->Draw();
+ // c3->SaveAs("plots/geodata/"+name + "_histo.pdf");
 }

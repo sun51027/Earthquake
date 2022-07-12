@@ -16,6 +16,7 @@
 #include <string>
 #include <vector>
 #include "TGraph.h"
+#include "TH1D.h"
 #include "TDatime.h"
 #include "TTimeStamp.h"
 #include <iostream>
@@ -45,10 +46,10 @@ public:
   TBranch *b_data;         //!
   TBranch *b_timestamp;    //!
   TBranch *b_timestamp_ns; //!
-  void     SetGeoData(string infile, ifstream &timeInput);
+  void     SetGeoData(string infile, ifstream &timeInput, int threshold);
   void     DrawGeoData(TString name, TString ch, TDatime timeoffset);
   void    LoadTree(TTree *tree);
-  void    Cut();
+  void    Cut(int threshold, int peak);
 
 private:
   vector<TString> geodatetime;
@@ -56,6 +57,8 @@ private:
   vector<float>   ts_collection;
   TGraph         *g_data;
   TGraph         *g_binarydata;
+  TH1D* h_test;
+  float data_avg = 0;
 };
 
 #endif

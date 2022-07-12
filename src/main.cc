@@ -18,6 +18,7 @@ string outputFile    = "";
 string inputFile     = "";
 string inputFile2    = "";
 string inputTemplate = "";
+int threshold = 0;
 
 int main(int argc, char **argv)
 {
@@ -60,6 +61,10 @@ int main(int argc, char **argv)
     } else if (arg == "-o" || arg == "--outputFile") {
       iarg++;
       outputFile = argv[iarg];
+      iarg++;
+    } else if (arg == "-th" || arg == "--threshold") {
+      iarg++;
+      threshold = stoi(argv[iarg]);
       iarg++;
     } else if (arg == "-h" || arg == "--help") {
       anaType = -1;
@@ -168,7 +173,7 @@ void main_geodata()
   GeoData geo;
   ifstream   timeInput;
   timeInput.open(inputFile2.c_str());
-  geo.SetGeoData(inputFile.c_str(),timeInput);
+  geo.SetGeoData(inputFile.c_str(),timeInput, threshold);
   
 }
 void Help()

@@ -109,7 +109,6 @@ inline TString DataReader::SetDatetime(TTimeStamp t)
   } else {
     twohrstamp.Form("%i0%i", t.GetDate(), t.GetTime());
   }
-  cout<<"twohrstamp "<<twohrstamp<<endl;
   twohrstamp.Remove(10, 4);
   TString s(twohrstamp(9, 10));
   if (s == "1") {
