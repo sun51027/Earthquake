@@ -24,28 +24,58 @@ void GeoData::LoadTree(TTree *fChain)
   fChain->SetBranchAddress("timestamp", &timestamp, &b_timestamp);
   fChain->SetBranchAddress("timestamp_ns", &timestamp_ns, &b_timestamp_ns);
 }
-void GeoData::Cut(int threshold,int peak)
+void GeoData::Cut(int sigma, int peak)
 {
-  cout<<"threshold "<<threshold<<endl;
+
+  // take the largest data in 2hr
+  vector<float> data2hr_collection;
+  vector<float> t2hr_collection;
+  float datatmp        = 0;
+  float timetmp        = 0;
+  int   starttimestamp = 0;
   for (int i = 0; i < ts_collection.size(); i++) {
-    if (abs(data_collection[i]-peak) > threshold) {
+    if(i > 0 && timetmp >= ts_collection[i]){
+      if (abs(data_collection[i]) > abs(datatmp)) datatmp = data_collection[i];
+    }else{
+      timetmp = ts_collection[i]+2*60*60;
+      data2hr_collection.push_back(abs(datatmp)); // input data every second
+      t2hr_collection.push_back(timetmp);
+      datatmp = 0.;
       
-//    cout<<data_collection[i]<<" - "<<peak<<" = "<<abs(data_collection[i]-peak)<<"  th 10,000 "<<endl;
-      TTimeStamp t((int)ts_collection[i]);
-      TString    twohrstamp = SetDatetime(t);
-      geodatetime.push_back(twohrstamp);
     }
   }
+  for(int i = 0;i<data2hr_collection.size();i++){
+
+      cout<<"data2hr_collection "<<data2hr_collection[i]<<endl;
+      cout<<"t2hr_collection "<<t2hr_collection[i]<<endl;
+  }
+  cout<<t2hr_collection.size()<<" "<<data2hr_collection.size()<<endl;  
+  g_2hrdata =new TGraph(data2hr_collection.size(),t2hr_collection.data(),data2hr_collection.data());
+  
+  // take a data > # sigma within 2 hr
+//  double threshold = sigma;
+//    if (abs(data_collection[i] - peak) > threshold) {
+//          cout<<data_collection[i]<<" - "<<peak<<" = "<<abs(data_collection[i]-peak)<<" > ";
+//          cout<<threshold<<endl;
+//      TTimeStamp t((int)ts_collection[i]);
+//      TString    twohrstamp = SetDatetime(t);
+//      geodatetime.push_back(twohrstamp);
+//    }else{
+//          cout<<data_collection[i]<<" - "<<peak<<" = "<<abs(data_collection[i]-peak)<<" < ";
+//          cout<<threshold<<endl;
+//    }
+//  }
 }
-void GeoData::SetGeoData(string infileName, ifstream &timeInput, int threshold)
+void GeoData::SetGeoData(string infileName, ifstream &timeInput)
+//void GeoData::SetGeoData(string infileName, ifstream &timeInput, int threshold)
 {
   // input files and treat datetime
   TFile *infile = new TFile(("Data_Geophysical/output_root/" + infileName + ".root").c_str(), "READ");
   TTree *fChain = (TTree *)infile->Get("GeoData");
 
   LoadTree(fChain);
-  TString name    = infileName;
-  name.Remove(3,7);
+  TString name = infileName;
+  name.Remove(3, 7);
   TString channel = infileName;
   channel.Remove(0, 4);
   channel.Remove(6, 18);
@@ -62,7 +92,7 @@ void GeoData::SetGeoData(string infileName, ifstream &timeInput, int threshold)
   if (fChain == 0) return;
   Long64_t nentries = fChain->GetEntriesFast();
 
-  TH1D *h_test = new TH1D("h_test","",100,-100000,100000);
+  h_fitting            = new TH1D("h_fitting", "", 100, -100000, 100000);
   float datatmp        = 0;
   Int_t timetmp        = 0;
   int   starttimestamp = 0;
@@ -72,53 +102,33 @@ void GeoData::SetGeoData(string infileName, ifstream &timeInput, int threshold)
     if (ientry % 10000000 == 0)
       cout << ientry << " " << setprecision(3) << float(ientry) / float(nentries) * 100 << "%" << endl;
     if (ientry == 0) starttimestamp = timestamp;
-    if (ientry > 0 && timestamp == timetmp) {
+
+    if (ientry > 0 && timestamp == timetmp) { 
       if (abs(data) > abs(datatmp)) datatmp = data;
     } else {
       timetmp = timestamp;
       data_collection.push_back(datatmp); // input data every second
       ts_collection.push_back(timestamp);
-      h_test -> Fill(datatmp);
+      h_fitting->Fill(datatmp);
       data_avg += datatmp;
       datatmp = 0;
     }
   }
 
-  h_test->Fit("gaus");
-  double peak = h_test->GetFunction("gaus")->GetParameter(1);
-  double sigma = h_test->GetFunction("gaus")->GetParameter(2);
-  cout<<"peak "<<peak<<endl;
-  cout<<"sigma "<<sigma<<endl;
-
-//  if(channel == "00_EHN"){
-//    threshold = sigma; 
-//  }else if (channel == "00_EHE"){
-//    threshold = sigma;
-//  }else if (channel == "00_EHZ"){
-//    threshold = sigma;
-//  }else if (channel == "00_HH1"){
-//    threshold = sigma;
-//  }else if (channel == "00_HH2"){
-//    threshold = sigma;
-//  }else if (channel == "00_HHZ"){
-//    threshold = sigma;
-//  }else if (channel == "00_HN1"){
-//    threshold = sigma;
-//  }else if (channel == "00_HN2"){
-//    threshold = sigma;
-//  }else if (channel == "00_HNZ"){
-//    threshold = sigma;
-//  }
-
-  Cut(threshold,peak);
+  h_fitting->Fit("gaus");
+  double peak  = h_fitting->GetFunction("gaus")->GetParameter(1);
+  double sigma = h_fitting->GetFunction("gaus")->GetParameter(2);
+  cout << "peak " << peak << endl;
+  cout << "sigma " << sigma << endl;
 
 
+  Cut(sigma, peak);
 
   double combineIn2hr[datetime_Rn.size()];
   double N_[4000];
   for (int i = 0; i < datetime_Rn.size(); i++) {
     combineIn2hr[i] = 0;
-    N_[i]      = 0;
+    N_[i]           = 0;
   }
   for (int i = 0; i < datetime_Rn.size(); i++) {
 
@@ -132,24 +142,27 @@ void GeoData::SetGeoData(string infileName, ifstream &timeInput, int threshold)
     }
   }
 
-//  for (int i = 0; i < datetime_Rn.size(); i++) {
-//    cout << "combineIn2hr " << combineIn2hr[i] << " ";
-//    cout << datetime_Rn[i] << endl;
-//  }
+  //  for (int i = 0; i < datetime_Rn.size(); i++) {
+  //    cout << "combineIn2hr " << combineIn2hr[i] << " ";
+  //    cout << datetime_Rn[i] << endl;
+  //  }
 
   g_data       = new TGraph(data_collection.size(), &ts_collection[0], &data_collection[0]);
   g_binarydata = new TGraph(datetime_Rn.size(), N_, combineIn2hr);
 
-  TFile *ofile = new TFile("Geodata_"+name+".root", "update");
+  TFile *ofile = new TFile("Geodata_" + name + ".root", "update");
   ofile->mkdir((channel));
   ofile->cd(channel);
-  h_test->Write();
+  h_fitting->Write();
   g_data->SetName("g_data");
   g_data->Write();
   g_binarydata->SetName("g_binarydata");
   g_binarydata->Write();
+  g_2hrdata->SetName("g_2hrdata");
+  g_2hrdata->Write();
+
   ofile->Close();
-  
+
   TDatime timeoffset = SetTimeOffset();
   DrawGeoData(infileName, channel, timeoffset);
 }

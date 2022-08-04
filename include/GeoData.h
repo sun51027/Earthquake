@@ -25,14 +25,10 @@
 using namespace std;
 // Header file for the classes stored in the TTree if any.
 
-class GeoData : public DataReader{
+class GeoData : public DataReader {
 public:
-  GeoData()
-  {
-  }
-  ~GeoData()
-  {
-  }
+  GeoData() {}
+  ~GeoData() {}
   TTree *fChain; //! pointer to the analyzed TTree or TChain
 
   // Fixed size dimensions of array or collections stored in the TTree if any.
@@ -46,10 +42,11 @@ public:
   TBranch *b_data;         //!
   TBranch *b_timestamp;    //!
   TBranch *b_timestamp_ns; //!
-  void     SetGeoData(string infile, ifstream &timeInput, int threshold);
+  void     SetGeoData(string infile, ifstream &timeInput);
+  //void     SetGeoData(string infile, ifstream &timeInput, int threshold);
   void     DrawGeoData(TString name, TString ch, TDatime timeoffset);
-  void    LoadTree(TTree *tree);
-  void    Cut(int threshold, int peak);
+  void     LoadTree(TTree *tree);
+  void     Cut(int threshold, int peak);
 
 private:
   vector<TString> geodatetime;
@@ -57,8 +54,9 @@ private:
   vector<float>   ts_collection;
   TGraph         *g_data;
   TGraph         *g_binarydata;
-  TH1D* h_test;
-  float data_avg = 0;
+  TGraph         *g_2hrdata;
+  TH1D           *h_fitting;
+  float           data_avg = 0;
 };
 
 #endif

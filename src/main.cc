@@ -173,7 +173,8 @@ void main_geodata()
   GeoData geo;
   ifstream   timeInput;
   timeInput.open(inputFile2.c_str());
-  geo.SetGeoData(inputFile.c_str(),timeInput, threshold);
+  geo.SetGeoData(inputFile.c_str(),timeInput);
+  //geo.SetGeoData(inputFile.c_str(),timeInput, threshold);
   
 }
 void Help()

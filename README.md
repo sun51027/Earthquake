@@ -23,6 +23,10 @@ Radon data input : plots_root/RadonData.root
 
 + ex. Radon data 9/15 00:00:00 ~ 12/31 23:59:59 -> Event category 9/14 16:00:00 ~ 12/31 15:59:59
 
++ Longitude : 121.15 - 122 (~76 km)
+
++ Latitude : 23.30 - 24.30 (~110 km)
+
 2. [Continuous Waveform Data 連續波形資料](https://gdmsn.cwb.gov.tw/eqconDownload.php)
 
 +	Timezone is same as above.

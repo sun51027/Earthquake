@@ -290,7 +290,7 @@ void DataReader::DrawPlots()
   g_ML->GetYaxis()->SetLabelSize(0.1);
   g_ML->GetYaxis()->SetTitleSize(0.1);
   g_ML->GetYaxis()->SetTitleOffset(0.5);
-	
+
   c6->SetTicks(1, 1);
   c6->SetGrid(1, 1);
   c6->Modified();
@@ -328,14 +328,12 @@ void DataReader::DrawPlots()
 void drawPvalue(TDirectory *dir1, TDirectory *dir2, TDatime timeoffset)
 {
   gStyle->SetTimeOffset(timeoffset.Convert());
-	timeoffset.Print();
+  timeoffset.Print();
   dir1->cd();
   dir2->cd();
 
-  TCanvas *c = new TCanvas("c", "", 1200, 800);
-  //  TPad    *pT = mgr::NewTopPad();
-  //  TPad    *pB = mgr::NewBottomPad();
-  TPad *pT = new TPad("toppT", "", 0, 0.45, 1., 1.0); // xlow ylow xup yup
+  TCanvas *c  = new TCanvas("c", "", 1200, 800);
+  TPad    *pT = new TPad("toppT", "", 0, 0.45, 1., 1.0); // xlow ylow xup yup
   pT->SetTicks(1, 1);
   pT->SetBottomMargin(0.05);
   pT->SetLeftMargin(0.13);
@@ -478,9 +476,19 @@ void drawPvalue(TDirectory *dir1, TDirectory *dir2, TDatime timeoffset)
   delete c;
 }
 
+void GeoData::DrawGeoData(TString name, TString channel, TDatime timeoffset)
+{
+  TCanvas *c = new TCanvas("c", "", 1200, 600);
+  // TCanvas *c  = new TCanvas("c", "", 10, 10, 1800, 900);
+  // TPad    *pL = mgr::NewLeftPad();
+  // TPad    *pR = mgr::NewRightPad();
 
-void GeoData::DrawGeoData(TString name, TString channel,TDatime timeoffset){
-  TCanvas *c     = new TCanvas("c", "", 1200, 600);
+  // c->cd();
+  // pL->Draw();
+  // pR->Draw();
+
+  // c->cd();
+  // pL->cd();
   g_data->Draw("AL");
   g_data->SetTitle("");
   g_data->GetXaxis()->SetTimeDisplay(1);
@@ -488,29 +496,48 @@ void GeoData::DrawGeoData(TString name, TString channel,TDatime timeoffset){
   g_data->GetXaxis()->SetTimeFormat("%m/%d %Hh");
   g_data->GetXaxis()->SetTitle("Date time (mm/dd/hh)");
   g_data->GetYaxis()->SetTitle("Data (" + channel + ")");
-  c->SetGrid(1, 0);
+  //  mgr::SetLeftPlotAxis(g_data);
+  // c->cd();
+  // pR->cd();
+  // h_fitting->Draw("hbar");
+  // h_fitting->SetFillColor(kBlue);
+  // h_fitting->SetStats(0);
+  // mgr::SetRightPlotAxis(h_fitting);
+
+  //  pR->Modified();
+  //  pL->Modified();
+  //  pL->SetGrid(1, 1);
+  c->SetGrid(1, 1);
   c->Modified();
-  c->SaveAs("plots/geodata/"+name + ".png");
+  c->SaveAs("plots/geodata/" + name + ".png");
   delete c;
 
   gStyle->SetTimeOffset(timeoffset.Convert());
-  TCanvas *c2           = new TCanvas("c2", "", 1200, 600);
-  g_binarydata->Draw("AP");
-  g_binarydata->SetMarkerStyle(20);
-  g_binarydata->SetTitle("");
-  g_binarydata->SetMinimum(-0.5);
-  g_binarydata->SetMaximum(1.5);
-  g_binarydata->GetXaxis()->SetTimeDisplay(1);
-  g_binarydata->GetXaxis()->SetNdivisions(511);
-  g_binarydata->GetXaxis()->SetTimeFormat("%m/%d %Hh");
-  g_binarydata->GetXaxis()->SetTitle("Date time (mm/dd/hh)");
-  g_binarydata->GetYaxis()->SetTitle("Data (" + channel + ")");
-  c2->SetGrid(1, 0);
-  c2->Modified();
-  c2->SaveAs("plots/geodata/"+name + "_binary.pdf");
+//  TCanvas *c2 = new TCanvas("c2", "", 1200, 600);
+//  g_binarydata->Draw("AP");
+//  g_binarydata->SetMarkerStyle(20);
+//  g_binarydata->SetTitle("");
+//  g_binarydata->SetMinimum(-0.5);
+//  g_binarydata->SetMaximum(1.5);
+//  g_binarydata->GetXaxis()->SetTimeDisplay(1);
+//  g_binarydata->GetXaxis()->SetNdivisions(511);
+//  g_binarydata->GetXaxis()->SetTimeFormat("%m/%d %Hh");
+//  g_binarydata->GetXaxis()->SetTitle("Date time (mm/dd/hh)");
+//  g_binarydata->GetYaxis()->SetTitle("Data (" + channel + ")");
+//  c2->SetGrid(1, 0);
+//  c2->Modified();
+//  c2->SaveAs("plots/geodata/" + name + "_binary.pdf");
 
-
- // TCanvas *c3           = new TCanvas("c3", "", 1200, 600);
- // h_test->Draw();
- // c3->SaveAs("plots/geodata/"+name + "_histo.pdf");
+  TCanvas *c3 = new TCanvas("c2", "", 1200, 600);
+  g_2hrdata->Draw("AP");
+  g_2hrdata->SetMarkerStyle(20);
+  g_2hrdata->SetTitle("");
+  g_2hrdata->GetXaxis()->SetTimeDisplay(1);
+  g_2hrdata->GetXaxis()->SetTimeOffset(0);
+  g_2hrdata->GetXaxis()->SetTimeFormat("%m/%d %Hh");
+  g_2hrdata->GetXaxis()->SetTitle("Date time (mm/dd/hh)");
+  g_2hrdata->GetYaxis()->SetTitle("Data (" + channel + ")");
+  c3->SetGrid(1, 0);
+  c3->Modified();
+  c3->SaveAs("plots/geodata/" + name + "_2hrCombine.pdf");
 }
