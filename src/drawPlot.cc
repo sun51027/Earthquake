@@ -495,7 +495,7 @@ void GeoData::DrawGeoData(TString name, TString channel, TDatime timeoffset)
   g_data->GetXaxis()->SetTimeOffset(0);
   g_data->GetXaxis()->SetTimeFormat("%m/%d %Hh");
   g_data->GetXaxis()->SetTitle("Date time (mm/dd/hh)");
-  g_data->GetYaxis()->SetTitle("Data (" + channel + ")");
+  g_data->GetYaxis()->SetTitle(channel+" (m/s)");
   //  mgr::SetLeftPlotAxis(g_data);
   // c->cd();
   // pR->cd();
@@ -536,7 +536,7 @@ void GeoData::DrawGeoData(TString name, TString channel, TDatime timeoffset)
   g_2hrdata->GetXaxis()->SetTimeOffset(0);
   g_2hrdata->GetXaxis()->SetTimeFormat("%m/%d %Hh");
   g_2hrdata->GetXaxis()->SetTitle("Date time (mm/dd/hh)");
-  g_2hrdata->GetYaxis()->SetTitle("Data (" + channel + ")");
+  g_2hrdata->GetYaxis()->SetTitle(channel+" (m/s)");
   c3->SetGrid(1, 0);
   c3->Modified();
   c3->SaveAs("plots/geodata/" + name + "_2hrCombine.pdf");
