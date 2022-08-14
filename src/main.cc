@@ -160,9 +160,9 @@ void main_pvalue_eqDir()
   int date = 20210915;
   int time = 80000;
   timeoffset.Set(date, time);
-  TFile      *fin1 = new TFile("root_output/oAnalyzer.root");
+  TFile      *fin1 = new TFile(inputFile.c_str());
   TDirectory *dir1 = (TDirectory *)fin1->Get("Analysis_plot");
-  TFile      *fin2 = new TFile("root_output/EQdiroutput.root");
+  TFile      *fin2 = new TFile(inputFile2.c_str());
   TDirectory *dir2 = (TDirectory *)fin2->Get("EQ_directory");
   drawPvalue(dir1, dir2, timeoffset);
 }
