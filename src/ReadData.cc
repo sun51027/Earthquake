@@ -141,7 +141,7 @@ void DataReader::SetEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *ofi
            << newArray[rn].depth_ << endl;
     }
     //  if (newArray[rn].ML_ >= 4) {
-    if (newArray[rn].ML_ >= 4 && newArray[rn].depth_ <= 50) {
+    if (newArray[rn].ML_ >= 0.5 && newArray[rn].depth_ <= 35) {
       ML[rn]    = newArray[rn].ML_;
       depth[rn] = 0. - newArray[rn].depth_;
     }

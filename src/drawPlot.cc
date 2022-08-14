@@ -279,7 +279,7 @@ void DataReader::DrawPlots()
   g_ML->GetXaxis()->SetLimits(lowerlimit, upperlimit);
   g_ML->GetXaxis()->SetTitle("Time (mm/dd)");
   g_ML->GetYaxis()->SetTitle("M_{L}");
-  g_ML->SetMinimum(3.8);
+  g_ML->SetMinimum(0.5);
   g_ML->SetMaximum(7);
   g_ML->SetMarkerStyle(20);
   g_ML->GetXaxis()->SetTimeDisplay(1);
@@ -289,7 +289,7 @@ void DataReader::DrawPlots()
 
   g_ML->GetYaxis()->SetLabelSize(0.1);
   g_ML->GetYaxis()->SetTitleSize(0.1);
-  g_ML->GetYaxis()->SetTitleOffset(0.5);
+  g_ML->GetYaxis()->SetTitleOffset(0.3);
 
   c6->SetTicks(1, 1);
   c6->SetGrid(1, 1);
@@ -306,20 +306,20 @@ void DataReader::DrawPlots()
   g_depth->GetXaxis()->SetLimits(lowerlimit, upperlimit);
   g_depth->GetXaxis()->SetTitle("Time (dd/mm)");
   g_depth->GetYaxis()->SetTitle("Depth(km)");
-  g_depth->SetMinimum(-55);
+  g_depth->SetMinimum(-40);
   g_depth->SetMaximum(-0.5);
   g_depth->SetMarkerStyle(20);
   g_depth->GetXaxis()->SetTimeDisplay(1);
   g_depth->GetXaxis()->SetTimeFormat("%m/%d-%Hh");
-  g_depth->GetXaxis()->SetLabelSize(0.09);
-  g_depth->GetXaxis()->SetTitleSize(0.15);
-  g_depth->GetXaxis()->SetTitleOffset(1.0);
+  g_depth->GetXaxis()->SetLabelSize(0.1);
+  g_depth->GetXaxis()->SetTitleSize(0.1);
+//  g_depth->GetXaxis()->SetTitleOffset(1.0);
 
-  g_depth->GetYaxis()->SetLabelSize(0.12);
-  g_depth->GetYaxis()->SetTitleSize(0.17);
-  g_depth->GetYaxis()->SetTitleOffset(0.2);
+  g_depth->GetYaxis()->SetLabelSize(0.1);
+  g_depth->GetYaxis()->SetTitleSize(0.1);
+  g_depth->GetYaxis()->SetTitleOffset(0.3);
   c7->SetTicks(1, 1);
-  c7->SetGrid(0, 1);
+  c7->SetGrid(1, 1);
   c7->Modified();
   c7->SaveAs("plots/EQ_depth.pdf");
   delete c7;
