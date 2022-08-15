@@ -46,7 +46,7 @@ public:
   //void     SetGeoData(string infile, ifstream &timeInput, int threshold);
   void     DrawGeoData(TString name, TString ch, TDatime timeoffset);
   void     LoadTree(TTree *tree);
-  void     Cut(int threshold, int peak);
+  void     Cut(double sigma, double peak);
 
 private:
   vector<TString> geodatetime;
@@ -55,6 +55,7 @@ private:
   TGraph         *g_data;
   TGraph         *g_binarydata;
   TGraph         *g_2hrdata;
+  TGraph         *g_nsigma;
   TH1D           *h_fitting;
   float           data_avg = 0;
 };
