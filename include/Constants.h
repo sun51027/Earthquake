@@ -7,7 +7,8 @@
 #define MAXK40    1.5
 #define MINRADON  0.25
 #define MAXRADON  0.8
-#define PEAKFORCALI 2.22198
+#define PEAKFORCALI 2.22304
+//#define PEAKFORCALI 2.22198
 #define constEHE 1.100e-10
 #define constEHN 1.100e-10
 #define constEHZ 1.100e-10

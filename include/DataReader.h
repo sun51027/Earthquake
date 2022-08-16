@@ -106,6 +106,8 @@ inline TString DataReader::SetDatetime(TTimeStamp t)
   TString twohrstamp;
   if ((t.GetTime() / 100000) != 0) {
     twohrstamp.Form("%i%i", t.GetDate(), t.GetTime());
+  } else if((t.GetTime() / 10000) == 0) {
+    twohrstamp.Form("%i00", t.GetDate());
   } else {
     twohrstamp.Form("%i0%i", t.GetDate(), t.GetTime());
   }

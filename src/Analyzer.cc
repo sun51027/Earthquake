@@ -44,12 +44,12 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 
     while ((keyAsObj2 = (TKey *)next2())) {
       auto key2 = (TKey *)keyAsObj2;
-      cout << "name " << key->GetName() << key2->GetName() << endl;
+      //cout << "name " << key->GetName() << key2->GetName() << endl;
       obj = (TH1 *)dir2->Get(key2->GetName());  // copy every th1 histogram to
       obj = Earthquake::SetZeroBinContent(obj); // fill the empty bin with average of adjacent bins
 
       //      if (h < 720 && obj->Integral() != 0)  // before July
-      if (h > 1799) { // start from 9/15 h=1800)
+      if (h > 2375) { // start from 9/15 h=1800, 11/2 h =2376(?))
 
         // set hist name ex. 12/25;  datetime = 2021122522
         datetime[N].Form("%s%s", key->GetName(), key2->GetName());
@@ -138,8 +138,8 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
       p_value_[i] = 0.5 * (1 - TMath::Erf(sigma_[i] / sqrt(2)));
     }
   }
-  g_sigma_significant = new TGraph(N, N_, sigma_);
-  g_pvalue            = new TGraph(N, N_, p_value_);
+  //g_sigma_significant = new TGraph(N, N_, sigma_);
+//  g_pvalue            = new TGraph(N, N_, p_value_);
 
   /*********************************************************
       Fill TGraph
@@ -161,7 +161,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 
   // save time name into txt
   ofstream ofs;
-  ofs.open("datetime.txt");
+  ofs.open("doc/datetime.txt");
   if (!ofs.is_open()) {
     cout << "Fail to open txt file" << endl;
   } else {
@@ -173,14 +173,22 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 
   TString date_Rn[N];
   TString time_Rn[N];
+  double t[N];
   for (int rn = 0; rn < N; rn++) {
     date_Rn[rn] = datetime[rn];
     date_Rn[rn].Remove(8, 2);
     time_Rn[rn] = datetime[rn];
     time_Rn[rn].Remove(0, 8);
     time_Rn[rn].Insert(2, "0000");
+    //cout<<date_Rn[rn]<<" "<<time_Rn[rn]<<endl;
+    TTimeStamp timestamp(date_Rn[rn].Atoi(),time_Rn[rn].Atoi(),0,kFALSE,0);
+    t[rn] = timestamp+8*60*60;
+    timestamp.Print();
+    cout<<(int)t[rn]<<endl;
   }
 
+  g_pvalue            = new TGraph(N, t, p_value_);
+  g_sigma_significant = new TGraph(N, t, sigma_);
   timeoffset.Set(date_Rn[0].Atoi(), time_Rn[0].Atoi());
   timeoffset.Print();
   // write analysis plots into oAnalyzr.root

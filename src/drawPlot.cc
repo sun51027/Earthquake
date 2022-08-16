@@ -367,8 +367,11 @@ void drawPvalue(TDirectory *dir1, TDirectory *dir2, TDatime timeoffset)
   TGraph *g_depth  = (TGraph *)dir2->Get("g_depth");
 
   int N = 0;
-  if (g_ML->GetN() != g_pvalue->GetN())
+  if (g_ML->GetN() != g_pvalue->GetN()){
+    cout<<"#bin in g_ML "<<g_ML->GetN()<<endl;
+    cout<<"#bin in g_pvalue "<<g_pvalue->GetN()<<endl;
     cout << "N = 0 " << endl;
+  }
   else
     N = g_ML->GetN();
 
@@ -428,7 +431,7 @@ void drawPvalue(TDirectory *dir1, TDirectory *dir2, TDatime timeoffset)
   g_ML->GetXaxis()->SetLimits(lowerlimit, upperlimit);
   //  g_ML->GetXaxis()->SetTitle("Time (mm/dd)");
   g_ML->GetYaxis()->SetTitle("M_{L}");
-  g_ML->SetMinimum(3.8);
+  g_ML->SetMinimum(1);
   g_ML->SetMaximum(7);
   g_ML->SetMarkerStyle(20);
   g_ML->GetXaxis()->SetTimeDisplay(1);
@@ -449,7 +452,7 @@ void drawPvalue(TDirectory *dir1, TDirectory *dir2, TDatime timeoffset)
   g_depth->GetXaxis()->SetLimits(lowerlimit, upperlimit);
   g_depth->GetXaxis()->SetTitle("Time (mm/dd)");
   g_depth->GetYaxis()->SetTitle("depth");
-  g_depth->SetMinimum(-55);
+  g_depth->SetMinimum(-40);
   g_depth->SetMaximum(-0.5);
   g_depth->SetMarkerStyle(20);
 
@@ -512,21 +515,21 @@ void GeoData::DrawGeoData(TString name, TString channel, TDatime timeoffset)
   c->SaveAs("plots/geodata/" + name + ".png");
   delete c;
 
-  gStyle->SetTimeOffset(timeoffset.Convert());
-//  TCanvas *c2 = new TCanvas("c2", "", 1200, 600);
-//  g_binarydata->Draw("AP");
-//  g_binarydata->SetMarkerStyle(20);
-//  g_binarydata->SetTitle("");
-//  g_binarydata->SetMinimum(-0.5);
-//  g_binarydata->SetMaximum(1.5);
-//  g_binarydata->GetXaxis()->SetTimeDisplay(1);
-//  g_binarydata->GetXaxis()->SetNdivisions(511);
-//  g_binarydata->GetXaxis()->SetTimeFormat("%m/%d %Hh");
-//  g_binarydata->GetXaxis()->SetTitle("Date time (mm/dd/hh)");
-//  g_binarydata->GetYaxis()->SetTitle("Data (" + channel + ")");
-//  c2->SetGrid(1, 0);
-//  c2->Modified();
-//  c2->SaveAs("plots/geodata/" + name + "_binary.pdf");
+//  gStyle->SetTimeOffset(timeoffset.Convert());
+  TCanvas *c2 = new TCanvas("c2", "", 1200, 600);
+  g_nsigma->Draw("AP");
+  g_nsigma->SetMarkerStyle(20);
+  g_nsigma->SetTitle("");
+//  g_nsigma->SetMinimum(-0.5);
+//  g_nsigma->SetMaximum(10);
+  g_nsigma->GetXaxis()->SetTimeDisplay(1);
+  g_nsigma->GetXaxis()->SetNdivisions(511);
+  g_nsigma->GetXaxis()->SetTimeFormat("%m/%d %Hh");
+  g_nsigma->GetXaxis()->SetTitle("Date time (mm/dd/hh)");
+  g_nsigma->GetYaxis()->SetTitle(channel+" (m/s/s)");
+  c2->SetGrid(1, 0);
+  c2->Modified();
+  c2->SaveAs("plots/geodata/" + name + "_nsigma.pdf");
 
   TCanvas *c3 = new TCanvas("c2", "", 1200, 600);
   g_2hrdata->Draw("AP");

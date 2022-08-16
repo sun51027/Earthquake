@@ -11,6 +11,7 @@ void   main_doAnalysis();
 void   main_eqDir();
 void   main_geodata();
 void   main_pvalue_eqDir();
+void   main_pvalue_geodata();
 void   main_makeTemplate();
 void   drawPvalue(TDirectory *dir1, TDirectory *dir2, TDatime timeoffset);
 void   Help();
@@ -44,11 +45,14 @@ int main(int argc, char **argv)
     } else if (arg == "-dir" || arg == "--eqdir") {
       anaType = 2;
       iarg++;
-    } else if (arg == "-p" || arg == "--pvalue") {
+    } else if (arg == "-pd" || arg == "--pvalueEQdir") {
       anaType = 3;
       iarg++;
-    } else if (arg == "-geo" || arg == "--geodata") {
+    } else if (arg == "-pg" || arg == "--pvalueGeodata") {
       anaType = 4;
+      iarg++;
+    } else if (arg == "-geo" || arg == "--geodata") {
+      anaType = 5;
       iarg++;
     } else if (arg == "-i" || arg == "--inputFile") {
       iarg++;
@@ -77,7 +81,8 @@ int main(int argc, char **argv)
   case 1: main_doAnalysis(); break;
   case 2: main_eqDir(); break;
   case 3: main_pvalue_eqDir(); break;
-  case 4: main_geodata(); break;
+  case 4: main_pvalue_geodata(); break;
+  case 5: main_geodata(); break;
   }
 
   return 0;
@@ -86,8 +91,8 @@ void main_makeTemplate()
 {
 
   TFile *ofile = new TFile(outputFile.c_str(),"recreate");
-  ofile->mkdir("K40_peak");
-  ofile->mkdir("cali_peak");
+//  ofile->mkdir("K40_uncali_fit");
+//  ofile->mkdir("cali_Hist");
 
   TFile      *fin1 = new TFile(inputFile.c_str());
   TDirectory *dir  = (TDirectory *)fin1->Get("HistoCh0");
@@ -102,8 +107,10 @@ void main_makeTemplate()
 
   ofile->cd();
   Template->Write("Template");
-  double caliPeak = EQ.PeakforCalibration(Template, ofile, "cali_peak");
-  double K40Peak  = EQ.PeakforK40(Template, ofile, "K40_peak", 0);
+  double caliPeak = 0;
+  caliPeak = EQ.PeakforCalibration(Template, ofile, "cali_peak");
+  double K40Peak  = 0;
+  K40Peak = EQ.PeakforK40(Template, ofile, "K40_peak", 0);
 	cout<<"\n\n\n";
   cout << "cali_peak " << caliPeak<< "  K40_peak " << K40Peak << endl;
 	cout<<"\n\n\n";
@@ -157,7 +164,7 @@ void main_pvalue_eqDir()
 	TDatime timeoffset;
 //  ifstream datetime;
 //  datetime.open("datetime.txt");
-  int date = 20210915;
+  int date = 20211101;
   int time = 80000;
   timeoffset.Set(date, time);
   TFile      *fin1 = new TFile(inputFile.c_str());
@@ -177,17 +184,33 @@ void main_geodata()
   //geo.SetGeoData(inputFile.c_str(),timeInput, threshold);
   
 }
+void main_pvalue_geodata()
+{
+	TDatime timeoffset;
+//  ifstream datetime;
+//  datetime.open("datetime.txt");
+  int date = 20211102;
+  int time = 80000;
+  timeoffset.Set(date, time);
+  TFile      *fin1 = new TFile(inputFile.c_str());
+  TDirectory *dir1 = (TDirectory *)fin1->Get("Analysis_plot");
+  TFile      *fin2 = new TFile(inputFile2.c_str());
+  TDirectory *dir2 = (TDirectory *)fin2->Get("");
+  drawPvalue(dir1, dir2, timeoffset);
+}
 void Help()
 {
   cout << endl;
   cout << "Anlysis type  -------------------" << endl;
+  cout << "-t   || --template \t\t make template" << endl;
   cout << "-an  || --analysis \t\t Do Radon analysis" << endl;
   cout << "-dir || --eqdir \t\t Treat EQ directory from CWB and draw plots" << endl;
   cout << "-geo || --geodata \t\t Treat waveform data from CWB and draw plots" << endl;
-  cout << "-p   || --pvalue \t\t Draw p-value with eqdir and radon data"<<endl;
+  cout << "-pd   || --pvalue \t\t Draw p-value with eqdir and radon data"<<endl;
+  cout << "-pg   || --pvalue \t\t Draw p-value with geodata and radon data"<<endl;
   cout << endl;
   cout << "File type  ----------------------" << endl;
-  cout << "-i   || --inputFile \t\t 1st inputfile, radon data for -an, GDMScatalog for -dir" << endl;
-  cout << "-i2  || --inputFile2 \t\t 2ns inputfile, template for -an, timelist for -dir " << endl;
+  cout << "-i   || --inputFile \t\t 1st inputfile, radon data for -an, GDMScatalog for -dir, analyzer for -p" << endl;
+  cout << "-i2  || --inputFile2 \t\t 2ns inputfile, template for -an, timelist for -dir, EQdir for -p " << endl;
   cout << "-o   || --outputFile \t\t root file output name " << endl;
 }
