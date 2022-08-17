@@ -53,9 +53,9 @@ void GeoData::Cut(double sigma, double peak)
   for (int i = 0; i < t2hr_collection.size(); i++) {
     //      if (abs(data2hr_collection[i] - peak) > threshold) {
     //            cout<<threshold<<endl;
-//    cout << data2hr_collection[i] << " - " << data_avg << " = " << abs(data2hr_collection[i] - data_avg) << endl;
-//    nsigma_collection.push_back(abs(data2hr_collection[i] - (float)data_avg) / (float)sigma);
-//    cout << "# sigma " << abs(data2hr_collection[i] - (float)data_avg) / (float)sigma << endl;
+   //    cout << data2hr_collection[i] << " - " << data_avg << " = " << abs(data2hr_collection[i] - data_avg) << endl;
+   //    nsigma_collection.push_back(abs(data2hr_collection[i] - (float)data_avg) / (float)sigma);
+   //    cout << "# sigma " << abs(data2hr_collection[i] - (float)data_avg) / (float)sigma << endl;
      cout<<data2hr_collection[i]<<" - "<<peak<<" = "<<abs(data2hr_collection[i]-abs(peak))<<endl;
      nsigma_collection.push_back(abs(data2hr_collection[i] - abs((float)peak))/(float)sigma );
      cout<<"# sigma "<<abs(data2hr_collection[i] - abs((float)peak))/(float)sigma<<endl;
@@ -165,23 +165,23 @@ void GeoData::SetGeoData(string infileName, ifstream &timeInput)
   data_avg = data_avg * const_sys;
   Cut(sigma, peak);
 
-  //  double combineIn2hr[datetime_Rn.size()];
-  //  double N_[4000];
-  //  for (int i = 0; i < datetime_Rn.size(); i++) {
-  //    combineIn2hr[i] = 0;
-  //    N_[i]           = 0;
-  //  }
-  //  for (int i = 0; i < datetime_Rn.size(); i++) {
-  //
-  //    // since "combineIn2hr" came from CWBSN, the time (in x-axis) must +8
-  //    N_[i] = (double)(i + 1) * 60 * 60 * 2 + 8 * 3600; // CWBSN UTC+8
-  //    for (int t = 0; t < geodatetime.size(); t++) {
-  //      if (datetime_Rn[i] == geodatetime[t]) {
-  //        combineIn2hr[i] = 1;
-  //      } else
-  //        continue;
-  //    }
-  //  }
+    double combineIn2hr[datetime_Rn.size()];
+    double N_[4000];
+    for (int i = 0; i < datetime_Rn.size(); i++) {
+      combineIn2hr[i] = 0;
+      N_[i]           = 0;
+    }
+    for (int i = 0; i < datetime_Rn.size(); i++) {
+  
+      // since "combineIn2hr" came from CWBSN, the time (in x-axis) must +8
+      N_[i] = (double)(i + 1) * 60 * 60 * 2 + 8 * 3600; // CWBSN UTC+8
+      for (int t = 0; t < geodatetime.size(); t++) {
+        if (datetime_Rn[i] == geodatetime[t]) {
+          combineIn2hr[i] = 1;
+        } else
+          continue;
+      }
+    }
 
   //  for (int i = 0; i < datetime_Rn.size(); i++) {
   //    cout << "combineIn2hr " << combineIn2hr[i] << " ";

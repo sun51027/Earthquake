@@ -313,7 +313,7 @@ void DataReader::DrawPlots()
   g_depth->GetXaxis()->SetTimeFormat("%m/%d-%Hh");
   g_depth->GetXaxis()->SetLabelSize(0.1);
   g_depth->GetXaxis()->SetTitleSize(0.1);
-//  g_depth->GetXaxis()->SetTitleOffset(1.0);
+  //  g_depth->GetXaxis()->SetTitleOffset(1.0);
 
   g_depth->GetYaxis()->SetLabelSize(0.1);
   g_depth->GetYaxis()->SetTitleSize(0.1);
@@ -325,7 +325,196 @@ void DataReader::DrawPlots()
   delete c7;
 }
 
-void drawPvalue(TDirectory *dir1, TDirectory *dir2, TDatime timeoffset)
+void drawPvalue_geo(TDirectory *dir1, TDirectory *dir2, TDirectory *dir3, TDirectory *dir4, TDatime timeoffset)
+{
+//  gStyle->SetTimeOffset(timeoffset.Convert());
+  timeoffset.Print();
+  dir1->cd();
+  dir2->cd();
+  dir3->cd();
+  dir4->cd();
+
+  TCanvas *c  = new TCanvas("c", "", 1200, 800);
+  TPad    *pT = new TPad("toppT", "", 0, 0.75, 1., 1.0); // xlow ylow xup yup
+  pT->SetTicks(1, 1);
+  pT->SetBottomMargin(0.05);
+  pT->SetLeftMargin(0.13);
+  pT->SetRightMargin(1 - 0.95);
+  pT->SetTopMargin((1 - 0.9) / (1 - 0.3));
+
+  TPad *pB = new TPad("botpB", "", 0, 0.50, 1, 0.75);
+  pB->SetTicks(1, 1);
+  pB->SetTopMargin(0.025);
+  pB->SetLeftMargin(0.13);
+  pB->SetRightMargin(1 - 0.95);
+  pB->SetBottomMargin((0.105) / (0.3));
+
+  TPad *pB2 = new TPad("botpB2", "", 0, 0.25, 1, 0.50);
+  pB2->SetTicks(1, 1);
+  pB2->SetTopMargin(0.025);
+  pB2->SetLeftMargin(0.13);
+  pB2->SetRightMargin(1 - 0.95);
+  pB2->SetBottomMargin((0.105) / (0.3));
+
+  TPad *pB3 = new TPad("botpB3", "", 0, 0., 1, 0.25);
+  pB3->SetTicks(1, 1);
+  pB3->SetTopMargin(0.025);
+  pB3->SetLeftMargin(0.13);
+  pB3->SetRightMargin(1 - 0.95);
+  pB3->SetBottomMargin((0.105) / (0.3));
+
+  c->cd();
+  pT->Draw();
+  pB->Draw();
+  pB2->Draw();
+  pB3->Draw();
+
+  // TGraph
+  TGraph *g_pvalue = (TGraph *)dir1->Get("g_pvalue");
+  TGraph *g_nsigma1     = (TGraph *)dir2->Get("g_nsigma");
+  TGraph *g_nsigma2     = (TGraph *)dir3->Get("g_nsigma");
+  TGraph *g_nsigma3     = (TGraph *)dir4->Get("g_nsigma");
+
+  c->cd();
+  pT->cd();
+
+  int N = 0;
+  if (g_nsigma1->GetN() != g_pvalue->GetN()) {
+    cout << "#bin in g_nsigma " << g_nsigma1->GetN() << endl;
+    cout << "#bin in g_pvalue " << g_pvalue->GetN() << endl;
+    cout << "N = 0 " << endl;
+    N = g_nsigma1->GetN();
+  } else{
+    N = g_nsigma1->GetN();
+  }
+  int lowerlimit = 0;
+  int upperlimit = 0;
+  int limitdays  = 0;
+  if (N > 1000) {
+    lowerlimit = -30 * 60 * 60 * 2;
+    upperlimit = (N + 80) * 60 * 60 * 2;
+  } else {
+    cout << "There are " << (double)(N / 12) << " days in the graph! " << endl;
+    cout << "Input limit days: ";
+    //					cin<<limitdays<<endl;
+    lowerlimit = -(limitdays)*60 * 60 * 2;
+    upperlimit = (N + limitdays) * 60 * 60 * 2;
+  }
+  
+  g_pvalue->SetTitle("");
+  g_pvalue->SetMaximum(1);
+  g_pvalue->SetMinimum(1e-7);
+  g_pvalue->Draw("AL");
+//  g_pvalue->GetXaxis()->SetLimits(lowerlimit, upperlimit);
+  g_pvalue->GetXaxis()->SetTitle("Time (mm/dd)");
+  g_pvalue->GetYaxis()->SetTitle("p-value");
+
+  g_pvalue->GetXaxis()->SetLabelSize(0);
+  g_pvalue->GetXaxis()->SetTitleSize(0);
+  g_pvalue->GetXaxis()->SetTimeDisplay(1);
+  g_pvalue->GetXaxis()->SetTimeFormat("%m/%d");
+  g_pvalue->GetXaxis()->SetNdivisions(511);
+
+  g_pvalue->GetYaxis()->SetTitleSize(0.05);
+  g_pvalue->GetYaxis()->SetTitleOffset(0.7);
+
+  for (int i = 0; i < 5; i++) {
+    double p = 0.5 * (1 - TMath::Erf((i + 1) / sqrt(2)));
+    TLine *l = new TLine(lowerlimit, p, upperlimit, p);
+    l->SetLineStyle(7);
+    l->SetLineColor(kRed);
+    l->SetLineWidth(1);
+    l->Draw();
+    TString s;
+    s.Form("%i", i + 1);
+    TLatex *tv1 = new TLatex((N + 15) * 60 * 60 * 2, p, s + " #sigma");
+    tv1->SetTextAlign(11);
+    tv1->SetTextColor(kRed);
+    tv1->SetTextSize(0.04);
+    tv1->SetTextFont(12);
+    tv1->Draw();
+  }
+
+  c->cd();
+  pB->cd();
+
+  g_nsigma1->SetTitle("");
+  g_nsigma1->Draw("AP");
+// g_nsigma1->GetXaxis()->SetLimits(lowerlimit, upperlimit);
+  //  g_nsigma1->GetXaxis()->SetTitle("Time (mm/dd)");
+  g_nsigma1->GetYaxis()->SetTitle("M_{L}");
+//  g_nsigma1->SetMinimum(1);
+//  g_nsigma1->SetMaximum(7);
+  g_nsigma1->SetMarkerStyle(20);
+//  g_nsigma1->GetXaxis()->SetTimeDisplay(1);
+  g_nsigma1->GetXaxis()->SetTimeFormat("%m/%d-%Hh");
+
+  g_nsigma1->GetXaxis()->SetLabelSize(0.0);
+  g_nsigma1->GetXaxis()->SetTitleSize(0.0);
+  g_nsigma1->GetXaxis()->SetNdivisions(511);
+
+  g_nsigma1->GetYaxis()->SetLabelSize(0.08);
+  g_nsigma1->GetYaxis()->SetTitleSize(0.1);
+  g_nsigma1->GetYaxis()->SetTitleOffset(0.4);
+
+  c->cd();
+  pB2->cd();
+  g_nsigma2->SetTitle("");
+  g_nsigma2->Draw("AP");
+//  g_nsigma2->GetXaxis()->SetLimits(lowerlimit, upperlimit);
+  g_nsigma2->GetXaxis()->SetTitle("Time (mm/dd)");
+  g_nsigma2->GetYaxis()->SetTitle("depth");
+//  g_nsigma2->SetMinimum(-40);
+//  g_nsigma2->SetMaximum(-0.5);
+  g_nsigma2->SetMarkerStyle(20);
+
+  g_nsigma2->GetXaxis()->SetTimeDisplay(1);
+  g_nsigma2->GetXaxis()->SetTimeFormat("%m/%d");
+  g_nsigma2->GetXaxis()->SetLabelSize(0.125);
+  g_nsigma2->GetXaxis()->SetTitleSize(0.12);
+  g_nsigma2->GetXaxis()->SetTitleOffset(1.0);
+  g_nsigma2->GetXaxis()->SetNdivisions(511);
+
+  g_nsigma2->GetYaxis()->SetLabelSize(0.08);
+  g_nsigma2->GetYaxis()->SetTitleSize(0.1);
+  g_nsigma2->GetYaxis()->SetTitleOffset(0.4);
+
+  c->cd();
+  pB3->cd();
+  g_nsigma3->SetTitle("");
+  g_nsigma3->Draw("AP");
+  //g_nsigma3->GetXaxis()->SetLimits(lowerlimit, upperlimit);
+  g_nsigma3->GetXaxis()->SetTitle("Time (mm/dd)");
+  g_nsigma3->GetYaxis()->SetTitle("depth");
+//  g_nsigma3->SetMinimum(-40);
+//  g_nsigma3->SetMaximum(-0.5);
+  g_nsigma3->SetMarkerStyle(20);
+
+  g_nsigma3->GetXaxis()->SetTimeDisplay(1);
+  g_nsigma3->GetXaxis()->SetTimeFormat("%m/%d");
+  g_nsigma3->GetXaxis()->SetLabelSize(0.125);
+  g_nsigma3->GetXaxis()->SetTitleSize(0.12);
+  g_nsigma3->GetXaxis()->SetTitleOffset(1.0);
+  g_nsigma3->GetXaxis()->SetNdivisions(511);
+
+  g_nsigma3->GetYaxis()->SetLabelSize(0.08);
+  g_nsigma3->GetYaxis()->SetTitleSize(0.1);
+  g_nsigma3->GetYaxis()->SetTitleOffset(0.4);
+
+  pT->SetLogy();
+  pB->SetGrid(0, 1);
+  pB2->SetGrid(0, 1);
+  pB3->SetGrid(0, 1);
+
+  pT->Modified();
+  pB->Modified();
+  pB2->Modified();
+  pB3->Modified();
+  c->Modified();
+  c->SaveAs("plots/Pvalue_ML_depth_test.pdf");
+  delete c;
+}
+void drawPvalue_eqdir(TDirectory *dir1, TDirectory *dir2, TDatime timeoffset)
 {
   gStyle->SetTimeOffset(timeoffset.Convert());
   timeoffset.Print();
@@ -367,12 +556,11 @@ void drawPvalue(TDirectory *dir1, TDirectory *dir2, TDatime timeoffset)
   TGraph *g_depth  = (TGraph *)dir2->Get("g_depth");
 
   int N = 0;
-  if (g_ML->GetN() != g_pvalue->GetN()){
-    cout<<"#bin in g_ML "<<g_ML->GetN()<<endl;
-    cout<<"#bin in g_pvalue "<<g_pvalue->GetN()<<endl;
+  if (g_ML->GetN() != g_pvalue->GetN()) {
+    cout << "#bin in g_ML " << g_ML->GetN() << endl;
+    cout << "#bin in g_pvalue " << g_pvalue->GetN() << endl;
     cout << "N = 0 " << endl;
-  }
-  else
+  } else
     N = g_ML->GetN();
 
   int lowerlimit = 0;
@@ -498,7 +686,7 @@ void GeoData::DrawGeoData(TString name, TString channel, TDatime timeoffset)
   g_data->GetXaxis()->SetTimeOffset(0);
   g_data->GetXaxis()->SetTimeFormat("%m/%d %Hh");
   g_data->GetXaxis()->SetTitle("Date time (mm/dd/hh)");
-  g_data->GetYaxis()->SetTitle(channel+" (m/s/s)");
+  g_data->GetYaxis()->SetTitle(channel + " (m/s/s)");
   //  mgr::SetLeftPlotAxis(g_data);
   // c->cd();
   // pR->cd();
@@ -515,18 +703,15 @@ void GeoData::DrawGeoData(TString name, TString channel, TDatime timeoffset)
   c->SaveAs("plots/geodata/" + name + ".png");
   delete c;
 
-//  gStyle->SetTimeOffset(timeoffset.Convert());
   TCanvas *c2 = new TCanvas("c2", "", 1200, 600);
   g_nsigma->Draw("AP");
   g_nsigma->SetMarkerStyle(20);
   g_nsigma->SetTitle("");
-//  g_nsigma->SetMinimum(-0.5);
-//  g_nsigma->SetMaximum(10);
   g_nsigma->GetXaxis()->SetTimeDisplay(1);
   g_nsigma->GetXaxis()->SetNdivisions(511);
   g_nsigma->GetXaxis()->SetTimeFormat("%m/%d %Hh");
   g_nsigma->GetXaxis()->SetTitle("Date time (mm/dd/hh)");
-  g_nsigma->GetYaxis()->SetTitle(channel+" (m/s/s)");
+  g_nsigma->GetYaxis()->SetTitle(channel + " (m/s/s)");
   c2->SetGrid(1, 0);
   c2->Modified();
   c2->SaveAs("plots/geodata/" + name + "_nsigma.pdf");
@@ -539,7 +724,7 @@ void GeoData::DrawGeoData(TString name, TString channel, TDatime timeoffset)
   g_2hrdata->GetXaxis()->SetTimeOffset(0);
   g_2hrdata->GetXaxis()->SetTimeFormat("%m/%d %Hh");
   g_2hrdata->GetXaxis()->SetTitle("Date time (mm/dd/hh)");
-  g_2hrdata->GetYaxis()->SetTitle(channel+" (m/s/s)");
+  g_2hrdata->GetYaxis()->SetTitle(channel + " (m/s/s)");
   c3->SetGrid(1, 0);
   c3->Modified();
   c3->SaveAs("plots/geodata/" + name + "_2hrCombine.pdf");
