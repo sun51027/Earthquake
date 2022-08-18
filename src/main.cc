@@ -194,9 +194,9 @@ void main_pvalue_geodata()
   TDirectory *dir1 = (TDirectory *)fin1->Get("Analysis_plot");
 
   TFile      *fin2 = new TFile(inputFile2.c_str());
-  TDirectory *dir2 = (TDirectory *)fin2->Get("00_HH1");
-  TDirectory *dir3 = (TDirectory *)fin2->Get("00_HH2");
-  TDirectory *dir4 = (TDirectory *)fin2->Get("00_HHZ");
+  TDirectory *dir2 = (TDirectory *)fin2->Get("00_EHE");
+  TDirectory *dir3 = (TDirectory *)fin2->Get("00_EHN");
+  TDirectory *dir4 = (TDirectory *)fin2->Get("00_EHZ");
   drawPvalue_geo(dir1, dir2, dir3, dir4, timeoffset);
 }
 void Help()
