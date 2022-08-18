@@ -49,11 +49,14 @@ public:
   void     Cut(double sigma, double peak);
 
 private:
-  vector<TString> geodatetime;
+//  vector<TString> geodatetime;
   vector<float>   data_collection;
   vector<float>   ts_collection;
+  vector<float>   data2hr_collection;
+  vector<float>   t2hr_collection;
+  vector<float>   nsigma_collection;
   TGraph         *g_data;
-  TGraph         *g_binarydata;
+  TGraph         *g_matchingdata;
   TGraph         *g_2hrdata;
   TGraph         *g_nsigma;
   TH1D           *h_fitting;

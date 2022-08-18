@@ -25,47 +25,29 @@ void GeoData::LoadTree(TTree *fChain)
   fChain->SetBranchAddress("timestamp", &timestamp, &b_timestamp);
   fChain->SetBranchAddress("timestamp_ns", &timestamp_ns, &b_timestamp_ns);
 }
-void GeoData::Cut(double sigma, double peak)
-{
-
-  // take the largest data in 2hr
-  vector<float> data2hr_collection;
-  vector<float> t2hr_collection;
-  float         datatmp        = 0;
-  float         timetmp        = 0;
-  int           starttimestamp = 0;
-  for (int i = 0; i < ts_collection.size(); i++) {
-    if (i > 0 && timetmp >= ts_collection[i]) {
-      if (abs(data_collection[i]) > abs(datatmp)) datatmp = data_collection[i];
-    } else {
-      timetmp = ts_collection[i] + 2 * 60 * 60;
-      data2hr_collection.push_back(abs(datatmp)); // input data every second
-      t2hr_collection.push_back(timetmp);
-      datatmp = 0.;
-    }
-  }
-  g_2hrdata = new TGraph(data2hr_collection.size(), t2hr_collection.data(), data2hr_collection.data());
-  cout<<"data2hr_collection.size() "<<data2hr_collection.size()<<endl;
-  // take a data > # sigma within 2 hr
-  double        threshold = 3 * sigma;
-  vector<float> nsigma_collection;
-
-  for (int i = 0; i < t2hr_collection.size(); i++) {
-    //      if (abs(data2hr_collection[i] - peak) > threshold) {
-    //            cout<<threshold<<endl;
-   //    cout << data2hr_collection[i] << " - " << data_avg << " = " << abs(data2hr_collection[i] - data_avg) << endl;
-   //    nsigma_collection.push_back(abs(data2hr_collection[i] - (float)data_avg) / (float)sigma);
-   //    cout << "# sigma " << abs(data2hr_collection[i] - (float)data_avg) / (float)sigma << endl;
-     cout<<data2hr_collection[i]<<" - "<<peak<<" = "<<abs(data2hr_collection[i]-abs(peak))<<endl;
-     nsigma_collection.push_back(abs(data2hr_collection[i] - abs((float)peak))/(float)sigma );
-     cout<<"# sigma "<<abs(data2hr_collection[i] - abs((float)peak))/(float)sigma<<endl;
-    //      }else{
-    //            nsigma_collection.push_back(0);
-    //      }
-  }
-  cout << "nsigma_collection size " << nsigma_collection.size() << endl;
-  g_nsigma = new TGraph(nsigma_collection.size(), t2hr_collection.data(), nsigma_collection.data());
-}
+//void GeoData::Cut(double sigma, double peak)
+//{
+//
+//  // take the largest data in 2hr
+//  // take a data > # sigma within 2 hr
+//  double        threshold = 3 * sigma;
+//
+//  for (int i = 0; i < t2hr_collection.size(); i++) {
+//    //      if (abs(data2hr_collection[i] - peak) > threshold) {
+//    //            cout<<threshold<<endl;
+//   //    cout << data2hr_collection[i] << " - " << data_avg << " = " << abs(data2hr_collection[i] - data_avg) << endl;
+//   //    nsigma_collection.push_back(abs(data2hr_collection[i] - (float)data_avg) / (float)sigma);
+//   //    cout << "# sigma " << abs(data2hr_collection[i] - (float)data_avg) / (float)sigma << endl;
+////     cout<<data2hr_collection[i]<<" - "<<peak<<" = "<<abs(data2hr_collection[i]-abs(peak))<<endl;
+//     nsigma_collection.push_back(abs(data2hr_collection[i] - abs((float)peak))/(float)sigma );
+//  //   cout<<"# sigma "<<abs(data2hr_collection[i] - abs((float)peak))/(float)sigma<<endl;
+//    //      }else{
+//    //            nsigma_collection.push_back(0);
+//    //      }
+//  }
+//  cout << "nsigma_collection size " << nsigma_collection.size() << endl;
+//  g_nsigma = new TGraph(nsigma_collection.size(), t2hr_collection.data(), nsigma_collection.data());
+//}
 void GeoData::SetGeoData(string infileName, ifstream &timeInput)
 // void GeoData::SetGeoData(string infileName, ifstream &timeInput, int threshold)
 {
@@ -131,8 +113,6 @@ void GeoData::SetGeoData(string infileName, ifstream &timeInput)
       datatmp = 0;
     }
   }
-  timetmp  = 0;
-  datatmp  = 0;
   data_avg = data_avg / data_collection.size();
   cout << "Avg " << data_avg << endl;
   data_collection.clear();
@@ -155,6 +135,8 @@ void GeoData::SetGeoData(string infileName, ifstream &timeInput)
       datatmp = 0;
     }
   }
+  timetmp  = 0;
+  datatmp  = 0;
 
   h_fitting->Fit("gaus");
   double peak  = h_fitting->GetFunction("gaus")->GetParameter(1);
@@ -163,33 +145,64 @@ void GeoData::SetGeoData(string infileName, ifstream &timeInput)
   cout << "sigma " << sigma << endl;
 
   data_avg = data_avg * const_sys;
-  Cut(sigma, peak);
-
-    double combineIn2hr[datetime_Rn.size()];
-    double N_[4000];
-    for (int i = 0; i < datetime_Rn.size(); i++) {
-      combineIn2hr[i] = 0;
-      N_[i]           = 0;
+//  Cut(sigma, peak);
+  for (int i = 0; i < ts_collection.size(); i++) {
+    if (i > 0 && timetmp >= ts_collection[i]) {
+      if (abs(data_collection[i]) > abs(datatmp)) datatmp = data_collection[i];
+    } else {
+      timetmp = ts_collection[i] + 2 * 60 * 60;
+      data2hr_collection.push_back(abs(datatmp)); // input data every second
+      t2hr_collection.push_back(timetmp);
+      datatmp = 0.;
     }
+  }
+
+  g_2hrdata = new TGraph(data2hr_collection.size(), t2hr_collection.data(), data2hr_collection.data());
+  cout<<"data2hr_collection.size() "<<data2hr_collection.size()<<endl;
+
+  for (int i = 0; i < t2hr_collection.size(); i++) {
+     nsigma_collection.push_back(abs(data2hr_collection[i] - abs((float)peak))/(float)sigma );
+     }
+  cout << "nsigma_collection size " << nsigma_collection.size() << endl;
+  g_nsigma = new TGraph(nsigma_collection.size(), t2hr_collection.data(), nsigma_collection.data());
+
+
+    double N_[4000];
+    double matchingdata[4000];
+    TString matchingtime[datetime_Rn.size()];
+    TString geodatetime[4000];
+
+    for (int i = 0; i < datetime_Rn.size(); i++) {
+
+      N_[i]           = 0;
+      geodatetime[i] = "";
+      matchingtime[i] = "";
+      matchingdata[i] = 0;
+    }
+      for (int j = 0; j < t2hr_collection.size(); j++) {
+        geodatetime[j] = SetDatetime(t2hr_collection[j]+8*60*60);
+      }
     for (int i = 0; i < datetime_Rn.size(); i++) {
   
-      // since "combineIn2hr" came from CWBSN, the time (in x-axis) must +8
+      // since "matchingtime" came from CWBSN, the time (in x-axis) must +8
       N_[i] = (double)(i + 1) * 60 * 60 * 2 + 8 * 3600; // CWBSN UTC+8
-      for (int t = 0; t < geodatetime.size(); t++) {
-        if (datetime_Rn[i] == geodatetime[t]) {
-          combineIn2hr[i] = 1;
-        } else
-          continue;
+      for (int j = 0; j < t2hr_collection.size(); j++) {
+        if (datetime_Rn[i] == geodatetime[j]) {
+          matchingdata[i] = nsigma_collection[j];
+        } else{
+            continue;
+        }
       }
     }
-
-  //  for (int i = 0; i < datetime_Rn.size(); i++) {
-  //    cout << "combineIn2hr " << combineIn2hr[i] << " ";
-  //    cout << datetime_Rn[i] << endl;
-  //  }
+    cout<<"nsigma_collection.size() "<<nsigma_collection.size()<<endl;
+    cout<<"datetime_Rn.size() "<<datetime_Rn.size()<<endl;
+    for (int i = 0; i < datetime_Rn.size(); i++) {
+      cout <<datetime_Rn[i]<< " matchingdata " << matchingdata[i] << " data2hr ";
+      cout << nsigma_collection[i] <<" "<<(int)t2hr_collection[i]<<endl;
+    }
 
   g_data = new TGraph(data_collection.size(), &ts_collection[0], &data_collection[0]);
-  // g_binarydata = new TGraph(datetime_Rn.size(), N_, combineIn2hr);
+  g_matchingdata = new TGraph(datetime_Rn.size(), N_, matchingdata);
 
   TFile *ofile = new TFile("Geodata_" + name + ".root", "update");
   ofile->mkdir((channel));
@@ -197,8 +210,8 @@ void GeoData::SetGeoData(string infileName, ifstream &timeInput)
   h_fitting->Write();
   g_data->SetName("g_data");
   g_data->Write();
-  //  g_binarydata->SetName("g_binarydata");
-  //  g_binarydata->Write();
+  g_matchingdata->SetName("g_matchingdata");
+  g_matchingdata->Write();
   g_2hrdata->SetName("g_2hrdata");
   g_2hrdata->Write();
   g_nsigma->SetName("g_nsigma");

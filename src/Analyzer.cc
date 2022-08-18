@@ -138,8 +138,8 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
       p_value_[i] = 0.5 * (1 - TMath::Erf(sigma_[i] / sqrt(2)));
     }
   }
-  //g_sigma_significant = new TGraph(N, N_, sigma_);
-//  g_pvalue            = new TGraph(N, N_, p_value_);
+  g_sigma_significant = new TGraph(N, N_, sigma_);
+  g_pvalue            = new TGraph(N, N_, p_value_);
 
   /*********************************************************
       Fill TGraph
@@ -187,8 +187,8 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
     cout<<(int)t[rn]<<endl;
   }
 
-  g_pvalue            = new TGraph(N, t, p_value_);
-  g_sigma_significant = new TGraph(N, t, sigma_);
+//  g_pvalue            = new TGraph(N, t, p_value_);
+//  g_sigma_significant = new TGraph(N, t, sigma_);
   timeoffset.Set(date_Rn[0].Atoi(), time_Rn[0].Atoi());
   timeoffset.Print();
   // write analysis plots into oAnalyzr.root

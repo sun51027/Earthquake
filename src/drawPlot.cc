@@ -327,7 +327,7 @@ void DataReader::DrawPlots()
 
 void drawPvalue_geo(TDirectory *dir1, TDirectory *dir2, TDirectory *dir3, TDirectory *dir4, TDatime timeoffset)
 {
-//  gStyle->SetTimeOffset(timeoffset.Convert());
+  gStyle->SetTimeOffset(timeoffset.Convert());
   timeoffset.Print();
   dir1->cd();
   dir2->cd();
@@ -337,7 +337,7 @@ void drawPvalue_geo(TDirectory *dir1, TDirectory *dir2, TDirectory *dir3, TDirec
   TCanvas *c  = new TCanvas("c", "", 1200, 800);
   TPad    *pT = new TPad("toppT", "", 0, 0.75, 1., 1.0); // xlow ylow xup yup
   pT->SetTicks(1, 1);
-  pT->SetBottomMargin(0.05);
+  pT->SetBottomMargin(0.035);
   pT->SetLeftMargin(0.13);
   pT->SetRightMargin(1 - 0.95);
   pT->SetTopMargin((1 - 0.9) / (1 - 0.3));
@@ -347,21 +347,21 @@ void drawPvalue_geo(TDirectory *dir1, TDirectory *dir2, TDirectory *dir3, TDirec
   pB->SetTopMargin(0.025);
   pB->SetLeftMargin(0.13);
   pB->SetRightMargin(1 - 0.95);
-  pB->SetBottomMargin((0.105) / (0.3));
+  pB->SetBottomMargin((0.105) / (0.4));
 
   TPad *pB2 = new TPad("botpB2", "", 0, 0.25, 1, 0.50);
   pB2->SetTicks(1, 1);
   pB2->SetTopMargin(0.025);
   pB2->SetLeftMargin(0.13);
   pB2->SetRightMargin(1 - 0.95);
-  pB2->SetBottomMargin((0.105) / (0.3));
+  pB2->SetBottomMargin((0.105) / (0.4));
 
   TPad *pB3 = new TPad("botpB3", "", 0, 0., 1, 0.25);
   pB3->SetTicks(1, 1);
   pB3->SetTopMargin(0.025);
   pB3->SetLeftMargin(0.13);
   pB3->SetRightMargin(1 - 0.95);
-  pB3->SetBottomMargin((0.105) / (0.3));
+  pB3->SetBottomMargin((0.105) / (0.4));
 
   c->cd();
   pT->Draw();
@@ -371,9 +371,9 @@ void drawPvalue_geo(TDirectory *dir1, TDirectory *dir2, TDirectory *dir3, TDirec
 
   // TGraph
   TGraph *g_pvalue = (TGraph *)dir1->Get("g_pvalue");
-  TGraph *g_nsigma1     = (TGraph *)dir2->Get("g_nsigma");
-  TGraph *g_nsigma2     = (TGraph *)dir3->Get("g_nsigma");
-  TGraph *g_nsigma3     = (TGraph *)dir4->Get("g_nsigma");
+  TGraph *g_nsigma1     = (TGraph *)dir2->Get("g_matchingdata");
+  TGraph *g_nsigma2     = (TGraph *)dir3->Get("g_matchingdata");
+  TGraph *g_nsigma3     = (TGraph *)dir4->Get("g_matchingdata");
 
   c->cd();
   pT->cd();
@@ -405,18 +405,21 @@ void drawPvalue_geo(TDirectory *dir1, TDirectory *dir2, TDirectory *dir3, TDirec
   g_pvalue->SetMaximum(1);
   g_pvalue->SetMinimum(1e-7);
   g_pvalue->Draw("AL");
-//  g_pvalue->GetXaxis()->SetLimits(lowerlimit, upperlimit);
+  g_pvalue->GetXaxis()->SetLimits(lowerlimit, upperlimit);
   g_pvalue->GetXaxis()->SetTitle("Time (mm/dd)");
-  g_pvalue->GetYaxis()->SetTitle("p-value");
-
-  g_pvalue->GetXaxis()->SetLabelSize(0);
-  g_pvalue->GetXaxis()->SetTitleSize(0);
-  g_pvalue->GetXaxis()->SetTimeDisplay(1);
   g_pvalue->GetXaxis()->SetTimeFormat("%m/%d");
-  g_pvalue->GetXaxis()->SetNdivisions(511);
+  g_pvalue->GetYaxis()->SetTitle("p-value");
+  g_pvalue->GetXaxis()->SetTimeDisplay(1);
 
-  g_pvalue->GetYaxis()->SetTitleSize(0.05);
-  g_pvalue->GetYaxis()->SetTitleOffset(0.7);
+  g_pvalue->GetXaxis()->SetNdivisions(511);
+  g_pvalue->GetXaxis()->SetLabelSize(0.0);//0.08
+  g_pvalue->GetXaxis()->SetTitleSize(0.0); //0.1
+  g_pvalue->GetXaxis()->SetTitleOffset(1.0); //1.0
+
+  g_pvalue->GetYaxis()->SetLabelSize(0.08);
+  g_pvalue->GetYaxis()->SetTitleSize(0.09);
+  g_pvalue->GetYaxis()->SetTitleOffset(0.5);
+
 
   for (int i = 0; i < 5; i++) {
     double p = 0.5 * (1 - TMath::Erf((i + 1) / sqrt(2)));
@@ -430,7 +433,7 @@ void drawPvalue_geo(TDirectory *dir1, TDirectory *dir2, TDirectory *dir3, TDirec
     TLatex *tv1 = new TLatex((N + 15) * 60 * 60 * 2, p, s + " #sigma");
     tv1->SetTextAlign(11);
     tv1->SetTextColor(kRed);
-    tv1->SetTextSize(0.04);
+    tv1->SetTextSize(0.09);
     tv1->SetTextFont(12);
     tv1->Draw();
   }
@@ -440,67 +443,78 @@ void drawPvalue_geo(TDirectory *dir1, TDirectory *dir2, TDirectory *dir3, TDirec
 
   g_nsigma1->SetTitle("");
   g_nsigma1->Draw("AP");
-// g_nsigma1->GetXaxis()->SetLimits(lowerlimit, upperlimit);
-  //  g_nsigma1->GetXaxis()->SetTitle("Time (mm/dd)");
-  g_nsigma1->GetYaxis()->SetTitle("M_{L}");
-//  g_nsigma1->SetMinimum(1);
+  g_nsigma1->GetXaxis()->SetLimits(lowerlimit, upperlimit);
+  g_nsigma1->GetXaxis()->SetTitle("Time (mm/dd)");
+  g_nsigma1->GetYaxis()->SetTitle("HH1");
+  g_nsigma1->SetMinimum(1);
 //  g_nsigma1->SetMaximum(7);
   g_nsigma1->SetMarkerStyle(20);
-//  g_nsigma1->GetXaxis()->SetTimeDisplay(1);
-  g_nsigma1->GetXaxis()->SetTimeFormat("%m/%d-%Hh");
-
-  g_nsigma1->GetXaxis()->SetLabelSize(0.0);
-  g_nsigma1->GetXaxis()->SetTitleSize(0.0);
+  g_nsigma1->GetXaxis()->SetTimeDisplay(1);
+  g_nsigma1->GetXaxis()->SetTimeFormat("%m/%d");
   g_nsigma1->GetXaxis()->SetNdivisions(511);
+  g_nsigma1->GetXaxis()->SetLabelSize(0.08);
+  g_nsigma1->GetXaxis()->SetTitleSize(0.1);
+  g_nsigma1->GetXaxis()->SetTitleOffset(1.0);
 
   g_nsigma1->GetYaxis()->SetLabelSize(0.08);
-  g_nsigma1->GetYaxis()->SetTitleSize(0.1);
-  g_nsigma1->GetYaxis()->SetTitleOffset(0.4);
+  g_nsigma1->GetYaxis()->SetTitleSize(0.09);
+  g_nsigma1->GetYaxis()->SetTitleOffset(0.2);
 
   c->cd();
   pB2->cd();
   g_nsigma2->SetTitle("");
   g_nsigma2->Draw("AP");
-//  g_nsigma2->GetXaxis()->SetLimits(lowerlimit, upperlimit);
+  g_nsigma2->GetXaxis()->SetLimits(lowerlimit, upperlimit);
   g_nsigma2->GetXaxis()->SetTitle("Time (mm/dd)");
-  g_nsigma2->GetYaxis()->SetTitle("depth");
-//  g_nsigma2->SetMinimum(-40);
+  g_nsigma2->GetYaxis()->SetTitle("HH2");
+  g_nsigma2->SetMinimum(1);
 //  g_nsigma2->SetMaximum(-0.5);
   g_nsigma2->SetMarkerStyle(20);
 
   g_nsigma2->GetXaxis()->SetTimeDisplay(1);
   g_nsigma2->GetXaxis()->SetTimeFormat("%m/%d");
-  g_nsigma2->GetXaxis()->SetLabelSize(0.125);
-  g_nsigma2->GetXaxis()->SetTitleSize(0.12);
-  g_nsigma2->GetXaxis()->SetTitleOffset(1.0);
   g_nsigma2->GetXaxis()->SetNdivisions(511);
+  g_nsigma2->GetXaxis()->SetLabelSize(0.08);
+  g_nsigma2->GetXaxis()->SetTitleSize(0.1);
+  g_nsigma2->GetXaxis()->SetTitleOffset(1.0);
 
   g_nsigma2->GetYaxis()->SetLabelSize(0.08);
-  g_nsigma2->GetYaxis()->SetTitleSize(0.1);
-  g_nsigma2->GetYaxis()->SetTitleOffset(0.4);
+  g_nsigma2->GetYaxis()->SetTitleSize(0.09);
+  g_nsigma2->GetYaxis()->SetTitleOffset(0.2);
 
   c->cd();
   pB3->cd();
   g_nsigma3->SetTitle("");
   g_nsigma3->Draw("AP");
-  //g_nsigma3->GetXaxis()->SetLimits(lowerlimit, upperlimit);
+  g_nsigma3->GetXaxis()->SetLimits(lowerlimit, upperlimit);
   g_nsigma3->GetXaxis()->SetTitle("Time (mm/dd)");
-  g_nsigma3->GetYaxis()->SetTitle("depth");
-//  g_nsigma3->SetMinimum(-40);
-//  g_nsigma3->SetMaximum(-0.5);
+  g_nsigma3->GetYaxis()->SetTitle("HHZ");
+  g_nsigma3->SetMinimum(1);
+//  g_nsigma3->SetMaximum(1);
   g_nsigma3->SetMarkerStyle(20);
-
+  //x-axis
   g_nsigma3->GetXaxis()->SetTimeDisplay(1);
   g_nsigma3->GetXaxis()->SetTimeFormat("%m/%d");
-  g_nsigma3->GetXaxis()->SetLabelSize(0.125);
-  g_nsigma3->GetXaxis()->SetTitleSize(0.12);
-  g_nsigma3->GetXaxis()->SetTitleOffset(1.0);
   g_nsigma3->GetXaxis()->SetNdivisions(511);
-
+  g_nsigma3->GetXaxis()->SetLabelSize(0.08);
+  g_nsigma3->GetXaxis()->SetTitleSize(0.1);
+  g_nsigma3->GetXaxis()->SetTitleOffset(1.0);
+  //y-axis
   g_nsigma3->GetYaxis()->SetLabelSize(0.08);
-  g_nsigma3->GetYaxis()->SetTitleSize(0.1);
-  g_nsigma3->GetYaxis()->SetTitleOffset(0.4);
+  g_nsigma3->GetYaxis()->SetTitleSize(0.09);
+  g_nsigma3->GetYaxis()->SetTitleOffset(0.2);
 
+  //g_nsigma3->GetXaxis()->SetTimeDisplay(1);
+  //g_nsigma3->GetXaxis()->SetTimeFormat("%m/%d");
+  //g_nsigma3->GetXaxis()->SetNdivisions(503);
+  //g_nsigma3->GetXaxis()->SetLabelSize(0.125);
+  //g_nsigma3->GetXaxis()->SetTitleSize(0.12);
+  //g_nsigma3->GetXaxis()->SetTitleOffset(1.0);
+  //g_nsigma3->GetXaxis()->SetTitleOffset(1.0);
+  ////y-axis
+  //g_nsigma3->GetYaxis()->SetLabelSize(0.08);
+  //g_nsigma3->GetYaxis()->SetTitleSize(0.1);
+  //g_nsigma3->GetYaxis()->SetTitleOffset(0.4);
   pT->SetLogy();
   pB->SetGrid(0, 1);
   pB2->SetGrid(0, 1);
@@ -511,7 +525,7 @@ void drawPvalue_geo(TDirectory *dir1, TDirectory *dir2, TDirectory *dir3, TDirec
   pB2->Modified();
   pB3->Modified();
   c->Modified();
-  c->SaveAs("plots/Pvalue_ML_depth_test.pdf");
+  c->SaveAs("plots/Pvalue_geodata.pdf");
   delete c;
 }
 void drawPvalue_eqdir(TDirectory *dir1, TDirectory *dir2, TDatime timeoffset)
@@ -711,7 +725,7 @@ void GeoData::DrawGeoData(TString name, TString channel, TDatime timeoffset)
   g_nsigma->GetXaxis()->SetNdivisions(511);
   g_nsigma->GetXaxis()->SetTimeFormat("%m/%d %Hh");
   g_nsigma->GetXaxis()->SetTitle("Date time (mm/dd/hh)");
-  g_nsigma->GetYaxis()->SetTitle(channel + " (m/s/s)");
+  g_nsigma->GetYaxis()->SetTitle(channel + "##sigma");
   c2->SetGrid(1, 0);
   c2->Modified();
   c2->SaveAs("plots/geodata/" + name + "_nsigma.pdf");
