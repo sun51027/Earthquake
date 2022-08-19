@@ -46,15 +46,18 @@ So far three class have been built for radon data, eq dir, and wavefrom data.
 
 `./main -h` : open argument list
 
-We deal radon data (-an) and earthquake directory (-dir) separately. They are stored into different root files. At last, to compare the earthquake event with radon data, you need to use -p to draw pvalue. This "drawPvalue" function is indepedent of any class so far. 
+|     |inputfile1         | inputfile2        | outputfile      |
+| --------- | ---------- | ------------ | --------------- |
+|-t   |RadonData.root     |                   | Rn_template.root|
+|-an  |RadonData.root     | Rn_template.root  | Rn_analysis.root|
+|-dir |doc/GDMScatalog.txt| datetime.txt      | EQdir.root      |
+|-geo |(name)HWA_00_    | datetime.txt      | GeoData.root    |
+|-pd  |Rn_analysis.root   | EQdir.root        |                 |
+|-pg  |Rn_analysis.root   | GeoData.root      |                 |
 
-example for 20210915~20211231 (1) analysis, (2) eqdir, (3) draw pvalue, (4) draw waveform data:
-
-`./main -an -o plots_root/oAnalyzer.root -i plots_root/RadonData.root -i2 plots_root/template.root`
-
-`./main -dir -i data/GDMScatalog20210915-1231.txt -i2 doc/datetimeOffset.txt -o plots_root/EQdir20210915-1231.root`
-
-`./main -p` (I haven't change the argument...)
-
-`root -l -b  -q 'macros/GeoData.cc("output_root/HWA_00_EHZ_20220322_20220325.root")'` (cd Data_Geophysical first)
-
+`./main -t -i root_output/RadonData.root -o root_output/Rn_template_test.root`
+`./main -an -i root_output/RadonData.root -i2 root_output/Rn_template_test.root -o root_output/Rn_analysis_test.root`
+`./main -dir -i data/GDMScatalog20211101-1231_HWA.txt -i2 doc/datetime_211101-1231.txt -o root_output/EQdir_test.root`
+`./main -geo -i HWA_00_EHE_20211101_20211231 -i2 doc/datetime_211101-1231.txt`
+`./main -pd -i root_output/Rn_analysis_test.root -i2 root_output/EQdir_test.root`
+`./main -pg -i root_output/Rn_analysis_test.root -i2 root_output/Geodata_HWA_20211101_20211231.root`

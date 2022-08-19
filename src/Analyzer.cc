@@ -183,8 +183,6 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
     //cout<<date_Rn[rn]<<" "<<time_Rn[rn]<<endl;
     TTimeStamp timestamp(date_Rn[rn].Atoi(),time_Rn[rn].Atoi(),0,kFALSE,0);
     t[rn] = timestamp+8*60*60;
-    timestamp.Print();
-    cout<<(int)t[rn]<<endl;
   }
 
 //  g_pvalue            = new TGraph(N, t, p_value_);

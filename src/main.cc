@@ -19,8 +19,6 @@ void   Help();
 string outputFile    = "";
 string inputFile     = "";
 string inputFile2    = "";
-string inputTemplate = "";
-int    threshold     = 0;
 
 int main(int argc, char **argv)
 {
@@ -67,10 +65,6 @@ int main(int argc, char **argv)
       iarg++;
       outputFile = argv[iarg];
       iarg++;
-    } else if (arg == "-th" || arg == "--threshold") {
-      iarg++;
-      threshold = stoi(argv[iarg]);
-      iarg++;
     } else if (arg == "-h" || arg == "--help") {
       anaType = -1;
       break;
@@ -90,7 +84,7 @@ int main(int argc, char **argv)
 }
 void main_makeTemplate()
 {
-
+  cout<<"Making template for Rn analysis...."<<endl;
   TFile *ofile = new TFile(outputFile.c_str(), "recreate");
   //  ofile->mkdir("K40_uncali_fit");
   //  ofile->mkdir("cali_Hist");
@@ -118,7 +112,7 @@ void main_makeTemplate()
 }
 void main_doAnalysis()
 {
-  cout << "Working for Analysis....." << endl;
+  cout << "Processing Radon Analysis....." << endl;
   TFile *ofile = new TFile(outputFile.c_str(), "recreate");
   ofile->mkdir("cali_Hist");
   ofile->mkdir("K40_uncali_fit");
@@ -141,15 +135,17 @@ void main_doAnalysis()
 
 void main_eqDir()
 {
-  cout << "Working for earthquake directory....." << endl;
+  cout << "Processing earthquake directory....." << endl;
 
   TFile *ofile = new TFile(outputFile.c_str(), "recreate");
   ofile->mkdir("EQ_directory");
   ofile->cd();
 
+  // read eqdir.txt
   ifstream eqDirInput;
   eqDirInput.open(inputFile.c_str());
 
+  // read datetime(Rn).txt
   DataReader eqData;
   ifstream   timeInput;
   timeInput.open(inputFile2.c_str());
@@ -161,35 +157,32 @@ void main_eqDir()
 }
 void main_pvalue_eqDir()
 {
-  TDatime timeoffset;
-  //  ifstream datetime;
-  //  datetime.open("datetime.txt");
-  int date = 20211101;
-  int time = 80000;
-  timeoffset.Set(date, time);
   TFile      *fin1 = new TFile(inputFile.c_str());
   TDirectory *dir1 = (TDirectory *)fin1->Get("Analysis_plot");
   TFile      *fin2 = new TFile(inputFile2.c_str());
   TDirectory *dir2 = (TDirectory *)fin2->Get("EQ_directory");
+
+  TDatime timeoffset;
+  int date = 20211101;
+  int time = 80000;
+  timeoffset.Set(date, time);
   drawPvalue_eqdir(dir1, dir2, timeoffset);
 }
 void main_geodata()
 {
-  cout << "Geodata...." << endl;
+  cout << "Processing Geodata...." << endl;
 
   GeoData  geo;
+  
+  // read datetime(Rn).txt
   ifstream timeInput;
   timeInput.open(inputFile2.c_str());
+
+  // input waveform data built inside the function
   geo.SetGeoData(inputFile.c_str(), timeInput);
 }
 void main_pvalue_geodata()
 {
-  TDatime timeoffset;
-  //  ifstream datetime;
-  //  datetime.open("datetime.txt");
-  int date = 20211102;
-  int time = 80000;
-  timeoffset.Set(date, time);
   TFile      *fin1 = new TFile(inputFile.c_str());
   TDirectory *dir1 = (TDirectory *)fin1->Get("Analysis_plot");
 
@@ -197,6 +190,10 @@ void main_pvalue_geodata()
   TDirectory *dir2 = (TDirectory *)fin2->Get("00_EHE");
   TDirectory *dir3 = (TDirectory *)fin2->Get("00_EHN");
   TDirectory *dir4 = (TDirectory *)fin2->Get("00_EHZ");
+  TDatime timeoffset;
+  int date = 20211102;
+  int time = 80000;
+  timeoffset.Set(date, time);
   drawPvalue_geo(dir1, dir2, dir3, dir4, timeoffset);
 }
 void Help()
@@ -214,4 +211,14 @@ void Help()
   cout << "-i   || --inputFile \t\t 1st inputfile, radon data for -an, GDMScatalog for -dir, analyzer for -p" << endl;
   cout << "-i2  || --inputFile2 \t\t 2ns inputfile, template for -an, timelist for -dir, EQdir for -p " << endl;
   cout << "-o   || --outputFile \t\t root file output name " << endl;
+  cout << endl;
+  cout << "other note ----------------------"<<endl;
+  cout << "To draw pvalue, manual is necessary" <<endl;
+  cout <<"|     |inputfile1         | inputfile2        | outputfile      |"<<endl;
+  cout <<"|-t   |RadonData.root     |                   | Rn_template.root|"<<endl;
+  cout <<"|-an  |RadonData.root     | Rn_template.root  | Rn_analysis.root|"<<endl;
+  cout <<"|-dir |doc/GDMScatalog.txt| datetime.txt      | EQdir.root      |"<<endl;
+  cout <<"|-geo |(name)HWA_00_*_    | datetime.txt      | GeoData.root    |"<<endl;
+  cout <<"|-pd  |Rn_analysis.root   | EQdir.root        |                 |"<<endl;
+  cout <<"|-pg  |Rn_analysis.root   | GeoData.root      |                 |"<<endl;
 }
