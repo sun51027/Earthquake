@@ -56,8 +56,14 @@ So far three class have been built for radon data, eq dir, and wavefrom data.
 |-pg  |Rn_analysis.root   | GeoData.root      |                 |
 
 `./main -t -i root_output/RadonData.root -o root_output/Rn_template_test.root`
+
 `./main -an -i root_output/RadonData.root -i2 root_output/Rn_template_test.root -o root_output/Rn_analysis_test.root`
+
 `./main -dir -i data/GDMScatalog20211101-1231_HWA.txt -i2 doc/datetime_211101-1231.txt -o root_output/EQdir_test.root`
+
 `./main -geo -i HWA_00_EHE_20211101_20211231 -i2 doc/datetime_211101-1231.txt`
+
 `./main -pd -i root_output/Rn_analysis_test.root -i2 root_output/EQdir_test.root`
+
 `./main -pg -i root_output/Rn_analysis_test.root -i2 root_output/Geodata_HWA_20211101_20211231.root`
+
