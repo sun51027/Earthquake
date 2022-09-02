@@ -34,7 +34,7 @@ public:
   void   WriteFile(TH1 *obj, TFile *ofile) { obj->Write(); }
   double FittingGausSigma(TH1 *h_diff);
   double FittingGausPeak(TH1 *h_diff);
-  double PeakforCalibration(TH1 *obj, TFile *ofile, TString hist_name);
+  double PeakforCalibration(TH1 *obj, TFile *ofile, TString hist_name, bool flag);
   double PeakforK40(TH1 *obj, TFile *ofile, TString hist_name, bool flag);
   void   DrawPlot();
   //  void   ReadData();
@@ -58,23 +58,24 @@ private:
 
   // variables
   double K40_template = 0;
-  double diff_[4000];
-  double cfactor[4000];
-  double cfactor_cali[4000];
-  double K40peak_cali[4000];
-  double K40peak_uncali[4000];
-  double peakforCali[4000]; // 2.2MeV, unknown peak
-  double nMoveBin[4000];
-  double energyBin   = 5. / 1024.;
+  double diff_[40000];
+  double cfactor[40000];
+  double cfactor_cali[40000];
+  double K40peak_cali[40000];
+  double K40peak_uncali[40000];
+  double peakforCali[40000]; // 2.2MeV, unknown peak
+  double nMoveBin[40000];
+  double energyBin   = 5. / 867.;
+  //double energyBin   = 5. / 1024.;
   int    h           = 0; // # of hour
   double fluct_peak  = 0;
   double fluct_sigma = 0;
-  double sigma_[4000];
-  double p_value_[4000];
-  double N_[4000];
+  double sigma_[40000];
+  double p_value_[40000];
+  double N_[40000];
   int    N = 0;
 
-  TString datetime[2500];
+  TString datetime[25000];
   TDatime timeoffset;
 };
 #endif

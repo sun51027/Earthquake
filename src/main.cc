@@ -86,8 +86,8 @@ void main_makeTemplate()
 {
   cout<<"Making template for Rn analysis...."<<endl;
   TFile *ofile = new TFile(outputFile.c_str(), "recreate");
-  //  ofile->mkdir("K40_uncali_fit");
-  //  ofile->mkdir("cali_Hist");
+    ofile->mkdir("K40_uncali_fit");
+    ofile->mkdir("cali_uncali_fit");
 
   TFile      *fin1 = new TFile(inputFile.c_str());
   TDirectory *dir  = (TDirectory *)fin1->Get("HistoCh0");
@@ -98,12 +98,12 @@ void main_makeTemplate()
   // make a template
   TH1 *Template;
   Template = EQ.AddHistforTemplate(dir);
-  Template = EQ.SetZeroBinContent(Template);
-
+//  Template = EQ.SetZeroBinContent(Template);
+//
   ofile->cd();
   Template->Write("Template");
   double caliPeak = 0;
-  caliPeak        = EQ.PeakforCalibration(Template, ofile, "cali_peak");
+  caliPeak        = EQ.PeakforCalibration(Template, ofile, "cali_peak",0);
   double K40Peak  = 0;
   K40Peak         = EQ.PeakforK40(Template, ofile, "K40_peak", 0);
   cout << "\n\n\n";
@@ -114,7 +114,8 @@ void main_doAnalysis()
 {
   cout << "Processing Radon Analysis....." << endl;
   TFile *ofile = new TFile(outputFile.c_str(), "recreate");
-  ofile->mkdir("cali_Hist");
+  ofile->mkdir("cali_uncali_fit");
+  ofile->mkdir("cali_cali_fit");
   ofile->mkdir("K40_uncali_fit");
   ofile->mkdir("K40_cali_fit");
   ofile->mkdir("Analysis_plot");

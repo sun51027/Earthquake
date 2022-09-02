@@ -29,7 +29,7 @@ void Earthquake::DrawPlot()
 {
 
   gStyle->SetTimeOffset(timeoffset.Convert());
-
+  timeoffset.Print();
   // difference vs time
   // create canvas
   TCanvas *c  = new TCanvas("c", "", 10, 10, 1800, 900);
@@ -96,8 +96,8 @@ void Earthquake::DrawPlot()
   mg->Add(g_K40_peak_uncali);
   mg->Add(g_K40_peak_cali);
   mg->Draw("AP");
-  mg->SetMaximum(1.44);
-  mg->SetMinimum(1.37);
+  mg->SetMaximum(1.44); // 1.44
+  mg->SetMinimum(1.25); // 1.37
   mg->GetYaxis()->SetTitle("K40 peak (MeV)");
   mg->GetXaxis()->SetTitle("Time (mm/dd)");
   mg->GetXaxis()->SetTimeDisplay(1);
@@ -153,8 +153,8 @@ void Earthquake::DrawPlot()
   mg2->Add(g_cfactor_cali);
   mg2->Add(g_cfactor);
   mg2->SetTitle("");
-  mg2->SetMaximum(1.01); // 1.01
-  mg2->SetMinimum(0.99); // 0.98
+  mg2->SetMaximum(1.03); // 1.01
+  mg2->SetMinimum(0.97); // 0.98
   mg2->Draw("AP");
   mg2->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 29) * 60 * 60 * 2);
   mg2->GetYaxis()->SetTitle("calibration factor");
@@ -217,8 +217,8 @@ void Earthquake::DrawPlot()
   g_pvalue->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 80) * 60 * 60 * 2);
   g_pvalue->GetXaxis()->SetTitle("Time (mm/dd)");
   g_pvalue->GetYaxis()->SetTitle("p-value");
-  g_pvalue->GetXaxis()->SetLabelSize(0);
-  g_pvalue->GetXaxis()->SetTitleSize(0);
+//  g_pvalue->GetXaxis()->SetLabelSize(0);
+//  g_pvalue->GetXaxis()->SetTitleSize(0);
   g_pvalue->GetYaxis()->SetTitleSize(0.05);
   g_pvalue->GetYaxis()->SetTitleOffset(0.7);
   g_pvalue->GetXaxis()->SetTimeDisplay(1);

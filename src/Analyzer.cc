@@ -25,12 +25,12 @@ using namespace std;
 void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 {
 
-  h_K40_peak_cali   = new TH1D("h_K40_peak_cali", "", 100, 1.37, 1.44); // before Sep 1.37-1.48
-  h_K40_peak_uncali = new TH1D("h_K40_peak_uncali", "", 100, 1.37, 1.44);
+  h_K40_peak_cali   = new TH1D("h_K40_peak_cali", "", 100, 1.25, 1.44); // before Sep 1.37-1.48
+  h_K40_peak_uncali = new TH1D("h_K40_peak_uncali", "", 100, 1.25, 1.44);
   h_diff            = new TH1D("h_diff", "", 100, -20000, 20000);
-  h_cfactor         = new TH1D("h_cfactor", "", 100, 0.99, 1.01); // befor Sep 0.98-1.01
-  h_cfactor_cali    = new TH1D("h_cfactor", "", 100, 0.99, 1.01); // befor Sep 0.98-1.01
-  K40_template      = Template->Integral(Template->GetXaxis()->FindBin(MINK40), Template->GetXaxis()->FindBin(MAXK40));
+  h_cfactor         = new TH1D("h_cfactor", "", 100, 0.9, 1.1); // befor Sep 0.98-1.01
+  h_cfactor_cali    = new TH1D("h_cfactor", "", 100, 0.9, 1.1); // befor Sep 0.98-1.01
+  K40_template      = Template->Integral(Template->GetXaxis()->FindBin(XMINFIT_K40), Template->GetXaxis()->FindBin(XMAXFIT_K40));
 
   TKey *keyAsObj, *keyAsObj2;
   TIter next(dir->GetListOfKeys());
@@ -44,13 +44,13 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 
     while ((keyAsObj2 = (TKey *)next2())) {
       auto key2 = (TKey *)keyAsObj2;
-      //cout << "name " << key->GetName() << key2->GetName() << endl;
+      cout << "name " << key->GetName() << key2->GetName() << endl;
       obj = (TH1 *)dir2->Get(key2->GetName());  // copy every th1 histogram to
-      obj = Earthquake::SetZeroBinContent(obj); // fill the empty bin with average of adjacent bins
+      //obj = Earthquake::SetZeroBinContent(obj); // fill the empty bin with average of adjacent bins
 
       //      if (h < 720 && obj->Integral() != 0)  // before July
-      if (h > 2375) { // start from 9/15 h=1800, 11/2 h =2376(?))
-
+      //if (h > 2375) { // start from 2021/9/15 h=1800, 2021/11/2 h =2376(?))
+      //  if(h > 11){ //2022/5/02
         // set hist name ex. 12/25;  datetime = 2021122522
         datetime[N].Form("%s%s", key->GetName(), key2->GetName());
         datetime[N].Remove(10, 4);
@@ -64,17 +64,17 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         diff_[N]          = NULL;
         if (obj->Integral() != 0) {
           // get the calibration factor
-          peakforCali[N] = PeakforCalibration(obj, ofile, datetime[N]);
+          peakforCali[N] = PeakforCalibration(obj, ofile, datetime[N],0);
           cfactor[N]     = PEAKFORCALI / peakforCali[N]; // After Sep
           h_cfactor->Fill(cfactor[N]);
 
-          for (int k = 0; k < 1024; k++) {
+          for (int k = 0; k < NBINS; k++) {
             nMoveBin[k] = (cfactor[N] - 1) * obj->GetBinCenter(k + 1) / energyBin;
           }
 
           // calibrate hourly and show K40 peak
           TH1D *obj_cali = (TH1D *)(obj->Clone("obj_cali"));
-          for (int j = 0; j < 1024; j++) {
+          for (int j = 0; j < NBINS; j++) {
             obj_cali->SetBinContent(j + 1 + 1, obj->GetBinContent(j + 1 + 1) * (1 - nMoveBin[j + 1]) +
                                                  obj->GetBinContent(j + 1) * (nMoveBin[j]));
 
@@ -86,7 +86,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
             //        }
           }
 
-          cfactor_cali[N] = PEAKFORCALI / PeakforCalibration(obj_cali, ofile, datetime[N]);
+          cfactor_cali[N] = PEAKFORCALI / PeakforCalibration(obj_cali, ofile, datetime[N],1);
           h_cfactor_cali->Fill(cfactor_cali[N]);
           K40peak_uncali[N] = PeakforK40(obj, ofile, datetime[N], 0);
           K40peak_cali[N]   = PeakforK40(obj_cali, ofile, datetime[N], 1);
@@ -100,7 +100,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 
           // Normalize template to yiels of every hour (use K40)
           double K40_obj_cali =
-            obj_cali->Integral(obj_cali->GetXaxis()->FindBin(MINK40), obj_cali->GetXaxis()->FindBin(MAXK40));
+            obj_cali->Integral(obj_cali->GetXaxis()->FindBin(XMINFIT_K40), obj_cali->GetXaxis()->FindBin(XMAXFIT_K40));
 
           TH1D *scaledTemplate = (TH1D *)(Template->Clone("scaledTemplate"));
           scaledTemplate->Scale(K40_obj_cali / K40_template); // template scale to same as the hourly plot
@@ -116,7 +116,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 
           delete obj;
           delete scaledTemplate;
-        }
+      //  }
           N++;
       }
       h++;
@@ -144,7 +144,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   /*********************************************************
       Fill TGraph
    *********************************************************/
-  double v[4000];
+  double v[40000];
   for (int i = 0; i < N; i++) v[i] = diff_[i] / fluct_sigma;
   cout << "fluct_peak " << fluct_peak << endl;
   cout << "fluct_sigma " << fluct_sigma << endl;

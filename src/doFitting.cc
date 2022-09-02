@@ -40,24 +40,23 @@ double Earthquake::FittingGausPeak(TH1 *h_diff)
   return peak;
 }
 
-double Earthquake::PeakforCalibration(TH1 *obj, TFile *ofile, TString hist_name)
+double Earthquake::PeakforCalibration(TH1 *obj, TFile *ofile, TString hist_name,bool flag)
 {
+  double xmin = obj->GetXaxis()->FindBin(XMINFIT_CALI);
+  double xmax = obj->GetXaxis()->FindBin(XMAXFIT_CALI);
 
-  double xmin = obj->GetXaxis()->FindBin(2.1);
-  double xmax = obj->GetXaxis()->FindBin(2.4);
-
-  cout << "# of bins " << xmax - xmin + 1 << endl;
-  TH1D *cal = new TH1D("cal", "", xmax - xmin + 1, 2.1, 2.4);
+//  cout << "# of bins " << xmax - xmin + 1 << endl;
+  TH1D *cal = new TH1D("cal", "", xmax - xmin + 1, XMINFIT_CALI, XMAXFIT_CALI);
   for (int i = 0; i < xmax - xmin + 1; i++) {
     cal->SetBinContent(i + 1, obj->GetBinContent(xmin + i));
     //    cout << "obj->GetBinContent(" << xmin + i << ") " << obj->GetBinContent(xmin + i) << endl;
   }
   // Fitting
   // observable
-  RooRealVar x("x", "random variable", 2.1, 2.4);
+  RooRealVar x("x", "random variable", XMINFIT_CALI, XMAXFIT_CALI);
 
   // Gaussian model
-  RooRealVar  mu("mu", "mean parameter", 2.2, 2.1, 2.4);
+  RooRealVar  mu("mu", "mean parameter", XCENFIT_CALI, XMINFIT_CALI, XMAXFIT_CALI); //2.2
   RooRealVar  sigma("sigma", "width parameter", 0.1, 0.0, 0.3);
   RooGaussian gaus("gaus", "Gaussian PDF", x, mu, sigma);
 
@@ -78,8 +77,13 @@ double Earthquake::PeakforCalibration(TH1 *obj, TFile *ofile, TString hist_name)
   model.plotOn(frame);
   frame->Draw();
 
-  ofile->cd("cali_Hist");
-  frame->Write(hist_name.Data());
+  if (flag == 0) {
+    ofile->cd("cali_uncali_fit");
+    frame->Write(hist_name.Data());
+  } else {
+    ofile->cd("cali_cali_fit");
+    frame->Write(hist_name.Data());
+  }
   delete cal;
 
   double peak = mu.getVal();
@@ -90,10 +94,10 @@ double Earthquake::PeakforCalibration(TH1 *obj, TFile *ofile, TString hist_name)
 double Earthquake::PeakforK40(TH1 *obj, TFile *ofile, TString hist_name, bool flag)
 {
 
-  RooRealVar x("x", "random variable", MINK40, MAXK40);
+  RooRealVar x("x", "random variable", XMINFIT_K40, XMAXFIT_K40);
 
   // Gaussian model
-  RooRealVar  mu("mu", "mean parameter", 1.4, MINK40, MAXK40);
+  RooRealVar  mu("mu", "mean parameter", XCENFIT_K40, XMINFIT_K40, XMAXFIT_K40); //1.4
   RooRealVar  sigma("sigma", "width parameter", 0.1, 0.0, 0.3);
   RooGaussian gaus("gaus", "Gaussian PDF", x, mu, sigma);
 
