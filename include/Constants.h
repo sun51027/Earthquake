@@ -8,30 +8,30 @@
 
 // 220109-220218
   // #define XMINFIT_CALI 2.0
-  // #define XCENFIT_CALI 2.2 
+  // #define XCENFIT_CALI 2.2
   // #define XMAXFIT_CALI 2.3
   // #define XMINFIT_K40 1.25
-  // #define XCENFIT_K40 1.38 
+  // #define XCENFIT_K40 1.38
   // #define XMAXFIT_K40 1.45
-  // #define PEAKFORCALI 2.22437 
+  // #define PEAKFORCALI 2.22437
 
 //220501-220820 
- #define XMINFIT_CALI 2.0
- #define XCENFIT_CALI 2.15
- #define XMAXFIT_CALI 2.4
- #define XMINFIT_K40 1.25
- #define XCENFIT_K40 1.32
- #define XMAXFIT_K40 1.5
- #define PEAKFORCALI 2.13006
-
-//220501-220820 test cali
  // #define XMINFIT_CALI 2.0
- // #define XCENFIT_CALI 2.15 
+ // #define XCENFIT_CALI 2.15
  // #define XMAXFIT_CALI 2.4
  // #define XMINFIT_K40 1.25
- // #define XCENFIT_K40 1.4
+ // #define XCENFIT_K40 1.32
  // #define XMAXFIT_K40 1.5
- // #define PEAKFORCALI 2.13006 
+ // #define PEAKFORCALI 2.13006
+
+//220501-220820 test cali
+ #define XMINFIT_CALI 2.0
+ #define XCENFIT_CALI 2.1
+ #define XMAXFIT_CALI 2.4
+ #define XMINFIT_K40 1.25
+ #define XCENFIT_K40 1.3
+ #define XMAXFIT_K40 1.5
+ #define PEAKFORCALI 2.22613
 
 #define NBINS 867 // 1024
 

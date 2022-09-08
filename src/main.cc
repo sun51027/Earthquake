@@ -102,13 +102,13 @@ void main_makeTemplate()
 //
   ofile->cd();
   Template->Write("Template");
-  // double caliPeak = 0;
-  // caliPeak        = EQ.PeakforCalibration(Template, ofile, "cali_peak",0);
-  // double K40Peak  = 0;
-  // K40Peak         = EQ.PeakforK40(Template, ofile, "K40_peak", 0);
-  // cout << "\n\n\n";
-  // cout << "cali_peak " << caliPeak << "  K40_peak " << K40Peak << endl;
-  // cout << "\n\n\n";
+   double caliPeak = 0;
+   caliPeak        = EQ.PeakforCalibration(Template, ofile, "cali_peak",0);
+   double K40Peak  = 0;
+   K40Peak         = EQ.PeakforK40(Template, ofile, "K40_peak", 0);
+   cout << "\n\n\n";
+   cout << "cali_peak " << caliPeak << "  K40_peak " << K40Peak << endl;
+   cout << "\n\n\n";
 }
 void main_doAnalysis()
 {
