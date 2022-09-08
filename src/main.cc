@@ -13,6 +13,7 @@ void   main_geodata();
 void   main_pvalue_eqDir();
 void   main_pvalue_geodata();
 void   main_makeTemplate();
+void   main_calibration();
 void   drawPvalue_eqdir(TDirectory *dir1, TDirectory *dir2, TDatime timeoffset);
 void   drawPvalue_geo(TDirectory *dir1, TDirectory *dir2, TDirectory *dir3, TDirectory *dir4, TDatime timeoffset);
 void   Help();
@@ -53,6 +54,9 @@ int main(int argc, char **argv)
     } else if (arg == "-geo" || arg == "--geodata") {
       anaType = 5;
       iarg++;
+    } else if (arg == "-cali" || arg == "--calibration") {
+      anaType = 6;
+      iarg++;
     } else if (arg == "-i" || arg == "--inputFile") {
       iarg++;
       inputFile = argv[iarg];
@@ -78,6 +82,8 @@ int main(int argc, char **argv)
   case 3: main_pvalue_eqDir(); break;
   case 4: main_pvalue_geodata(); break;
   case 5: main_geodata(); break;
+  case 6: main_calibration(); break;
+
   }
 
   return 0;
@@ -85,13 +91,15 @@ int main(int argc, char **argv)
 void main_calibration(){
 
   TFile      *fin1 = new TFile(inputFile.c_str());
-  TDirectory *dir  = (TDirectory *)fin1->Get("HistoCh0");
-  dir->cd();
+  TDirectory *indir  = (TDirectory *)fin1->Get("HistoCh0");
+  indir->cd();
 
   TFile *ofile = new TFile(outputFile.c_str(), "recreate");
     ofile->mkdir("HistoCh0");
-    ofile->cd("HistoCh0");
-
+  TDirectory *odir  = (TDirectory*)ofile->Get("HistoCh0");
+  
+  Earthquake EQ;
+  EQ.ErecoCalibration(indir,odir);
 
 }
 void main_makeTemplate()

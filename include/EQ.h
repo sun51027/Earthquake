@@ -38,6 +38,7 @@ public:
   double PeakforK40(TH1 *obj, TFile *ofile, TString hist_name, bool flag);
   void   DrawPlot();
   //  void   ReadData();
+  void ErecoCalibration(TDirectory *dir,TDirectory *odir);
 
 private:
   // Histogram
