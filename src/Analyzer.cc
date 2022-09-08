@@ -78,12 +78,12 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
             obj_cali->SetBinContent(j + 1 + 1, obj->GetBinContent(j + 1 + 1) * (1 - nMoveBin[j + 1]) +
                                                  obj->GetBinContent(j + 1) * (nMoveBin[j]));
 
-            //          if (nMoveBin[j] != 0) {
-            //            cout << "obj " << obj->GetBinContent(j + 1)
-            //								 << "\t" << nMoveBin[j] //<< "\t obj_cali "
-            //								 <<"\t\t cfactor "<<cfactor[N]
-            //                 <<"\t\tcali_obj "<< obj_cali->GetBinContent(j + 1) << endl;
-            //        }
+                     if (nMoveBin[j] != 0) {
+                       cout << "obj " << obj->GetBinContent(j + 1)
+            							 << "\t" << nMoveBin[j] //<< "\t obj_cali "
+            							 <<"\t\t cfactor "<<cfactor[N]
+                            <<"\t\tcali_obj "<< obj_cali->GetBinContent(j + 1) << endl;
+                   }
           }
 
           cfactor_cali[N] = PEAKFORCALI / PeakforCalibration(obj_cali, ofile, datetime[N],1);
