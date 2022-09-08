@@ -56,6 +56,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         datetime[N].Remove(10, 4);
 
         peakforCali_[N]    = NULL;
+        peakforCali_cali[N]=NULL;
         cfactor[N]        = NULL;
         cfactor_cali[N]   = NULL;
         K40peak_uncali[N] = NULL;
@@ -90,7 +91,8 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
             //        }
           }
 
-          cfactor_cali[N] = PEAKFORCALI / PeakforCalibration(obj_cali, ofile, datetime[N],1);
+          peakforCali_cali[N]=PeakforCalibration(obj_cali, ofile, datetime[N],1);
+          cfactor_cali[N] = PEAKFORCALI / peakforCali_cali[N];
           h_cfactor_cali->Fill(cfactor_cali[N]);
           K40peak_uncali[N] = PeakforK40(obj, ofile, datetime[N], 0);
           K40peak_cali[N]   = PeakforK40(obj_cali, ofile, datetime[N], 1);
@@ -158,6 +160,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   g_cfactor         = new TGraph(N, N_, cfactor);
   g_cfactor_cali    = new TGraph(N, N_, cfactor_cali);
   g_twopoint_uncali   = new TGraph(N, N_, peakforCali_);
+  g_twopoint_cali   = new TGraph(N, N_, peakforCali_cali);
   g_K40_peak_cali   = new TGraph(N, N_, K40peak_cali);
   g_K40_peak_uncali = new TGraph(N, N_, K40peak_uncali);
 
@@ -205,6 +208,9 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 
   g_twopoint_uncali->SetName("g_twopoint_uncali");
   g_twopoint_uncali->Write(); 
+
+  g_twopoint_cali->SetName("g_twopoint_cali");
+  g_twopoint_cali->Write(); 
 
   g_cfactor->SetName("g_cfactor");
   g_cfactor->Write();

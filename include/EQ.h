@@ -67,6 +67,7 @@ private:
   double K40peak_cali[40000];
   double K40peak_uncali[40000];
   double peakforCali_[40000]; // 2.2MeV, unknown peak
+  double peakforCali_cali[40000]; // 2.2MeV, unknown peak
   double nMoveBin[40000];
   double energyBin   = 5. / 867.;
   //double energyBin   = 5. / 1024.;
