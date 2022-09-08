@@ -49,6 +49,8 @@ private:
 
   // Graph
   TGraph *g_diffvsTime;
+  TGraph *g_twopoint_cali;
+  TGraph *g_twopoint_uncali;
   TGraph *g_cfactor;
   TGraph *g_cfactor_cali;
   TGraph *g_K40_peak_cali;
@@ -63,7 +65,7 @@ private:
   double cfactor_cali[40000];
   double K40peak_cali[40000];
   double K40peak_uncali[40000];
-  double peakforCali[40000]; // 2.2MeV, unknown peak
+  double peakforCali_[40000]; // 2.2MeV, unknown peak
   double nMoveBin[40000];
   double energyBin   = 5. / 867.;
   //double energyBin   = 5. / 1024.;

@@ -55,7 +55,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         datetime[N].Form("%s%s", key->GetName(), key2->GetName());
         datetime[N].Remove(10, 4);
 
-        peakforCali[N]    = NULL;
+        peakforCali_[N]    = NULL;
         cfactor[N]        = NULL;
         cfactor_cali[N]   = NULL;
         K40peak_uncali[N] = NULL;
@@ -64,17 +64,21 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         diff_[N]          = NULL;
         if (obj->Integral() != 0) {
           // get the calibration factor
-          peakforCali[N] = PeakforCalibration(obj, ofile, datetime[N],0);
-          cfactor[N]     = PEAKFORCALI / peakforCali[N]; // After Sep
+          peakforCali_[N] = PeakforCalibration(obj, ofile, datetime[N],0);
+          cfactor[N]     = PEAKFORCALI / peakforCali_[N]; // After Sep
           h_cfactor->Fill(cfactor[N]);
 
           for (int k = 0; k < NBINS; k++) {
-            nMoveBin[k] = (cfactor[N] - 1) * obj->GetBinCenter(k + 1) / energyBin;
+              
+            nMoveBin[k] = (obj->GetBinCenter(k + 1)+0.0439089)*1.02257 / energyBin;
+            //nMoveBin[k] = (((cfactor[N] - 1)*obj->GetBinCenter(k + 1)+0.0439089)*1.02257) / energyBin;
+            //nMoveBin[k] = (cfactor[N] - 1) * obj->GetBinCenter(k + 1) / energyBin;
           }
 
           // calibrate hourly and show K40 peak
           TH1D *obj_cali = (TH1D *)(obj->Clone("obj_cali"));
           for (int j = 0; j < NBINS; j++) {
+            //obj_cali->SetBinContent(j+1,(obj->GetBinCenter(j+1)+0.0439089)*1.02257);
             obj_cali->SetBinContent(j + 1 + 1, obj->GetBinContent(j + 1 + 1) * (1 - nMoveBin[j + 1]) +
                                                  obj->GetBinContent(j + 1) * (nMoveBin[j]));
 
@@ -152,6 +156,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   g_diffvsTime      = new TGraph(N, N_, v);
   g_cfactor         = new TGraph(N, N_, cfactor);
   g_cfactor_cali    = new TGraph(N, N_, cfactor_cali);
+  g_twopoint_uncali   = new TGraph(N, N_, peakforCali_);
   g_K40_peak_cali   = new TGraph(N, N_, K40peak_cali);
   g_K40_peak_uncali = new TGraph(N, N_, K40peak_uncali);
 
@@ -197,14 +202,8 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   h_diff->Write();
   h_cfactor->Write();
 
-  g_sigma_significant->SetName("g_sigma_significant");
-  g_sigma_significant->Write();
-
-  g_pvalue->SetName("g_pvalue");
-  g_pvalue->Write();
-
-  g_diffvsTime->SetName("g_diffvsTime");
-  g_diffvsTime->Write();
+  g_twopoint_uncali->SetName("g_twopoint_uncali");
+  g_twopoint_uncali->Write(); 
 
   g_cfactor->SetName("g_cfactor");
   g_cfactor->Write();
@@ -214,4 +213,14 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 
   g_K40_peak_uncali->SetName("g_K40_peak_uncali");
   g_K40_peak_uncali->Write();
+
+  g_diffvsTime->SetName("g_diffvsTime");
+  g_diffvsTime->Write();
+
+  g_sigma_significant->SetName("g_sigma_significant");
+  g_sigma_significant->Write();
+
+  g_pvalue->SetName("g_pvalue");
+  g_pvalue->Write();
+
 }
