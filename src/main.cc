@@ -82,6 +82,18 @@ int main(int argc, char **argv)
 
   return 0;
 }
+void main_calibration(){
+
+  TFile      *fin1 = new TFile(inputFile.c_str());
+  TDirectory *dir  = (TDirectory *)fin1->Get("HistoCh0");
+  dir->cd();
+
+  TFile *ofile = new TFile(outputFile.c_str(), "recreate");
+    ofile->mkdir("HistoCh0");
+    ofile->cd("HistoCh0");
+
+
+}
 void main_makeTemplate()
 {
   cout<<"Making template for Rn analysis...."<<endl;
@@ -114,6 +126,7 @@ void main_doAnalysis()
 {
   cout << "Processing Radon Analysis....." << endl;
   TFile *ofile = new TFile(outputFile.c_str(), "recreate");
+  ofile->mkdir("obj_cali");
   ofile->mkdir("cali_uncali_fit");
   ofile->mkdir("cali_cali_fit");
   ofile->mkdir("K40_uncali_fit");

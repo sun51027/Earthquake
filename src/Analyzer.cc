@@ -70,9 +70,9 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 
           for (int k = 0; k < NBINS; k++) {
               
-            nMoveBin[k] = (obj->GetBinCenter(k + 1)+0.0439089)*1.02257 / energyBin;
+//            nMoveBin[k] = (obj->GetBinCenter(k + 1)+0.0439089)*1.02257 / energyBin;
             //nMoveBin[k] = (((cfactor[N] - 1)*obj->GetBinCenter(k + 1)+0.0439089)*1.02257) / energyBin;
-            //nMoveBin[k] = (cfactor[N] - 1) * obj->GetBinCenter(k + 1) / energyBin;
+            nMoveBin[k] = (cfactor[N] - 1) * obj->GetBinCenter(k + 1) / energyBin;
           }
 
           // calibrate hourly and show K40 peak
@@ -117,7 +117,8 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
           N_[N]       = (double)(N + 1) * 60 * 60 * 2; // number of 2hour
           diff_[N]    = diff;
           h_diff->Fill(diff);
-
+          ofile->cd("obj_cali");
+          obj_cali->Write();
           delete obj;
           delete scaledTemplate;
       //  }

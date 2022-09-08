@@ -26,10 +26,10 @@
 
 //220501-220820 test cali
  #define XMINFIT_CALI 2.0
- #define XCENFIT_CALI 2.1
+ #define XCENFIT_CALI 2.2
  #define XMAXFIT_CALI 2.4
  #define XMINFIT_K40 1.25
- #define XCENFIT_K40 1.3
+ #define XCENFIT_K40 1.4
  #define XMAXFIT_K40 1.5
  #define PEAKFORCALI 2.22613
 
