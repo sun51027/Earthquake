@@ -136,6 +136,9 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   fluct_peak  = Earthquake::FittingGausPeak(h_diff);
   fluct_sigma = Earthquake::FittingGausSigma(h_diff);
 
+  cout<<"fluct_peak "<<fluct_peak<<endl;
+  cout<<"fluct_sigma "<<fluct_sigma<<endl;
+
   for (int i = 0; i < N; i++) {
     if (diff_[i] < fluct_peak) {
       sigma_[i]   = 0;
