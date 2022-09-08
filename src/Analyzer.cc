@@ -35,7 +35,6 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   TKey *keyAsObj, *keyAsObj2;
   TIter next(dir->GetListOfKeys());
   TH1  *obj;
-
   while ((keyAsObj = (TKey *)next())) {
     auto        key  = (TKey *)keyAsObj;
     TDirectory *dir2 = (TDirectory *)dir->Get(key->GetName());
@@ -78,12 +77,12 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
             obj_cali->SetBinContent(j + 1 + 1, obj->GetBinContent(j + 1 + 1) * (1 - nMoveBin[j + 1]) +
                                                  obj->GetBinContent(j + 1) * (nMoveBin[j]));
 
-                     if (nMoveBin[j] != 0) {
-                       cout << "obj " << obj->GetBinContent(j + 1)
-            							 << "\t" << nMoveBin[j] //<< "\t obj_cali "
-            							 <<"\t\t cfactor "<<cfactor[N]
-                            <<"\t\tcali_obj "<< obj_cali->GetBinContent(j + 1) << endl;
-                   }
+                   //   if (nMoveBin[j] != 0) {
+                   //     cout << "obj " << obj->GetBinContent(j + 1)
+            							//  << "\t" << nMoveBin[j] //<< "\t obj_cali "
+            							//  <<"\t\t cfactor "<<cfactor[N]
+                   //          <<"\t\tcali_obj "<< obj_cali->GetBinContent(j + 1) << endl;
+                   // }
           }
 
           cfactor_cali[N] = PEAKFORCALI / PeakforCalibration(obj_cali, ofile, datetime[N],1);
@@ -113,7 +112,8 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
           N_[N]       = (double)(N + 1) * 60 * 60 * 2; // number of 2hour
           diff_[N]    = diff;
           h_diff->Fill(diff);
-
+          ofile->cd("obj_cali");
+          obj_cali->Write();
           delete obj;
           delete scaledTemplate;
       //  }

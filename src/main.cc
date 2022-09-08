@@ -114,6 +114,7 @@ void main_doAnalysis()
 {
   cout << "Processing Radon Analysis....." << endl;
   TFile *ofile = new TFile(outputFile.c_str(), "recreate");
+  ofile->mkdir("obj_cali");
   ofile->mkdir("cali_uncali_fit");
   ofile->mkdir("cali_cali_fit");
   ofile->mkdir("K40_uncali_fit");
