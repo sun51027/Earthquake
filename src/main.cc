@@ -98,8 +98,11 @@ void main_calibration(){
     ofile->mkdir("HistoCh0");
   TDirectory *odir  = (TDirectory*)ofile->Get("HistoCh0");
   
+  ifstream   paraInput;
+  paraInput.open(inputFile2.c_str());
+
   Earthquake EQ;
-  EQ.ErecoCalibration(indir,odir);
+  EQ.ErecoCalibration(indir,odir,paraInput);
 
 }
 void main_makeTemplate()
@@ -135,6 +138,7 @@ void main_doAnalysis()
   cout << "Processing Radon Analysis....." << endl;
   TFile *ofile = new TFile(outputFile.c_str(), "recreate");
   ofile->mkdir("obj_cali");
+  ofile->mkdir("Radon2_uncali_fit");
   ofile->mkdir("cali_uncali_fit");
   ofile->mkdir("cali_cali_fit");
   ofile->mkdir("K40_uncali_fit");

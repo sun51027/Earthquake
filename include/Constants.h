@@ -7,13 +7,16 @@
 #define MAXRADON  0.8
 
 // 220109-220218
-  // #define XMINFIT_CALI 2.0
-  // #define XCENFIT_CALI 2.2
-  // #define XMAXFIT_CALI 2.3
-  // #define XMINFIT_K40 1.25
-  // #define XCENFIT_K40 1.38
-  // #define XMAXFIT_K40 1.45
-  // #define PEAKFORCALI 2.22437
+ //  #define XMINFIT_CALI 2.0
+ //  #define XCENFIT_CALI 2.2
+ //  #define XMAXFIT_CALI 2.3
+ //  #define XMINFIT_K40 1.25
+ //  #define XCENFIT_K40 1.38
+ //  #define XMAXFIT_K40 1.45
+ //  #define PEAKFORCALI 2.22437
+ // #define XMINFIT_RADON2 0.50 
+ // #define XCENFIT_RADON2 0.58
+ // #define XMAXFIT_RADON2 0.65
 
 //220501-220820 
  // #define XMINFIT_CALI 2.0
@@ -23,6 +26,9 @@
  // #define XCENFIT_K40 1.32
  // #define XMAXFIT_K40 1.5
  // #define PEAKFORCALI 2.13006
+ // #define XMINFIT_RADON2 0.51
+ // #define XCENFIT_RADON2 0.557
+ // #define XMAXFIT_RADON2 0.6
 
 //220501-220820 test cali
  #define XMINFIT_CALI 2.0
@@ -32,6 +38,12 @@
  #define XCENFIT_K40 1.4
  #define XMAXFIT_K40 1.5
  #define PEAKFORCALI 2.22613
+ #define XMINFIT_RADON2 0.50
+ #define XCENFIT_RADON2 0.58
+ #define XMAXFIT_RADON2 0.65
+
+
+
 
 #define NBINS 867 // 1024
 

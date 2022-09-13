@@ -34,11 +34,12 @@ public:
   void   WriteFile(TH1 *obj, TFile *ofile) { obj->Write(); }
   double FittingGausSigma(TH1 *h_diff);
   double FittingGausPeak(TH1 *h_diff);
+  double PeakforRadon2(TH1 *obj, TFile *ofile, TString hist_name, bool flag);
   double PeakforCalibration(TH1 *obj, TFile *ofile, TString hist_name, bool flag);
   double PeakforK40(TH1 *obj, TFile *ofile, TString hist_name, bool flag);
   void   DrawPlot();
   //  void   ReadData();
-  void ErecoCalibration(TDirectory *dir,TDirectory *odir);
+  void ErecoCalibration(TDirectory *dir,TDirectory *odir, ifstream &inputfile);
 
 private:
   // Histogram
@@ -50,6 +51,7 @@ private:
 
   // Graph
   TGraph *g_diffvsTime;
+  TGraph *g_Radon2_uncali;
   TGraph *g_twopoint_cali;
   TGraph *g_twopoint_uncali;
   TGraph *g_cfactor;
@@ -67,6 +69,7 @@ private:
   double K40peak_cali[40000];
   double K40peak_uncali[40000];
   double peakforCali_[40000]; // 2.2MeV, unknown peak
+  double peakforRadon2_[40000]; // 2.2MeV, unknown peak
   double peakforCali_cali[40000]; // 2.2MeV, unknown peak
   double nMoveBin[40000];
   double energyBin   = 5. / 867.;
