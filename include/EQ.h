@@ -52,6 +52,7 @@ private:
   // Graph
   TGraph *g_diffvsTime;
   TGraph *g_Radon2_uncali;
+  TGraph *g_Radon2_cali;
   TGraph *g_twopoint_cali;
   TGraph *g_twopoint_uncali;
   TGraph *g_cfactor;
@@ -66,11 +67,14 @@ private:
   double diff_[40000];
   double cfactor[40000];
   double cfactor_cali[40000];
+
+  double Radon2peak_uncali[40000]; 
+  double Radon2peak_cali[40000]; 
   double K40peak_cali[40000];
   double K40peak_uncali[40000];
   double peakforCali_[40000]; // 2.2MeV, unknown peak
-  double peakforRadon2_[40000]; // 2.2MeV, unknown peak
   double peakforCali_cali[40000]; // 2.2MeV, unknown peak
+
   double nMoveBin[40000];
   double energyBin   = 5. / 867.;
   //double energyBin   = 5. / 1024.;

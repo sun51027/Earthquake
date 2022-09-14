@@ -42,13 +42,14 @@ void Earthquake::ErecoCalibration(TDirectory *dir, TDirectory *odir, ifstream &i
     }
   }
   
-    
+  // for(int i = 0;i<factor_a.size();i++){
+  //   cout<<"factor_a["<<i<<"] "<<factor_a[i]<<endl;
+  // }
+
   TKey *keyAsObj, *keyAsObj2;
   TIter next(dir->GetListOfKeys());
   TH1  *obj;
 
-  // double factor_a = 1.02257;
-  // double factor_b = 0.0439089;
 
   while ((keyAsObj = (TKey *)next())) {
     auto key = (TKey *)keyAsObj;
@@ -63,18 +64,19 @@ void Earthquake::ErecoCalibration(TDirectory *dir, TDirectory *odir, ifstream &i
       auto key2 = (TKey *)keyAsObj2;
       obj       = (TH1 *)dir2->Get(key2->GetName());
 
-      // if(obj->Integral() != 0){
+      if(obj->Integral() != 0){
 
 
-      for (int k = 0; k <= NBINS; k++) {
+      for (int k = 0; k < NBINS; k++) {
         nMoveBin[k] = 0.0;
       }
       for (int k = 0; k < NBINS; k++) {
-        
+       
         // nMoveBin[k] = ( (factor_b[N])) / energyBin;
         // nMoveBin[k] = ((obj->GetBinCenter(k + 1)) * (factor_a[N] - 1)) / energyBin;
         nMoveBin[k] = ((obj->GetBinCenter(k+1 )) * (factor_a[N] - 1) + (factor_b[N])) / energyBin;
-        // cout<<"nMoveBin["<<k<<"] "<<nMoveBin[k]<<endl;
+        // cout<<"center "<<obj->GetBinCenter(k+1)<<", factor_a["<<N<<"] "<<factor_a[N]<<", factor_b["<<N<<"] "<<factor_b[N];
+        // cout<<"  nMoveBin["<<k<<"] "<<nMoveBin[k]<<endl;
       }
       TH1D *obj_cali = (TH1D *)(obj->Clone("obj_cali"));
       for (int j = 0; j < NBINS; j++) {
@@ -97,8 +99,8 @@ void Earthquake::ErecoCalibration(TDirectory *dir, TDirectory *odir, ifstream &i
       obj_cali->Write(key2->GetName());
 
       delete obj;
-      // N++;
-      // }
+      N++;
+      }
     }
   }
   cout<<"N = "<<N<<endl;

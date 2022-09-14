@@ -1,5 +1,5 @@
 // STL
-using namespace std;
+// using namespace std;
 #include <iostream>
 #include <fstream>
 #include <cmath>
@@ -56,26 +56,24 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
       datetime[N].Form("%s%s", key->GetName(), key2->GetName());
       datetime[N].Remove(10, 4);
 
-      peakforCali_[N]     = NULL;
-      peakforRadon2_[N]   = NULL;
-      peakforCali_cali[N] = NULL;
-      cfactor[N]          = NULL;
-      cfactor_cali[N]     = NULL;
-      K40peak_uncali[N]   = NULL;
-      K40peak_cali[N]     = NULL;
-      N_[N]               = NULL;
-      diff_[N]            = NULL;
+      peakforCali_[N]     = 0.0;
+      Radon2peak_cali[N]   = 0.0;
+      Radon2peak_uncali[N]   = 0.0;
+      peakforCali_cali[N] = 0.0;
+      cfactor[N]          = 0.0;
+      cfactor_cali[N]     = 0.0;
+      K40peak_uncali[N]   = 0.0;
+      K40peak_cali[N]     = 0.0;
+      N_[N]               = 0.0;
+      diff_[N]            = 0.0;
       if (obj->Integral() != 0) {
         // get the calibration factor
         peakforCali_[N]   = PeakforCalibration(obj, ofile, datetime[N], 0);
-        peakforRadon2_[N] = PeakforRadon2(obj, ofile, datetime[N], 0);
         cfactor[N]        = PEAKFORCALI / peakforCali_[N]; // After Sep
         h_cfactor->Fill(cfactor[N]);
 
         for (int k = 0; k < NBINS; k++) {
 
-          //            nMoveBin[k] = (obj->GetBinCenter(k + 1)+0.0439089)*1.02257 / energyBin;
-          // nMoveBin[k] = (((cfactor[N] - 1)*obj->GetBinCenter(k + 1)+0.0439089)*1.02257) / energyBin;
           nMoveBin[k] = (cfactor[N] - 1) * obj->GetBinCenter(k + 1) / energyBin;
         }
 
@@ -97,8 +95,12 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         peakforCali_cali[N] = PeakforCalibration(obj_cali, ofile, datetime[N], 1);
         cfactor_cali[N]     = PEAKFORCALI / peakforCali_cali[N];
         h_cfactor_cali->Fill(cfactor_cali[N]);
+
         K40peak_uncali[N] = PeakforK40(obj, ofile, datetime[N], 0);
         K40peak_cali[N]   = PeakforK40(obj_cali, ofile, datetime[N], 1);
+        Radon2peak_uncali[N] = PeakforRadon2(obj, ofile, datetime[N], 0);
+        Radon2peak_cali[N] = PeakforRadon2(obj_cali, ofile, datetime[N], 1);
+
         h_K40_peak_cali->Fill(K40peak_cali[N]);
         h_K40_peak_uncali->Fill(K40peak_uncali[N]);
 
@@ -169,7 +171,8 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   g_twopoint_cali   = new TGraph(N, N_, peakforCali_cali);
   g_K40_peak_cali   = new TGraph(N, N_, K40peak_cali);
   g_K40_peak_uncali = new TGraph(N, N_, K40peak_uncali);
-  g_Radon2_uncali   = new TGraph(N, N_, peakforRadon2_);
+  g_Radon2_uncali   = new TGraph(N, N_, Radon2peak_uncali);
+  g_Radon2_cali   = new TGraph(N, N_, Radon2peak_cali);
 
   /**********************************************************
       Write object into output files
@@ -215,6 +218,10 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 
   g_Radon2_uncali->SetName("g_Radon2_uncali");
   g_Radon2_uncali->Write();
+
+  g_Radon2_cali->SetName("g_Radon2_cali");
+  g_Radon2_cali->Write();
+
   g_twopoint_uncali->SetName("g_twopoint_uncali");
   g_twopoint_uncali->Write();
 

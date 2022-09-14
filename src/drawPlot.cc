@@ -71,6 +71,40 @@ void Earthquake::DrawPlot()
   c->Modified();
   c->SaveAs("plots/DiffvsTime.pdf");
   delete c;
+  /*----------------------------------------------*/
+  //   Radon 
+
+  g_Radon2_uncali->SetMarkerColor(kBlue);
+  g_Radon2_uncali->SetMarkerStyle(20);
+  mgr::SetAxis(g_Radon2_uncali);
+
+  g_Radon2_cali->SetMarkerColor(kRed);
+  g_Radon2_cali->SetMarkerStyle(20);
+  mgr::SetAxis(g_Radon2_cali);
+
+  TCanvas *c8  = new TCanvas("c8", "", 1800, 900);
+  TMultiGraph *mg4 = new TMultiGraph();
+  mg4->Add(g_Radon2_uncali);
+  mg4->Add(g_Radon2_cali);
+  mg4->SetTitle("");
+  //mg4->SetMaximum(1.03); // 1.01
+  //mg4->SetMinimum(0.97); // 0.98
+  mg4->Draw("AP");
+  mg4->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 29) * 60 * 60 * 2);
+  mg4->GetYaxis()->SetTitle("Radon 2nd peak (MeV)");
+  mg4->GetXaxis()->SetTitle("Time (mm/dd)");
+  mg4->GetXaxis()->SetTimeDisplay(1);
+  mg4->GetXaxis()->SetTimeFormat("%m/%d");
+  TLegend *leg4 = new TLegend(0.65, 0.65, 0.80, 0.80);
+  leg4->SetBorderSize(0);
+  leg4->SetTextSize(0.04);
+  leg4->SetFillColorAlpha(0, 0);
+  leg4->AddEntry(g_Radon2_uncali, "un-cali", "p");
+  leg4->AddEntry(g_Radon2_cali, "Cali", "p");
+  leg4->Draw();
+  c8->Modified();
+  c8->SaveAs("plots/Radon2.pdf");
+  delete c8;
 
   /*----------------------------------------------*/
   // K40 stability
@@ -128,6 +162,42 @@ void Earthquake::DrawPlot()
   c2->SaveAs("plots/K40_cali_vs_uncali.pdf");
   delete c2;
 
+  /*----------------------------------------------*/
+  //   twoPoint 
+
+  TCanvas *c9  = new TCanvas("c9", "", 1800, 900);
+
+  g_twopoint_uncali->SetMarkerColor(kBlue);
+  g_twopoint_uncali->SetMarkerStyle(20);
+  mgr::SetAxis(g_twopoint_uncali);
+
+  g_twopoint_cali->SetMarkerColor(kRed);
+  g_twopoint_cali->SetMarkerStyle(20);
+  mgr::SetAxis(g_twopoint_cali);
+
+  TMultiGraph *mg3 = new TMultiGraph();
+  mg3->Add(g_twopoint_uncali);
+  mg3->Add(g_twopoint_cali);
+  mg3->SetTitle("");
+  // mg3->SetMaximum(1.03); // 1.01
+  // mg3->SetMinimum(0.97); // 0.98
+  mg3->Draw("AP");
+  mg3->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 29) * 60 * 60 * 2);
+  mg3->GetYaxis()->SetTitle("two point peak (MeV)");
+  mg3->GetXaxis()->SetTitle("Time (mm/dd)");
+  mg3->GetXaxis()->SetTimeDisplay(1);
+  mg3->GetXaxis()->SetTimeFormat("%m/%d");
+  TLegend *leg9 = new TLegend(0.65, 0.65, 0.80, 0.80);
+  leg9->SetBorderSize(0);
+  leg9->SetTextSize(0.04);
+  leg9->SetFillColorAlpha(0, 0);
+  leg9->AddEntry(g_twopoint_uncali, "un-cali", "p");
+  leg9->AddEntry(g_twopoint_cali, "Cali", "p");
+  leg9->Draw();
+  c9->Modified();
+  c9->SaveAs("plots/twoPoint.pdf");
+  delete c9;
+  
   /*----------------------------------------------*/
   //   Correlation factor
   TCanvas *c3  = new TCanvas("c3", "", 1800, 900);
