@@ -14,10 +14,10 @@
  //  #define XCENFIT_K40 1.38
  //  #define XMAXFIT_K40 1.45
  //  #define PEAKFORCALI 2.22437
- // #define XMINFIT_RADON2 0.50 
+ // #define XMINFIT_RADON2 0.50
  // #define XCENFIT_RADON2 0.58
  // #define XMAXFIT_RADON2 0.65
-
+ //
 //220501-220820 
  // #define XMINFIT_CALI 2.0
  // #define XCENFIT_CALI 2.15
@@ -40,7 +40,7 @@
  // #define PEAKFORCALI 2.22613
  #define PEAKFORCALI 2.23225
  #define XMINFIT_RADON2 0.50
- #define XCENFIT_RADON2 0.58
+ #define XCENFIT_RADON2 0.586
  #define XMAXFIT_RADON2 0.65
 
 

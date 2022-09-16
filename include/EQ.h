@@ -39,7 +39,7 @@ public:
   double PeakforK40(TH1 *obj, TFile *ofile, TString hist_name, bool flag);
   void   DrawPlot();
   //  void   ReadData();
-  void ErecoCalibration(TDirectory *dir,TDirectory *odir, ifstream &inputfile);
+  void ErecoCalibration(TDirectory *dir, TDirectory *odir, ifstream &inputfile);
 
 private:
   // Histogram
@@ -68,16 +68,16 @@ private:
   double cfactor[40000];
   double cfactor_cali[40000];
 
-  double Radon2peak_uncali[40000]; 
-  double Radon2peak_cali[40000]; 
+  double Radon2peak_uncali[40000];
+  double Radon2peak_cali[40000];
   double K40peak_cali[40000];
   double K40peak_uncali[40000];
-  double peakforCali_[40000]; // 2.2MeV, unknown peak
+  double peakforCali_[40000];     // 2.2MeV, unknown peak
   double peakforCali_cali[40000]; // 2.2MeV, unknown peak
 
   double nMoveBin[40000];
-  double energyBin   = 5. / 867.;
-  //double energyBin   = 5. / 1024.;
+  double energyBin = 5. / 867.;
+  // double energyBin   = 5. / 1024.;
   int    h           = 0; // # of hour
   double fluct_peak  = 0;
   double fluct_sigma = 0;
@@ -90,7 +90,6 @@ private:
   TDatime timeoffset;
 };
 #endif
-
 
 //#ifdef Earthquake_cxx
 inline TH1 *Earthquake::SetZeroBinContent(TH1 *hist)

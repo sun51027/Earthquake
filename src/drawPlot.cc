@@ -87,8 +87,8 @@ void Earthquake::DrawPlot()
   mg4->Add(g_Radon2_uncali);
   mg4->Add(g_Radon2_cali);
   mg4->SetTitle("");
-  //mg4->SetMaximum(1.03); // 1.01
-  //mg4->SetMinimum(0.97); // 0.98
+  mg4->SetMaximum(0.62); // 1.01
+  mg4->SetMinimum(0.55); // 0.98
   mg4->Draw("AP");
   mg4->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 29) * 60 * 60 * 2);
   mg4->GetYaxis()->SetTitle("Radon 2nd peak (MeV)");
@@ -102,6 +102,7 @@ void Earthquake::DrawPlot()
   leg4->AddEntry(g_Radon2_uncali, "un-cali", "p");
   leg4->AddEntry(g_Radon2_cali, "Cali", "p");
   leg4->Draw();
+  c8->SetGrid(1,1);
   c8->Modified();
   c8->SaveAs("plots/Radon2.pdf");
   delete c8;
@@ -179,8 +180,8 @@ void Earthquake::DrawPlot()
   mg3->Add(g_twopoint_uncali);
   mg3->Add(g_twopoint_cali);
   mg3->SetTitle("");
-  // mg3->SetMaximum(1.03); // 1.01
-  // mg3->SetMinimum(0.97); // 0.98
+  mg3->SetMaximum(2.24); // 1.01
+  mg3->SetMinimum(2.10); // 0.98
   mg3->Draw("AP");
   mg3->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 29) * 60 * 60 * 2);
   mg3->GetYaxis()->SetTitle("two point peak (MeV)");
@@ -194,6 +195,8 @@ void Earthquake::DrawPlot()
   leg9->AddEntry(g_twopoint_uncali, "un-cali", "p");
   leg9->AddEntry(g_twopoint_cali, "Cali", "p");
   leg9->Draw();
+
+  c9->SetGrid(1, 1);
   c9->Modified();
   c9->SaveAs("plots/twoPoint.pdf");
   delete c9;

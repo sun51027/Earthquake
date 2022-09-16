@@ -25,7 +25,7 @@ using namespace std;
 void Earthquake::ErecoCalibration(TDirectory *dir, TDirectory *odir, ifstream &inputPara)
 {
 
-  //get parameter for calibration
+  // get parameter for calibration
   string c1;
   double c2, c3;
 
@@ -41,7 +41,7 @@ void Earthquake::ErecoCalibration(TDirectory *dir, TDirectory *odir, ifstream &i
       factor_b.push_back(c3);
     }
   }
-  
+
   // for(int i = 0;i<factor_a.size();i++){
   //   cout<<"factor_a["<<i<<"] "<<factor_a[i]<<endl;
   // }
@@ -49,7 +49,6 @@ void Earthquake::ErecoCalibration(TDirectory *dir, TDirectory *odir, ifstream &i
   TKey *keyAsObj, *keyAsObj2;
   TIter next(dir->GetListOfKeys());
   TH1  *obj;
-
 
   while ((keyAsObj = (TKey *)next())) {
     auto key = (TKey *)keyAsObj;
@@ -64,45 +63,45 @@ void Earthquake::ErecoCalibration(TDirectory *dir, TDirectory *odir, ifstream &i
       auto key2 = (TKey *)keyAsObj2;
       obj       = (TH1 *)dir2->Get(key2->GetName());
 
-      if(obj->Integral() != 0){
+      if (obj->Integral() != 0) {
 
+        for (int k = 0; k < NBINS; k++) {
+          nMoveBin[k] = 0.0;
+        }
+        for (int k = 0; k < NBINS; k++) {
 
-      for (int k = 0; k < NBINS; k++) {
-        nMoveBin[k] = 0.0;
-      }
-      for (int k = 0; k < NBINS; k++) {
-       
-        // nMoveBin[k] = ( (factor_b[N])) / energyBin;
-        // nMoveBin[k] = ((obj->GetBinCenter(k + 1)) * (factor_a[N] - 1)) / energyBin;
-        nMoveBin[k] = ((obj->GetBinCenter(k+1 )) * (factor_a[N] - 1) + (factor_b[N])) / energyBin;
-        // cout<<"center "<<obj->GetBinCenter(k+1)<<", factor_a["<<N<<"] "<<factor_a[N]<<", factor_b["<<N<<"] "<<factor_b[N];
-        // cout<<"  nMoveBin["<<k<<"] "<<nMoveBin[k]<<endl;
-      }
-      TH1D *obj_cali = (TH1D *)(obj->Clone("obj_cali"));
-      for (int j = 0; j < NBINS; j++) {
-        obj_cali->SetBinContent(j + 1, obj->GetBinContent(j + 1 - round(nMoveBin[j])));
-        // if(j+1+1 > NBINS){
-        //   cout<<"j "<<j<<" nbins "<<NBINS<<endl;
-        //   break;
-        // }else{
-        // if(j==0){
-        //   obj_cali->SetBinContent(j + 1, obj->GetBinContent(j + 1 ) * (1 - nMoveBin[j + 1]/obj->GetBinContent(j + 1 )));
-        // }else if (j+1==NBINS){
-        //   obj_cali->SetBinContent(j + 1, obj->GetBinContent(j+1) + (nMoveBin[j]));
-        // }else{
+          // nMoveBin[k] = ( (factor_b[N])) / energyBin;
+          // nMoveBin[k] = ((obj->GetBinCenter(k + 1)) * (factor_a[N] - 1)) / energyBin;
+          nMoveBin[k] = ((obj->GetBinCenter(k + 1)) * (factor_a[N] - 1) + (factor_b[N])) / energyBin;
+          // cout<<"center "<<obj->GetBinCenter(k+1)<<", factor_a["<<N<<"] "<<factor_a[N]<<", factor_b["<<N<<"]"<<
+          //   factor_b[N]<< "  nMoveBin["<<k<<"] "<<nMoveBin[k]<<endl;
+        }
+        TH1D *obj_cali = (TH1D *)(obj->Clone("obj_cali"));
+        for (int j = 0; j < NBINS; j++) {
+          obj_cali->SetBinContent(j + 1, obj->GetBinContent(j + 1 - round(nMoveBin[j])));
+          // if(j+1+1 > NBINS){
+          //   cout<<"j "<<j<<" nbins "<<NBINS<<endl;
+          //   break;
+          // }else{
+          // if(j==0){
+          //   obj_cali->SetBinContent(j + 1, obj->GetBinContent(j + 1 ) * (1 - nMoveBin[j + 1]/obj->GetBinContent(j + 1
+          //   )));
+          // }else if (j+1==NBINS){
+          //   obj_cali->SetBinContent(j + 1, obj->GetBinContent(j+1) + (nMoveBin[j]));
+          // }else{
           // obj_cali->SetBinContent(j + 1, obj->GetBinContent(j + 1 ) + nMoveBin[j] - nMoveBin[j+1]);
           // obj_cali->SetBinContent(j + 1 + 1, obj->GetBinContent(j + 1 + 1) * (1 - nMoveBin[j + 1+1]) +
           //                                    obj->GetBinContent(j + 1) * (nMoveBin[j+1]));
-        // cout << j+1 << "  obj " << obj->GetBinContent(j) << " move " << nMoveBin[j] << " "
-        //      << "cali " << obj_cali->GetBinContent(j) << endl;
-      }
-      obj_cali->Write(key2->GetName());
+          cout <<"  obj " << obj->GetBinContent(j+1) << " move " << nMoveBin[j] << " "
+               << "cali " << obj_cali->GetBinContent(j+1) << endl;
+        }
+        obj_cali->Write(key2->GetName());
 
-      delete obj;
-      N++;
+        delete obj;
+        N++;
       }
     }
   }
-  cout<<"N = "<<N<<endl;
-  cout<<datetime_Rn.size()<<endl;
+  cout << "N = " << N << endl;
+  cout << datetime_Rn.size() << endl;
 }
