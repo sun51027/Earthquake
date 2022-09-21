@@ -42,10 +42,6 @@ void Earthquake::ErecoCalibration(TDirectory *dir, TDirectory *odir, ifstream &i
     }
   }
 
-  // for(int i = 0;i<factor_a.size();i++){
-  //   cout<<"factor_a["<<i<<"] "<<factor_a[i]<<endl;
-  // }
-
   TKey *keyAsObj, *keyAsObj2;
   TIter next(dir->GetListOfKeys());
   TH1  *obj;
@@ -70,32 +66,15 @@ void Earthquake::ErecoCalibration(TDirectory *dir, TDirectory *odir, ifstream &i
         }
         for (int k = 0; k < NBINS; k++) {
 
-          // nMoveBin[k] = ( (factor_b[N])) / energyBin;
-          // nMoveBin[k] = ((obj->GetBinCenter(k + 1)) * (factor_a[N] - 1)) / energyBin;
-          // nMoveBin[k] = ((obj->GetBinCenter(k + 1)) * (factor_a[N] - 1) + (factor_b[N])) ; //energy
           nMoveBin[k] = ((obj->GetBinCenter(k + 1)) * (factor_a[N] - 1) + (factor_b[N])) / energyBin;
-          // cout<<"center "<<obj->GetBinCenter(k+1)<<", factor_a["<<N<<"] "<<factor_a[N]<<", factor_b["<<N<<"]"<<
-          //   factor_b[N]<< "  nMoveBin["<<k<<"] "<<nMoveBin[k]<<endl;
         }
         TH1D *obj_cali = (TH1D *)(obj->Clone("obj_cali"));
-        // TH1D *obj_cali = new TH1D(key2->GetName(),key2->GetName(),867,-0.5,4.5);
-        int flag = 0;
         for (int j = 0; j < NBINS; j++) {
-          // obj_cali->SetBinContent(j + 1, obj->GetBinContent(j + 1 - round(nMoveBin[j])));
 
-          /*---------------RS--------------------*/
           if (obj->GetBinContent(j + 1) != 0) {
             double ratio = nMoveBin[j] - (int)nMoveBin[j];
-            // obj_cali->SetBinContent(j + 1 + (int)nMoveBin[j],
-            //                         obj->GetBinContent(j + 1) * ratio + obj->GetBinContent(j + 1 +
-            //                         (int)nMoveBin[j]));
-            // obj_cali->SetBinContent(j + 1 + (int)nMoveBin[j] - 1, obj->GetBinContent(j + 1) * (1 - ratio) +
-            //                                                         obj->GetBinContent(j + 1 + (int)nMoveBin[j] -
-            //                                                         1));
-            // obj_cali->AddBinContent(j+1+ (int)nMoveBin[j],-obj->GetBinContent(j + 1+ (int)nMoveBin[j]));
-
-            obj_cali->AddBinContent(j + 1 + (int)nMoveBin[j], obj->GetBinContent(j + 1) * ratio);
-            obj_cali->AddBinContent(j + 1 + (int)nMoveBin[j] - 1, obj->GetBinContent(j + 1) * (1 - ratio));
+            obj_cali->AddBinContent(j + 1 + (int)nMoveBin[j]+1, obj->GetBinContent(j + 1) * ratio);
+            obj_cali->AddBinContent(j + 1 + (int)nMoveBin[j] +1- 1, obj->GetBinContent(j + 1) * (1 - ratio));
             if (obj_cali->GetBinContent(j + 1) != 0) {
               obj_cali->AddBinContent(j + 1, -obj->GetBinContent(j + 1));
             }
@@ -112,18 +91,6 @@ void Earthquake::ErecoCalibration(TDirectory *dir, TDirectory *odir, ifstream &i
                  << j + 1 + (int)nMoveBin[j] - 1 << "] " << obj->GetBinContent(j + 1 + (int)nMoveBin[j] - 1) << endl;
             cout << endl;
 
-            // obj_cali->SetBinContent(j + 1 + (int)nMoveBin[j], obj->GetBinContent(j + 1) * (1 + (1 - ratio)));
-            // obj_cali->SetBinContent(j + 1 + (int)nMoveBin[j] - 1, obj->GetBinContent(j + 1) * (1 + ratio));
-            // cout << j << "  nMoveBin " << nMoveBin[j] << "\t  obj_cali[" << j + 1 + (int)nMoveBin[j] << "] "
-            //      << obj_cali->GetBinContent(j + 1 + (int)nMoveBin[j]) << "\t obj[" << j + 1 << "] "
-            //      << obj->GetBinContent(j + 1) << "*(1+(1-" << ratio
-            //      << ")) = " << obj->GetBinContent(j + 1) * (1 + (1 - ratio)) << endl;
-            // cout << j << "  nMoveBin " << nMoveBin[j] << "\t  obj_cali[" << j + 1 + (int)nMoveBin[j] - 1 << "] "
-            //      << obj_cali->GetBinContent(j + 1 + (int)nMoveBin[j] - 1) << "\t obj[" << j + 1 << "] "
-            //      << obj->GetBinContent(j + 1) << "*(1+" << ratio << ")) = " << obj->GetBinContent(j + 1) * (1 +
-            //      ratio)
-            //      << endl;
-            // cout << endl;
           }
         }
         obj_cali->Write(key2->GetName());
@@ -133,7 +100,6 @@ void Earthquake::ErecoCalibration(TDirectory *dir, TDirectory *odir, ifstream &i
         cout << "---------------------------" << endl;
       }
     }
-    // break;
   }
   cout << "N = " << N << endl;
   cout << datetime_Rn.size() << endl;
