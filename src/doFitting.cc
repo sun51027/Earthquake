@@ -25,7 +25,6 @@ using namespace std;
 #include "RooPlot.h"
 #include "RooDataHist.h"
 
-
 double Earthquake::FittingGausSigma(TH1 *h_diff)
 {
   h_diff->Fit("gaus");
@@ -40,23 +39,21 @@ double Earthquake::FittingGausPeak(TH1 *h_diff)
   return peak;
 }
 
-double Earthquake::PeakforCalibration(TH1 *obj, TFile *ofile, TString hist_name,bool flag)
+double Earthquake::PeakforCalibration(TH1 *obj, TFile *ofile, TString hist_name, bool flag)
 {
   double xmin = obj->GetXaxis()->FindBin(XMINFIT_CALI);
   double xmax = obj->GetXaxis()->FindBin(XMAXFIT_CALI);
 
-//  cout << "# of bins " << xmax - xmin + 1 << endl;
   TH1D *cal = new TH1D("cal", "", xmax - xmin + 1, XMINFIT_CALI, XMAXFIT_CALI);
   for (int i = 0; i < xmax - xmin + 1; i++) {
     cal->SetBinContent(i + 1, obj->GetBinContent(xmin + i));
-    //    cout << "obj->GetBinContent(" << xmin + i << ") " << obj->GetBinContent(xmin + i) << endl;
   }
   // Fitting
   // observable
   RooRealVar x("x", "random variable", XMINFIT_CALI, XMAXFIT_CALI);
 
   // Gaussian model
-  RooRealVar  mu("mu", "mean parameter", XCENFIT_CALI, XMINFIT_CALI, XMAXFIT_CALI); //2.2
+  RooRealVar  mu("mu", "mean parameter", XCENFIT_CALI, XMINFIT_CALI, XMAXFIT_CALI); // 2.2
   RooRealVar  sigma("sigma", "width parameter", 0.1, 0.0, 0.3);
   RooGaussian gaus("gaus", "Gaussian PDF", x, mu, sigma);
 
@@ -73,7 +70,7 @@ double Earthquake::PeakforCalibration(TH1 *obj, TFile *ofile, TString hist_name,
   RooDataHist data("data", "data", x, RooFit::Import(*cal));
   RooPlot    *frame = x.frame();
   data.plotOn(frame);
-  model.fitTo(data);
+  model.fitTo(data, RooFit::Verbose(false));
   model.plotOn(frame);
   frame->Draw();
 
@@ -90,14 +87,13 @@ double Earthquake::PeakforCalibration(TH1 *obj, TFile *ofile, TString hist_name,
   return peak;
 }
 
-
 double Earthquake::PeakforK40(TH1 *obj, TFile *ofile, TString hist_name, bool flag)
 {
 
   RooRealVar x("x", "random variable", XMINFIT_K40, XMAXFIT_K40);
 
   // Gaussian model
-  RooRealVar  mu("mu", "mean parameter", XCENFIT_K40, XMINFIT_K40, XMAXFIT_K40); //1.4
+  RooRealVar  mu("mu", "mean parameter", XCENFIT_K40, XMINFIT_K40, XMAXFIT_K40); // 1.4
   RooRealVar  sigma("sigma", "width parameter", 0.1, 0.0, 0.3);
   RooGaussian gaus("gaus", "Gaussian PDF", x, mu, sigma);
 
@@ -114,7 +110,8 @@ double Earthquake::PeakforK40(TH1 *obj, TFile *ofile, TString hist_name, bool fl
   RooDataHist data("data", "data", x, RooFit::Import(*obj));
   RooPlot    *frame = x.frame();
   data.plotOn(frame);
-  model.fitTo(data);
+  model.fitTo(data, RooFit::Verbose(false));
+  // model.fitTo(data);
   model.plotOn(frame, RooFit::LineColor(kRed));
   frame->Draw();
   if (flag == 0) {
@@ -136,7 +133,7 @@ double Earthquake::PeakforRadon2(TH1 *obj, TFile *ofile, TString hist_name, bool
   RooRealVar x("x", "random variable", XMINFIT_RADON2, XMAXFIT_RADON2);
 
   // Gaussian model
-  RooRealVar  mu("mu", "mean parameter", XCENFIT_RADON2, XMINFIT_RADON2, XMAXFIT_RADON2); 
+  RooRealVar  mu("mu", "mean parameter", XCENFIT_RADON2, XMINFIT_RADON2, XMAXFIT_RADON2);
   RooRealVar  sigma("sigma", "width parameter", 0.1, 0.0, 0.3);
   RooGaussian gaus("gaus", "Gaussian PDF", x, mu, sigma);
 
@@ -153,7 +150,8 @@ double Earthquake::PeakforRadon2(TH1 *obj, TFile *ofile, TString hist_name, bool
   RooDataHist data("data", "data", x, RooFit::Import(*obj));
   RooPlot    *frame = x.frame();
   data.plotOn(frame);
-  model.fitTo(data);
+  model.fitTo(data, RooFit::Verbose(false));
+  // model.fitTo(data);
   model.plotOn(frame, RooFit::LineColor(kRed));
   frame->Draw();
   if (flag == 0) {
@@ -164,7 +162,6 @@ double Earthquake::PeakforRadon2(TH1 *obj, TFile *ofile, TString hist_name, bool
     frame->Write(hist_name.Data());
   }
 
-  // Get peak of
   double peak = mu.getVal();
   return peak;
 }

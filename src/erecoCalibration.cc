@@ -58,6 +58,7 @@ void Earthquake::ErecoCalibration(TDirectory *dir, TDirectory *odir, ifstream &i
     while ((keyAsObj2 = (TKey *)next2())) {
       auto key2 = (TKey *)keyAsObj2;
       obj       = (TH1 *)dir2->Get(key2->GetName());
+      obj       = Earthquake::SetZeroBinContent(obj); // fill the empty bin with average of adjacent bins
 
       if (obj->Integral() != 0) {
 
@@ -68,39 +69,25 @@ void Earthquake::ErecoCalibration(TDirectory *dir, TDirectory *odir, ifstream &i
 
           nMoveBin[k] = ((obj->GetBinCenter(k + 1)) * (factor_a[N] - 1) + (factor_b[N])) / energyBin;
         }
-        TH1D *obj_cali = (TH1D *)(obj->Clone("obj_cali"));
+        TH1D *obj_cali = new TH1D(key2->GetName(), key2->GetName(), NBINS, -0.5, 4.5);
         for (int j = 0; j < NBINS; j++) {
 
           if (obj->GetBinContent(j + 1) != 0) {
-            double ratio = nMoveBin[j] - (int)nMoveBin[j];
-            obj_cali->AddBinContent(j + 1 + (int)nMoveBin[j]+1, obj->GetBinContent(j + 1) * ratio);
-            obj_cali->AddBinContent(j + 1 + (int)nMoveBin[j] +1- 1, obj->GetBinContent(j + 1) * (1 - ratio));
-            if (obj_cali->GetBinContent(j + 1) != 0) {
-              obj_cali->AddBinContent(j + 1, -obj->GetBinContent(j + 1));
-            }
-
-            cout << j + 1 << "  nMoveBin " << nMoveBin[j] << "\t obj[" << j + 1 << "] " << obj->GetBinContent(j + 1)
-                 << " \t  obj_cali[" << j + 1 << "] " << obj_cali->GetBinContent(j + 1) << " \t  obj_cali["
-                 << j + 1 + (int)nMoveBin[j] << "] " << obj_cali->GetBinContent(j + 1 + (int)nMoveBin[j]) << "\t obj["
-                 << j + 1 << "] " << obj->GetBinContent(j + 1) << "*" << ratio << "\t + obj["
-                 << j + 1 + (int)nMoveBin[j] << "] " << obj->GetBinContent(j + 1 + (int)nMoveBin[j]) << endl;
-            cout << j + 1 << "  nMoveBin " << nMoveBin[j] << "\t obj[" << j + 1 << "] " << obj->GetBinContent(j + 1)
-                 << " \t  obj_cali[" << j + 1 << "] " << obj_cali->GetBinContent(j + 1) << "\t  obj_cali["
-                 << j + 1 + (int)nMoveBin[j] - 1 << "] " << obj_cali->GetBinContent(j + 1 + (int)nMoveBin[j] - 1)
-                 << "\t obj[" << j + 1 << "] " << obj->GetBinContent(j + 1) << "*(1-" << ratio << ")\t + obj["
-                 << j + 1 + (int)nMoveBin[j] - 1 << "] " << obj->GetBinContent(j + 1 + (int)nMoveBin[j] - 1) << endl;
-            cout << endl;
-
+            double ratio = 0;
+            ratio        = nMoveBin[j] - (int)nMoveBin[j];
+            obj_cali->SetBinContent(j + 1 + (int)nMoveBin[j] + 1,
+                                    obj->GetBinContent(j + 1) * ratio +
+                                      obj_cali->GetBinContent(j + 1 + (int)nMoveBin[j] + 1));
+            obj_cali->SetBinContent(j + 1 + (int)nMoveBin[j] + 1 - 1,
+                                    obj->GetBinContent(j + 1) * (1 - ratio) +
+                                      obj_cali->GetBinContent(j + 1 + (int)nMoveBin[j] + 1 - 1));
           }
         }
         obj_cali->Write(key2->GetName());
 
         delete obj;
         N++;
-        cout << "---------------------------" << endl;
       }
     }
   }
-  cout << "N = " << N << endl;
-  cout << datetime_Rn.size() << endl;
 }

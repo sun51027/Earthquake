@@ -180,8 +180,8 @@ void Earthquake::DrawPlot()
   mg3->Add(g_twopoint_uncali);
   mg3->Add(g_twopoint_cali);
   mg3->SetTitle("");
-  mg3->SetMaximum(2.24); // 1.01
-  mg3->SetMinimum(2.10); // 0.98
+  mg3->SetMaximum(2.24); 
+  mg3->SetMinimum(2.10); 
   mg3->Draw("AP");
   mg3->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 29) * 60 * 60 * 2);
   mg3->GetYaxis()->SetTitle("two point peak (MeV)");

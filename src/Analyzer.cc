@@ -1,38 +1,37 @@
 // STL
-// using namespace std;
 #include <iostream>
 #include <fstream>
 #include <cmath>
+
 // my header
 #include "../include/EQ.h"
 #include "../include/Constants.h"
 
 // ROOT include
-#include "TCanvas.h"
 #include "TDirectory.h"
 #include "TF1.h"
 #include "TFile.h"
 #include "TGraph.h"
-#include "TMultiGraph.h"
-#include "TPad.h"
-#include "TLegend.h"
 #include "TH1D.h"
 #include "TKey.h"
-#include "TStyle.h"
 #include "TMath.h"
 #include "TDatime.h"
+#include "RooMsgService.h"
+#include "RooFit.h"
 
 void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 {
 
-  h_K40_peak_cali   = new TH1D("h_K40_peak_cali", "", 100, 1.25, 1.44); // before Sep 1.37-1.48
+  h_K40_peak_cali   = new TH1D("h_K40_peak_cali", "", 100, 1.25, 1.44);
   h_K40_peak_uncali = new TH1D("h_K40_peak_uncali", "", 100, 1.25, 1.44);
   h_diff            = new TH1D("h_diff", "", 100, -20000, 20000);
-  h_cfactor         = new TH1D("h_cfactor", "", 100, 0.9, 1.1); // befor Sep 0.98-1.01
-  h_cfactor_cali    = new TH1D("h_cfactor", "", 100, 0.9, 1.1); // befor Sep 0.98-1.01
+  h_cfactor         = new TH1D("h_cfactor", "", 100, 0.9, 1.1);
+  h_cfactor_cali    = new TH1D("h_cfactor", "", 100, 0.9, 1.1);
   K40_template =
     Template->Integral(Template->GetXaxis()->FindBin(XMINFIT_K40), Template->GetXaxis()->FindBin(XMAXFIT_K40));
 
+  RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
+  RooMsgService::instance().setSilentMode(true);
   TKey *keyAsObj, *keyAsObj2;
   TIter next(dir->GetListOfKeys());
   TH1  *obj;
@@ -45,19 +44,16 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 
     while ((keyAsObj2 = (TKey *)next2())) {
       auto key2 = (TKey *)keyAsObj2;
-      // cout << "name " << key->GetName() << key2->GetName() << endl;
-      obj = (TH1 *)dir2->Get(key2->GetName()); // copy every th1 histogram to
-      // obj = Earthquake::SetZeroBinContent(obj); // fill the empty bin with average of adjacent bins
-
-      //      if (h < 720 && obj->Integral() != 0)  // before July
-      // if (h > 2375) { // start from 2021/9/15 h=1800, 2021/11/2 h =2376(?))
-      //  if(h > 11){ //2022/5/02
+      obj       = (TH1 *)dir2->Get(key2->GetName());
+      obj       = Earthquake::SetZeroBinContent(obj); // fill the empty bin with average of adjacent bins
+      if (h % 100 == 0) cout << "processing " << key->GetName() << endl;
+      // if (h > 1799) { // start from 2021/9/15 h=1800, 2021/11/2 h =2376(?))
       // set hist name ex. 12/25;  datetime = 2021122522
       datetime[N].Form("%s%s", key->GetName(), key2->GetName());
       datetime[N].Remove(10, 4);
 
-      peakforCali_[N]      = 0.0;
-      peakforCali_cali[N]  = 0.0;
+      Twopoint_uncali[N]   = 0.0;
+      Twopoint_cali[N]     = 0.0;
       Radon2peak_cali[N]   = 0.0;
       Radon2peak_uncali[N] = 0.0;
       cfactor[N]           = 0.0;
@@ -66,10 +62,15 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
       K40peak_cali[N]      = 0.0;
       N_[N]                = 0.0;
       diff_[N]             = 0.0;
+
       if (obj->Integral() != 0) {
+
+        /**********************************************************
+            Calibration according to the 2.2 MeV peak
+         **********************************************************/
         // get the calibration factor
-        peakforCali_[N] = PeakforCalibration(obj, ofile, datetime[N], 0);
-        cfactor[N]      = PEAKFORCALI / peakforCali_[N];
+        Twopoint_uncali[N] = PeakforCalibration(obj, ofile, datetime[N], 0);
+        cfactor[N]         = PEAKFORCALI / Twopoint_uncali[N];
         h_cfactor->Fill(cfactor[N]);
 
         for (int k = 0; k < NBINS; k++) {
@@ -77,210 +78,155 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
           nMoveBin[k] = (cfactor[N] - 1) * obj->GetBinCenter(k + 1) / energyBin;
         }
 
-        // calibrate hourly and show K40 peak
-        TH1D *obj_cali = (TH1D *)(obj->Clone("obj_cali"));
+        // calibrate hourly according to 2.2MeV peak
+        TH1D *obj_cali = new TH1D(key2->GetName(), key2->GetName(), NBINS, -0.5, 4.5);
         for (int j = 0; j < NBINS; j++) {
 
           if (obj->GetBinContent(j + 1) != 0) {
-              double ratio = 0;
-            // if (nMoveBin[j] >= 0) {
-              ratio = nMoveBin[j] - (int)nMoveBin[j];
-              obj_cali->AddBinContent(j + 1 + (int)nMoveBin[j]+1, obj->GetBinContent(j + 1) * ratio);
-              obj_cali->AddBinContent(j + 1 + (int)nMoveBin[j]+1 - 1, obj->GetBinContent(j + 1) * (1 - ratio));
-              if (obj_cali->GetBinContent(j + 1) != 0) {
-                obj_cali->AddBinContent(j + 1, -obj->GetBinContent(j + 1));
-              }
-            // } else if (nMoveBin[j] < 0){
-            //   ratio = (int)nMoveBin[j] - nMoveBin[j];
-            //   obj_cali->AddBinContent(j + 1 +(int)nMoveBin[j], obj->GetBinContent(j + 1) * ratio);
-            //   obj_cali->AddBinContent(j + 1 + (int)nMoveBin[j] -1, obj->GetBinContent(j + 1) * (1 - ratio));
-            //   if (obj_cali->GetBinContent(j + 1) != 0) {
-            //     obj_cali->AddBinContent(j + 1, -obj->GetBinContent(j + 1));
-            //   }
-            // }
-            cout << j + 1 << "  nMoveBin " << nMoveBin[j] << "\t obj[" << j + 1 << "] " << obj->GetBinContent(j + 1)
-                 << " \t  obj_cali[" << j + 1 << "] " << obj_cali->GetBinContent(j + 1) << " \t  obj_cali["
-                 << j + 1 + (int)nMoveBin[j] << "] " << obj_cali->GetBinContent(j + 1 + (int)nMoveBin[j]) << "\t obj["
-                 << j + 1 << "] " << obj->GetBinContent(j + 1) << "*" << ratio << "\t + obj["
-                 << j + 1 + (int)nMoveBin[j] << "] " << obj->GetBinContent(j + 1 + (int)nMoveBin[j]) << endl;
-            cout << j + 1 << "  nMoveBin " << nMoveBin[j] << "\t obj[" << j + 1 << "] " << obj->GetBinContent(j + 1)
-                 << " \t  obj_cali[" << j + 1 << "] " << obj_cali->GetBinContent(j + 1) << "\t  obj_cali["
-                 << j + 1 + (int)nMoveBin[j] - 1 << "] " << obj_cali->GetBinContent(j + 1 + (int)nMoveBin[j] - 1)
-                 << "\t obj[" << j + 1 << "] " << obj->GetBinContent(j + 1) << "*(1-" << ratio << ")\t + obj["
-                 << j + 1 + (int)nMoveBin[j] - 1 << "] " << obj->GetBinContent(j + 1 + (int)nMoveBin[j] - 1) << endl;
-            cout << endl;
-              cout << j + 1 << " " << peakforCali_[N] << "\t nMoveBin " << nMoveBin[j] << "\t ratio " << ratio
-                   << "\t obj " << obj->GetBinContent(j + 1) << "\t obj_cali " << obj_cali->GetBinContent(j + 1)
-                   << endl;
-            }
-              // obj_cali->SetBinContent(j + 1 + 1, obj->GetBinContent(j + 1 + 1) * (1 - nMoveBin[j + 1]) +
-              //                                      obj->GetBinContent(j + 1) * (nMoveBin[j]));
-            //
-            //            if (nMoveBin[j] != 0) {
-            //              cout << "obj " << obj->GetBinContent(j + 1)
-            //   							 << "\t" << nMoveBin[j] //<< "\t obj_cali "
-            //   							 <<"\t\t cfactor "<<cfactor[N]
-            //                   <<"\t\tcali_obj "<< obj_cali->GetBinContent(j + 1) << endl;
-            //          }
+            double ratio = 0;
+            ratio        = nMoveBin[j] - (int)nMoveBin[j];
+            obj_cali->SetBinContent(j + 1 + (int)nMoveBin[j] + 1,
+                                    obj->GetBinContent(j + 1) * ratio +
+                                      obj_cali->GetBinContent(j + 1 + (int)nMoveBin[j] + 1));
+            obj_cali->SetBinContent(j + 1 + (int)nMoveBin[j] + 1 - 1,
+                                    obj->GetBinContent(j + 1) * (1 - ratio) +
+                                      obj_cali->GetBinContent(j + 1 + (int)nMoveBin[j] + 1 - 1));
+
+            // cout << j + 1 << "  nMoveBin " << nMoveBin[j] << "\t obj[" << j + 1 << "] " << obj->GetBinContent(j + 1)
+            //      << " \t  obj_cali[" << j + 1 << "] " << obj_cali->GetBinContent(j + 1) << " \t  obj_cali["
+            //      << j + 1 + (int)nMoveBin[j] << "] " << obj_cali->GetBinContent(j + 1 + (int)nMoveBin[j]) << "\t obj["
+            //      << j + 1 << "] " << obj->GetBinContent(j + 1) << "*" << ratio << "\t + obj["
+            //      << j + 1 + (int)nMoveBin[j] << "] " << obj->GetBinContent(j + 1 + (int)nMoveBin[j]) << endl;
           }
-          peakforCali_cali[N] = PeakforCalibration(obj_cali, ofile, datetime[N], 1);
-          cfactor_cali[N]     = PEAKFORCALI / peakforCali_cali[N];
-          h_cfactor_cali->Fill(cfactor_cali[N]);
-          cout << "-----------------------------------" << endl;
-          cout << "| PEAKFORCALI    " << PEAKFORCALI << endl;
-          cout << "| 2.2MeV uncali  " << peakforCali_[N] << endl;
-          cout << "| 2.2MeV cali    " << peakforCali_cali[N] << endl;
-          cout << "| cfactor uncali " << cfactor[N] << endl;
-          cout << "| cfactor cali   " << cfactor_cali[N] << endl;
-          cout << "-----------------------------------" << endl;
-
-          K40peak_uncali[N]    = PeakforK40(obj, ofile, datetime[N], 0);
-          K40peak_cali[N]      = PeakforK40(obj_cali, ofile, datetime[N], 1);
-          Radon2peak_uncali[N] = PeakforRadon2(obj, ofile, datetime[N], 0);
-          Radon2peak_cali[N]   = PeakforRadon2(obj_cali, ofile, datetime[N], 1);
-
-          h_K40_peak_cali->Fill(K40peak_cali[N]);
-          h_K40_peak_uncali->Fill(K40peak_uncali[N]);
-
-          /**********************************************************
-              After the calibration, calculate the difference
-              between template and each plots.
-           **********************************************************/
-
-          // Normalize template to yiels of every hour (use K40)
-          double K40_obj_cali =
-            obj_cali->Integral(obj_cali->GetXaxis()->FindBin(XMINFIT_K40), obj_cali->GetXaxis()->FindBin(XMAXFIT_K40));
-
-          TH1D *scaledTemplate = (TH1D *)(Template->Clone("scaledTemplate"));
-          scaledTemplate->Scale(K40_obj_cali / K40_template); // template scale to same as the hourly plot
-
-          double nTemplateSig = scaledTemplate->Integral(scaledTemplate->GetXaxis()->FindBin(MINRADON),
-                                                         scaledTemplate->GetXaxis()->FindBin(MAXRADON));
-          double nDailySig =
-            obj_cali->Integral(obj_cali->GetXaxis()->FindBin(MINRADON), obj_cali->GetXaxis()->FindBin(MAXRADON));
-          double diff = nDailySig - nTemplateSig;
-          N_[N]       = (double)(N + 1) * 60 * 60 * 2; // number of 2hour
-          diff_[N]    = diff;
-          h_diff->Fill(diff);
-          ofile->cd("obj_cali");
-          obj_cali->Write(key->GetName());
-          delete obj;
-          delete scaledTemplate;
-          //  }
-          N++;
         }
-        h++;
-      }
-    }
-    /**********************************************************
-        Calculate the sigma between template and each plots.
-     **********************************************************/
+        Twopoint_cali[N] = PeakforCalibration(obj_cali, ofile, datetime[N], 1);
+        cfactor_cali[N]  = PEAKFORCALI / Twopoint_cali[N];
+        h_cfactor_cali->Fill(cfactor_cali[N]);
 
-    fluct_peak  = Earthquake::FittingGausPeak(h_diff);
-    fluct_sigma = Earthquake::FittingGausSigma(h_diff);
+        K40peak_uncali[N]    = PeakforK40(obj, ofile, datetime[N], 0);
+        K40peak_cali[N]      = PeakforK40(obj_cali, ofile, datetime[N], 1);
+        Radon2peak_uncali[N] = PeakforRadon2(obj, ofile, datetime[N], 0);
+        Radon2peak_cali[N]   = PeakforRadon2(obj_cali, ofile, datetime[N], 1);
 
-    cout << "fluct_peak " << fluct_peak << endl;
-    cout << "fluct_sigma " << fluct_sigma << endl;
+        h_K40_peak_cali->Fill(K40peak_cali[N]);
+        h_K40_peak_uncali->Fill(K40peak_uncali[N]);
 
-    for (int i = 0; i < N; i++) {
-      if (diff_[i] < fluct_peak) {
-        sigma_[i]   = 0;
-        p_value_[i] = 1;
-      } else {
-        sigma_[i]   = (diff_[i] - fluct_peak) / fluct_sigma;
-        p_value_[i] = 0.5 * (1 - TMath::Erf(sigma_[i] / sqrt(2)));
-      }
-    }
-    g_sigma_significant = new TGraph(N, N_, sigma_);
-    g_pvalue            = new TGraph(N, N_, p_value_);
+        /**********************************************************
+            After the calibration, calculate the difference
+            between template and each plots.
+         **********************************************************/
 
-    /*********************************************************
-        Fill TGraph
-     *********************************************************/
-    double v[40000];
-    for (int i = 0; i < N; i++) v[i] = diff_[i] / fluct_sigma;
-    cout << "fluct_peak " << fluct_peak << endl;
-    cout << "fluct_sigma " << fluct_sigma << endl;
+        // Normalize template to yiels of every hour (use K40)
 
-    g_diffvsTime      = new TGraph(N, N_, v);
-    g_cfactor         = new TGraph(N, N_, cfactor);
-    g_cfactor_cali    = new TGraph(N, N_, cfactor_cali);
-    g_twopoint_uncali = new TGraph(N, N_, peakforCali_);
-    g_twopoint_cali   = new TGraph(N, N_, peakforCali_cali);
-    g_K40_peak_cali   = new TGraph(N, N_, K40peak_cali);
-    g_K40_peak_uncali = new TGraph(N, N_, K40peak_uncali);
-    g_Radon2_uncali   = new TGraph(N, N_, Radon2peak_uncali);
-    g_Radon2_cali     = new TGraph(N, N_, Radon2peak_cali);
+        double K40_obj_cali =
+          obj_cali->Integral(obj_cali->GetXaxis()->FindBin(XMINFIT_K40), obj_cali->GetXaxis()->FindBin(XMAXFIT_K40));
 
-    /**********************************************************
-        Write object into output files
-     **********************************************************/
+        TH1D *scaledTemplate = (TH1D *)(Template->Clone("scaledTemplate"));
+        scaledTemplate->Scale(K40_obj_cali / K40_template); // template scale to same as the hourly plot
 
-    // save time name into txt
-    ofstream ofs;
-    ofs.open("doc/datetime.txt");
-    if (!ofs.is_open()) {
-      cout << "Fail to open txt file" << endl;
+        double nTemplateSig = scaledTemplate->Integral(scaledTemplate->GetXaxis()->FindBin(MINRADON),
+                                                       scaledTemplate->GetXaxis()->FindBin(MAXRADON));
+        double nDailySig =
+          obj_cali->Integral(obj_cali->GetXaxis()->FindBin(MINRADON), obj_cali->GetXaxis()->FindBin(MAXRADON));
+        double diff = nDailySig - nTemplateSig;
+
+        N_[N]    = (double)(N + 1) * 60 * 60 * 2; // time series -- 2 hrs counting
+        diff_[N] = diff;
+        h_diff->Fill(diff);
+
+        ofile->cd("obj_cali");
+        obj_cali->Write(key->GetName());
+
+        delete obj;
+        delete obj_cali;
+        delete scaledTemplate;
+      } // obj analysis
+      N++;
+      // } // select specific period
+      h++;
+    } // 2nd loop
+  }   // 1st loop
+
+  /**********************************************************
+      Calculate the sigma between template and each plots.
+   **********************************************************/
+
+  fluct_peak  = Earthquake::FittingGausPeak(h_diff);
+  fluct_sigma = Earthquake::FittingGausSigma(h_diff);
+
+  cout << "Radon fluctuation peak " << fluct_peak << endl;
+  cout << "Radon fluctuation sigma " << fluct_sigma << endl;
+
+  for (int i = 0; i < N; i++) {
+    if (diff_[i] < fluct_peak) {
+      sigma_[i]   = 0;
+      p_value_[i] = 1;
     } else {
-      for (int i = 0; i < N; i++) {
-        ofs << datetime[i] << endl;
-      }
+      sigma_[i]   = (diff_[i] - fluct_peak) / fluct_sigma;
+      p_value_[i] = 0.5 * (1 - TMath::Erf(sigma_[i] / sqrt(2)));
     }
-    ofs.close();
-
-    TString date_Rn[N];
-    TString time_Rn[N];
-    double  t[N];
-    for (int rn = 0; rn < N; rn++) {
-      date_Rn[rn] = datetime[rn];
-      date_Rn[rn].Remove(8, 2);
-      time_Rn[rn] = datetime[rn];
-      time_Rn[rn].Remove(0, 8);
-      time_Rn[rn].Insert(2, "0000");
-      // cout<<date_Rn[rn]<<" "<<time_Rn[rn]<<endl;
-      TTimeStamp timestamp(date_Rn[rn].Atoi(), time_Rn[rn].Atoi(), 0, kFALSE, 0);
-      t[rn] = timestamp + 8 * 60 * 60;
-    }
-
-    //  g_pvalue            = new TGraph(N, t, p_value_);
-    //  g_sigma_significant = new TGraph(N, t, sigma_);
-    timeoffset.Set(date_Rn[0].Atoi(), time_Rn[0].Atoi());
-    timeoffset.Print();
-    // write analysis plots into oAnalyzr.root
-    ofile->cd("Analysis_plot");
-
-    h_K40_peak_uncali->Write();
-    h_K40_peak_cali->Write();
-    h_diff->Write();
-    h_cfactor->Write();
-
-    g_Radon2_uncali->SetName("g_Radon2_uncali");
-    g_Radon2_uncali->Write();
-
-    g_Radon2_cali->SetName("g_Radon2_cali");
-    g_Radon2_cali->Write();
-
-    g_twopoint_uncali->SetName("g_twopoint_uncali");
-    g_twopoint_uncali->Write();
-
-    g_twopoint_cali->SetName("g_twopoint_cali");
-    g_twopoint_cali->Write();
-
-    g_cfactor->SetName("g_cfactor");
-    g_cfactor->Write();
-
-    g_K40_peak_cali->SetName("g_K40_peak_cali");
-    g_K40_peak_cali->Write();
-
-    g_K40_peak_uncali->SetName("g_K40_peak_uncali");
-    g_K40_peak_uncali->Write();
-
-    g_diffvsTime->SetName("g_diffvsTime");
-    g_diffvsTime->Write();
-
-    g_sigma_significant->SetName("g_sigma_significant");
-    g_sigma_significant->Write();
-
-    g_pvalue->SetName("g_pvalue");
-    g_pvalue->Write();
   }
+  g_sigma_significant = new TGraph(N, N_, sigma_);
+  g_pvalue            = new TGraph(N, N_, p_value_);
+
+  /*********************************************************
+      Fill TGraph
+   *********************************************************/
+  double v[40000];
+  for (int i = 0; i < N; i++) v[i] = diff_[i] / fluct_sigma;
+
+  g_diffvsTime      = new TGraph(N, N_, v);
+  g_cfactor         = new TGraph(N, N_, cfactor);
+  g_cfactor_cali    = new TGraph(N, N_, cfactor_cali);
+  g_twopoint_uncali = new TGraph(N, N_, Twopoint_uncali);
+  g_twopoint_cali   = new TGraph(N, N_, Twopoint_cali);
+  g_K40_peak_cali   = new TGraph(N, N_, K40peak_cali);
+  g_K40_peak_uncali = new TGraph(N, N_, K40peak_uncali);
+  g_Radon2_uncali   = new TGraph(N, N_, Radon2peak_uncali);
+  g_Radon2_cali     = new TGraph(N, N_, Radon2peak_cali);
+
+  /**********************************************************
+      Write object into output files
+   **********************************************************/
+
+  // save time name into datetime.txt
+  SetRnDatetime(datetime);
+
+  // write analysis plots into oAnalyzr.root
+  ofile->cd("Analysis_plot");
+
+  h_K40_peak_uncali->Write();
+  h_K40_peak_cali->Write();
+  h_diff->Write();
+  h_cfactor->Write();
+
+  g_Radon2_uncali->SetName("g_Radon2_uncali");
+  g_Radon2_uncali->Write();
+
+  g_Radon2_cali->SetName("g_Radon2_cali");
+  g_Radon2_cali->Write();
+
+  g_twopoint_uncali->SetName("g_twopoint_uncali");
+  g_twopoint_uncali->Write();
+
+  g_twopoint_cali->SetName("g_twopoint_cali");
+  g_twopoint_cali->Write();
+
+  g_cfactor->SetName("g_cfactor");
+  g_cfactor->Write();
+
+  g_K40_peak_cali->SetName("g_K40_peak_cali");
+  g_K40_peak_cali->Write();
+
+  g_K40_peak_uncali->SetName("g_K40_peak_uncali");
+  g_K40_peak_uncali->Write();
+
+  g_diffvsTime->SetName("g_diffvsTime");
+  g_diffvsTime->Write();
+
+  g_sigma_significant->SetName("g_sigma_significant");
+  g_sigma_significant->Write();
+
+  g_pvalue->SetName("g_pvalue");
+  g_pvalue->Write();
+}

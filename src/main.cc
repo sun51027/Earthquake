@@ -17,9 +17,9 @@ void   main_calibration();
 void   drawPvalue_eqdir(TDirectory *dir1, TDirectory *dir2, TDatime timeoffset);
 void   drawPvalue_geo(TDirectory *dir1, TDirectory *dir2, TDirectory *dir3, TDirectory *dir4, TDatime timeoffset);
 void   Help();
-string outputFile    = "";
-string inputFile     = "";
-string inputFile2    = "";
+string outputFile = "";
+string inputFile  = "";
+string inputFile2 = "";
 
 int main(int argc, char **argv)
 {
@@ -83,34 +83,33 @@ int main(int argc, char **argv)
   case 4: main_pvalue_geodata(); break;
   case 5: main_geodata(); break;
   case 6: main_calibration(); break;
-
   }
 
   return 0;
 }
-void main_calibration(){
+void main_calibration()
+{
 
-  TFile      *fin1 = new TFile(inputFile.c_str());
-  TDirectory *indir  = (TDirectory *)fin1->Get("HistoCh0");
+  TFile      *fin1  = new TFile(inputFile.c_str());
+  TDirectory *indir = (TDirectory *)fin1->Get("HistoCh0");
   indir->cd();
 
   TFile *ofile = new TFile(outputFile.c_str(), "recreate");
-    ofile->mkdir("HistoCh0");
-  TDirectory *odir  = (TDirectory*)ofile->Get("HistoCh0");
-  
-  ifstream   paraInput;
+  ofile->mkdir("HistoCh0");
+  TDirectory *odir = (TDirectory *)ofile->Get("HistoCh0");
+
+  ifstream paraInput;
   paraInput.open(inputFile2.c_str());
 
   Earthquake EQ;
-  EQ.ErecoCalibration(indir,odir,paraInput);
-
+  EQ.ErecoCalibration(indir, odir, paraInput);
 }
 void main_makeTemplate()
 {
-  cout<<"Making template for Rn analysis...."<<endl;
+  cout << "Making template for Rn analysis...." << endl;
   TFile *ofile = new TFile(outputFile.c_str(), "recreate");
-    ofile->mkdir("K40_uncali_fit");
-    ofile->mkdir("cali_uncali_fit");
+  ofile->mkdir("K40_uncali_fit");
+  ofile->mkdir("cali_uncali_fit");
 
   TFile      *fin1 = new TFile(inputFile.c_str());
   TDirectory *dir  = (TDirectory *)fin1->Get("HistoCh0");
@@ -121,17 +120,19 @@ void main_makeTemplate()
   // make a template
   TH1 *Template;
   Template = EQ.AddHistforTemplate(dir);
-//  Template = EQ.SetZeroBinContent(Template);
-//
+  Template = EQ.SetZeroBinContent(Template);
+
   ofile->cd();
   Template->Write("Template");
-   double caliPeak = 0;
-   caliPeak        = EQ.PeakforCalibration(Template, ofile, "cali_peak",0);
-   double K40Peak  = 0;
-   K40Peak         = EQ.PeakforK40(Template, ofile, "K40_peak", 0);
-   cout << "\n\n\n";
-   cout << "cali_peak " << caliPeak << "  K40_peak " << K40Peak << endl;
-   cout << "\n\n\n";
+  double caliPeak = 0;
+  caliPeak        = EQ.PeakforCalibration(Template, ofile, "cali_peak", 0);
+  double K40Peak  = 0;
+  K40Peak         = EQ.PeakforK40(Template, ofile, "K40_peak", 0);
+  cout << "\n\n\n";
+  cout << "cali_peak " << caliPeak << "  K40_peak " << K40Peak << endl;
+  cout << "\n\n\n";
+
+  ofile->Close();
 }
 void main_doAnalysis()
 {
@@ -190,8 +191,8 @@ void main_pvalue_eqDir()
   TDirectory *dir2 = (TDirectory *)fin2->Get("EQ_directory");
 
   TDatime timeoffset;
-  int date = 20211101;
-  int time = 80000;
+  int     date = 20211101;
+  int     time = 80000;
   timeoffset.Set(date, time);
   drawPvalue_eqdir(dir1, dir2, timeoffset);
 }
@@ -199,8 +200,8 @@ void main_geodata()
 {
   cout << "Processing Geodata...." << endl;
 
-  GeoData  geo;
-  
+  GeoData geo;
+
   // read datetime(Rn).txt
   ifstream timeInput;
   timeInput.open(inputFile2.c_str());
@@ -217,9 +218,9 @@ void main_pvalue_geodata()
   TDirectory *dir2 = (TDirectory *)fin2->Get("00_EHE");
   TDirectory *dir3 = (TDirectory *)fin2->Get("00_EHN");
   TDirectory *dir4 = (TDirectory *)fin2->Get("00_EHZ");
-  TDatime timeoffset;
-  int date = 20211102;
-  int time = 80000;
+  TDatime     timeoffset;
+  int         date = 20211102;
+  int         time = 80000;
   timeoffset.Set(date, time);
   drawPvalue_geo(dir1, dir2, dir3, dir4, timeoffset);
 }
@@ -239,13 +240,13 @@ void Help()
   cout << "-i2  || --inputFile2 \t\t 2ns inputfile, template for -an, timelist for -dir, EQdir for -p " << endl;
   cout << "-o   || --outputFile \t\t root file output name " << endl;
   cout << endl;
-  cout << "other note ----------------------"<<endl;
-  cout << "To draw pvalue, manual is necessary" <<endl;
-  cout <<"|     |inputfile1         | inputfile2        | outputfile      |"<<endl;
-  cout <<"|-t   |RadonData.root     |                   | Rn_template.root|"<<endl;
-  cout <<"|-an  |RadonData.root     | Rn_template.root  | Rn_analysis.root|"<<endl;
-  cout <<"|-dir |doc/GDMScatalog.txt| datetime.txt      | EQdir.root      |"<<endl;
-  cout <<"|-geo |(name)HWA_00_*_    | datetime.txt      | GeoData.root    |"<<endl;
-  cout <<"|-pd  |Rn_analysis.root   | EQdir.root        |                 |"<<endl;
-  cout <<"|-pg  |Rn_analysis.root   | GeoData.root      |                 |"<<endl;
+  cout << "other note ----------------------" << endl;
+  cout << "To draw pvalue, manual is necessary" << endl;
+  cout << "|     |inputfile1         | inputfile2        | outputfile      |" << endl;
+  cout << "|-t   |RadonData.root     |                   | Rn_template.root|" << endl;
+  cout << "|-an  |RadonData.root     | Rn_template.root  | Rn_analysis.root|" << endl;
+  cout << "|-dir |doc/GDMScatalog.txt| datetime.txt      | EQdir.root      |" << endl;
+  cout << "|-geo |(name)HWA_00_*_    | datetime.txt      | GeoData.root    |" << endl;
+  cout << "|-pd  |Rn_analysis.root   | EQdir.root        |                 |" << endl;
+  cout << "|-pg  |Rn_analysis.root   | GeoData.root      |                 |" << endl;
 }
