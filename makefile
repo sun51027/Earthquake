@@ -15,10 +15,12 @@ CFLAGS = -g -m64 -O2 -Wall $(shell root-config --cflags )
 
 #all: $(TARGET)
 
-OBJS = obj/main.o obj/makeTemplate.o obj/Analyzer.o obj/doFitting.o obj/ReadData.o obj/GeoData.o obj/drawPlot.o 
+OBJS = obj/main.o obj/erecoCalibration.o obj/makeTemplate.o obj/Analyzer.o obj/doFitting.o obj/ReadData.o obj/GeoData.o obj/drawPlot.o 
 main: $(OBJS)
 	g++ $^ -o $@ $(LIBS)
 obj/main.o : src/main.cc include/EQ.h include/DataReader.h
+	g++ -c $(CFLAGS) $< -o $@
+obj/erecoCalibration.o : src/erecoCalibration.cc include/EQ.h 
 	g++ -c $(CFLAGS) $< -o $@
 obj/makeTemplate.o : src/makeTemplate.cc include/EQ.h include/rootlogon.h
 	g++ -c $(CFLAGS) $< -o $@
