@@ -53,7 +53,7 @@ void Ecali()
   }
 
   // output file
-  TFile *fout = new TFile("EnergyCaliPara.root", "recreate");
+  TFile *fout = new TFile("root_output/EnergyCaliPara.root", "recreate");
   fout->mkdir("para");
 
   // analysis
