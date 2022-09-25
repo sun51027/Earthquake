@@ -17,12 +17,12 @@
 #include "RooPlot.h"
 #include "RooDataHist.h"
 
-#include "../include/EQ.h"
+#include "../include/RadonData.h"
 
 using namespace RooFit;
 using namespace std;
 
-void Earthquake::ErecoCalibration(TDirectory *dir, TDirectory *odir, ifstream &inputPara)
+void RadonData::ErecoCalibration(TDirectory *dir, TDirectory *odir, ifstream &inputPara)
 {
 
   // get parameter for calibration
@@ -58,7 +58,7 @@ void Earthquake::ErecoCalibration(TDirectory *dir, TDirectory *odir, ifstream &i
     while ((keyAsObj2 = (TKey *)next2())) {
       auto key2 = (TKey *)keyAsObj2;
       obj       = (TH1 *)dir2->Get(key2->GetName());
-      obj       = Earthquake::SetZeroBinContent(obj); // fill the empty bin with average of adjacent bins
+      obj       = RadonData::SetZeroBinContent(obj); // fill the empty bin with average of adjacent bins
 
       if (obj->Integral() != 0) {
 

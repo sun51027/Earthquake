@@ -4,7 +4,7 @@
 #include <cmath>
 
 // my header
-#include "../include/EQ.h"
+#include "../include/RadonData.h"
 #include "../include/Constants.h"
 
 // ROOT include
@@ -19,7 +19,7 @@
 #include "RooMsgService.h"
 #include "RooFit.h"
 
-void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
+void RadonData::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 {
 
   h_K40_peak_cali   = new TH1D("h_K40_peak_cali", "", 100, 1.25, 1.44);
@@ -44,7 +44,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
     while ((keyAsObj2 = (TKey *)next2())) {
       auto key2 = (TKey *)keyAsObj2;
       obj       = (TH1 *)dir2->Get(key2->GetName());
-      obj       = Earthquake::SetZeroBinContent(obj); // fill the empty bin with average of adjacent bins
+      obj       = RadonData::SetZeroBinContent(obj); // fill the empty bin with average of adjacent bins
       if (h % 100 == 0) cout << "processing " << key->GetName() << endl;
       // if (h > 1799) { // start from 2021/9/15 h=1800, 2021/11/2 h =2376(?))
       // set hist name ex. 12/25;  datetime = 2021122522
@@ -93,7 +93,8 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 
             // cout << j + 1 << "  nMoveBin " << nMoveBin[j] << "\t obj[" << j + 1 << "] " << obj->GetBinContent(j + 1)
             //      << " \t  obj_cali[" << j + 1 << "] " << obj_cali->GetBinContent(j + 1) << " \t  obj_cali["
-            //      << j + 1 + (int)nMoveBin[j] << "] " << obj_cali->GetBinContent(j + 1 + (int)nMoveBin[j]) << "\t obj["
+            //      << j + 1 + (int)nMoveBin[j] << "] " << obj_cali->GetBinContent(j + 1 + (int)nMoveBin[j]) << "\t
+            //      obj["
             //      << j + 1 << "] " << obj->GetBinContent(j + 1) << "*" << ratio << "\t + obj["
             //      << j + 1 + (int)nMoveBin[j] << "] " << obj->GetBinContent(j + 1 + (int)nMoveBin[j]) << endl;
           }
@@ -139,7 +140,7 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         delete obj;
         delete obj_cali;
         delete scaledTemplate;
-      N++;
+        N++;
       } // obj analysis
       // } // select specific period
       h++;
@@ -150,8 +151,8 @@ void Earthquake::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
       Calculate the sigma between template and each plots.
    **********************************************************/
 
-  fluct_peak  = Earthquake::FittingGausPeak(h_diff);
-  fluct_sigma = Earthquake::FittingGausSigma(h_diff);
+  fluct_peak  = RadonData::FittingGausPeak(h_diff);
+  fluct_sigma = RadonData::FittingGausSigma(h_diff);
 
   cout << "Radon fluctuation peak " << fluct_peak << endl;
   cout << "Radon fluctuation sigma " << fluct_sigma << endl;

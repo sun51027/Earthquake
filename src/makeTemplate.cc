@@ -17,12 +17,12 @@
 #include "RooPlot.h"
 #include "RooDataHist.h"
 
-#include "../include/EQ.h"
+#include "../include/RadonData.h"
 
 using namespace RooFit;
 using namespace std;
 
-TH1 *Earthquake::AddHistforTemplate(TDirectory *dir)
+TH1 *RadonData::AddHistforTemplate(TDirectory *dir)
 {
   int count = 0;
 

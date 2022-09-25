@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../include/EQ.h"
+#include "../include/RadonData.h"
 #include "../include/DataReader.h"
 #include "../include/GeoData.h"
 #include "TDirectory.h"
@@ -101,8 +101,8 @@ void main_calibration()
   ifstream paraInput;
   paraInput.open(inputFile2.c_str());
 
-  Earthquake EQ;
-  EQ.ErecoCalibration(indir, odir, paraInput);
+  RadonData Rndata;
+  Rndata.ErecoCalibration(indir, odir, paraInput);
 }
 void main_makeTemplate()
 {
@@ -115,19 +115,19 @@ void main_makeTemplate()
   TDirectory *dir  = (TDirectory *)fin1->Get("HistoCh0");
   dir->cd();
   // init
-  Earthquake EQ;
+  RadonData Rndata;
 
   // make a template
   TH1 *Template;
-  Template = EQ.AddHistforTemplate(dir);
-  Template = EQ.SetZeroBinContent(Template);
+  Template = Rndata.AddHistforTemplate(dir);
+  Template = Rndata.SetZeroBinContent(Template);
 
   ofile->cd();
   Template->Write("Template");
   double caliPeak = 0;
-  caliPeak        = EQ.PeakforCalibration(Template, ofile, "cali_peak", 0);
+  caliPeak        = Rndata.PeakforCalibration(Template, ofile, "cali_peak", 0);
   double K40Peak  = 0;
-  K40Peak         = EQ.PeakforK40(Template, ofile, "K40_peak", 0);
+  K40Peak         = Rndata.PeakforK40(Template, ofile, "K40_peak", 0);
   cout << "\n\n\n";
   cout << "cali_peak " << caliPeak << "  K40_peak " << K40Peak << endl;
   cout << "\n\n\n";
@@ -153,12 +153,12 @@ void main_doAnalysis()
   TDirectory *dir  = (TDirectory *)fin1->Get("HistoCh0");
   dir->cd();
 
-  TFile     *fin2     = new TFile(inputFile2.c_str());
-  TH1D      *Template = (TH1D *)fin2->Get("Template");
-  Earthquake eqAnalysis;
-  eqAnalysis.DoAnalysis(Template, dir, ofile);
+  TFile    *fin2     = new TFile(inputFile2.c_str());
+  TH1D     *Template = (TH1D *)fin2->Get("Template");
+  RadonData RnAnalysis;
+  RnAnalysis.DoAnalysis(Template, dir, ofile);
   ofile->Close();
-  eqAnalysis.DrawPlot();
+  RnAnalysis.DrawPlot();
 }
 
 void main_eqDir()
@@ -177,11 +177,13 @@ void main_eqDir()
   DataReader eqData;
   ifstream   timeInput;
   timeInput.open(inputFile2.c_str());
-  eqData.SetEQdata(eqDirInput, timeInput, ofile);
+  eqData.OpenDateTimeDoc(timeInput);
+
+  eqData.SetEQdata(eqDirInput, ofile);
   ofile->Close();
 
   // draw plots
-  eqData.DrawPlots();
+  eqData.EQdirDrawPlots();
 }
 void main_pvalue_eqDir()
 {
@@ -205,9 +207,10 @@ void main_geodata()
   // read datetime(Rn).txt
   ifstream timeInput;
   timeInput.open(inputFile2.c_str());
+  geo.OpenDateTimeDoc(timeInput);
 
   // input waveform data built inside the function
-  geo.SetGeoData(inputFile.c_str(), timeInput);
+  geo.GeoDataAnalyzer(inputFile.c_str()); //, timeInput);
 }
 void main_pvalue_geodata()
 {

@@ -1,9 +1,8 @@
 // STL
-using namespace std;
 #include <iostream>
 
 // my header
-#include "../include/EQ.h"
+#include "../include/RadonData.h"
 #include "../include/Constants.h"
 
 // ROOT include
@@ -25,21 +24,21 @@ using namespace std;
 #include "RooPlot.h"
 #include "RooDataHist.h"
 
-double Earthquake::FittingGausSigma(TH1 *h_diff)
+double RadonData::FittingGausSigma(TH1 *h_diff)
 {
   h_diff->Fit("gaus");
   double sigma = h_diff->GetFunction("gaus")->GetParameter(2);
   return sigma;
 }
 
-double Earthquake::FittingGausPeak(TH1 *h_diff)
+double RadonData::FittingGausPeak(TH1 *h_diff)
 {
   h_diff->Fit("gaus");
   double peak = h_diff->GetFunction("gaus")->GetParameter(1);
   return peak;
 }
 
-double Earthquake::PeakforCalibration(TH1 *obj, TFile *ofile, TString hist_name, bool flag)
+double RadonData::PeakforCalibration(TH1 *obj, TFile *ofile, TString hist_name, bool flag)
 {
   double xmin = obj->GetXaxis()->FindBin(XMINFIT_CALI);
   double xmax = obj->GetXaxis()->FindBin(XMAXFIT_CALI);
@@ -87,7 +86,7 @@ double Earthquake::PeakforCalibration(TH1 *obj, TFile *ofile, TString hist_name,
   return peak;
 }
 
-double Earthquake::PeakforK40(TH1 *obj, TFile *ofile, TString hist_name, bool flag)
+double RadonData::PeakforK40(TH1 *obj, TFile *ofile, TString hist_name, bool flag)
 {
 
   RooRealVar x("x", "random variable", XMINFIT_K40, XMAXFIT_K40);
@@ -127,7 +126,7 @@ double Earthquake::PeakforK40(TH1 *obj, TFile *ofile, TString hist_name, bool fl
   return peak;
 }
 
-double Earthquake::PeakforRadon2(TH1 *obj, TFile *ofile, TString hist_name, bool flag)
+double RadonData::PeakforRadon2(TH1 *obj, TFile *ofile, TString hist_name, bool flag)
 {
 
   RooRealVar x("x", "random variable", XMINFIT_RADON2, XMAXFIT_RADON2);

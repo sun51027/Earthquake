@@ -13,11 +13,7 @@
 #include <vector>
 #include <string>
 
-//#include "EQ.h"
-
 using namespace std;
-
-// class Earthquake;
 
 class DataReader {
 public:
@@ -37,8 +33,9 @@ public:
   ~DataReader() {}
   vector<DataReader> ReadRawData();
   void               Init(ifstream &eqDirInput);
-  void               SetEQdata(ifstream &eqDirInput, ifstream &timeInput, TFile *ofile);
-  void               DrawPlots();
+  void               SetEQdata(ifstream &eqDirInput, TFile *ofile);
+  void    OpenDateTimeDoc(ifstream &timeInput);
+  void    EQdirDrawPlots();
   TString SetDatetime(TTimeStamp t);
   TDatime SetTimeOffset();
 
@@ -55,7 +52,8 @@ public:
       return false;
   }
 
-  vector<string>     datetime_Rn;
+  vector<string> datetime_Rn;
+
 private:
   int     date_;
   int     time_;
@@ -101,12 +99,23 @@ private:
   TGraph *g_depth;
 };
 
+inline void DataReader::OpenDateTimeDoc(ifstream &timeInput)
+{
+  string column;
+  if (!timeInput.is_open()) {
+    cout << "Failed to open file" << endl;
+  } else {
+    while (timeInput >> column) {
+      datetime_Rn.push_back(column);
+    }
+  }
+}
 inline TString DataReader::SetDatetime(TTimeStamp t)
 {
   TString twohrstamp;
   if ((t.GetTime() / 100000) != 0) {
     twohrstamp.Form("%i%i", t.GetDate(), t.GetTime());
-  } else if((t.GetTime() / 10000) == 0) {
+  } else if ((t.GetTime() / 10000) == 0) {
     twohrstamp.Form("%i00", t.GetDate());
   } else {
     twohrstamp.Form("%i0%i", t.GetDate(), t.GetTime());

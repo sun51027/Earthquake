@@ -1,12 +1,11 @@
 // STL
-using namespace std;
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
 #include <sstream>
 // my header
-#include "../include/EQ.h"
+#include "../include/RadonData.h"
 #include "../include/DataReader.h"
 #include "../include/GeoData.h"
 // ROOT include
@@ -25,7 +24,7 @@ using namespace std;
 #include "../include/rootlogon.h"
 using namespace mgr;
 
-void Earthquake::DrawPlot()
+void RadonData::DrawPlot()
 {
 
   gStyle->SetTimeOffset(timeoffset.Convert());
@@ -72,7 +71,7 @@ void Earthquake::DrawPlot()
   c->SaveAs("plots/DiffvsTime.pdf");
   delete c;
   /*----------------------------------------------*/
-  //   Radon 
+  //   Radon  2nd peak
 
   g_Radon2_uncali->SetMarkerColor(kBlue);
   g_Radon2_uncali->SetMarkerStyle(20);
@@ -320,7 +319,7 @@ void Earthquake::DrawPlot()
   delete c5;
 }
 
-void DataReader::DrawPlots()
+void DataReader::EQdirDrawPlots()
 {
 
   /*  Just draw EQ directory, not */
@@ -742,7 +741,6 @@ void drawPvalue_geo(TDirectory *dir1, TDirectory *dir2, TDirectory *dir3, TDirec
   g_nsigma1->GetXaxis()->SetTitle("Time (mm/dd)");
   g_nsigma1->GetYaxis()->SetTitle("EHE");
   g_nsigma1->SetMinimum(1);
-  //  g_nsigma1->SetMaximum(7);
   g_nsigma1->SetMarkerStyle(20);
   g_nsigma1->GetXaxis()->SetTimeDisplay(1);
   g_nsigma1->GetXaxis()->SetTimeFormat("%m/%d");
@@ -763,7 +761,6 @@ void drawPvalue_geo(TDirectory *dir1, TDirectory *dir2, TDirectory *dir3, TDirec
   g_nsigma2->GetXaxis()->SetTitle("Time (mm/dd)");
   g_nsigma2->GetYaxis()->SetTitle("EHN");
   g_nsigma2->SetMinimum(2);
-  //  g_nsigma2->SetMaximum(-0.5);
   g_nsigma2->SetMarkerStyle(20);
 
   g_nsigma2->GetXaxis()->SetTimeDisplay(1);
@@ -785,7 +782,6 @@ void drawPvalue_geo(TDirectory *dir1, TDirectory *dir2, TDirectory *dir3, TDirec
   g_nsigma3->GetXaxis()->SetTitle("Time (mm/dd)");
   g_nsigma3->GetYaxis()->SetTitle("EHZ");
   g_nsigma3->SetMinimum(1);
-  //  g_nsigma3->SetMaximum(1);
   g_nsigma3->SetMarkerStyle(20);
   // x-axis
   g_nsigma3->GetXaxis()->SetTimeDisplay(1);
@@ -799,17 +795,6 @@ void drawPvalue_geo(TDirectory *dir1, TDirectory *dir2, TDirectory *dir3, TDirec
   g_nsigma3->GetYaxis()->SetTitleSize(0.09);
   g_nsigma3->GetYaxis()->SetTitleOffset(0.25);
 
-  // g_nsigma3->GetXaxis()->SetTimeDisplay(1);
-  // g_nsigma3->GetXaxis()->SetTimeFormat("%m/%d");
-  // g_nsigma3->GetXaxis()->SetNdivisions(503);
-  // g_nsigma3->GetXaxis()->SetLabelSize(0.125);
-  // g_nsigma3->GetXaxis()->SetTitleSize(0.12);
-  // g_nsigma3->GetXaxis()->SetTitleOffset(1.0);
-  // g_nsigma3->GetXaxis()->SetTitleOffset(1.0);
-  ////y-axis
-  // g_nsigma3->GetYaxis()->SetLabelSize(0.08);
-  // g_nsigma3->GetYaxis()->SetTitleSize(0.1);
-  // g_nsigma3->GetYaxis()->SetTitleOffset(0.4);
   pT->SetLogy();
   pB->SetGrid(0, 1);
   pB2->SetGrid(0, 1);

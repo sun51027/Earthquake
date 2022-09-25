@@ -23,44 +23,41 @@
 #include <fstream>
 #include <sstream>
 using namespace std;
-// Header file for the classes stored in the TTree if any.
 
 class GeoData : public DataReader {
 public:
   GeoData() {}
   ~GeoData() {}
-  TTree *fChain; //! pointer to the analyzed TTree or TChain
-
-  // Fixed size dimensions of array or collections stored in the TTree if any.
-
-  // Declaration of leaf types
-  float data;
-  Int_t timestamp;
-  int   timestamp_ns;
+  TTree *fChain;
+  float  data;
+  Int_t  timestamp;
+  int    timestamp_ns;
 
   // List of branches
-  TBranch *b_data;         //!
-  TBranch *b_timestamp;    //!
-  TBranch *b_timestamp_ns; //!
-  void     SetGeoData(string infile, ifstream &timeInput);
-  //void     SetGeoData(string infile, ifstream &timeInput, int threshold);
+  TBranch *b_data;
+  TBranch *b_timestamp;
+  TBranch *b_timestamp_ns;
+  void     GeoDataAnalyzer(string infile);
   void     DrawGeoData(TString name, TString ch, TDatime timeoffset);
   void     LoadTree(TTree *tree);
   void     Cut(double sigma, double peak);
+  float   *TimeMatching();
 
 private:
-//  vector<TString> geodatetime;
-  vector<float>   data_collection;
-  vector<float>   ts_collection;
-  vector<float>   data2hr_collection;
-  vector<float>   t2hr_collection;
-  vector<float>   nsigma_collection;
-  TGraph         *g_data;
-  TGraph         *g_matchingdata;
-  TGraph         *g_2hrdata;
-  TGraph         *g_nsigma;
-  TH1D           *h_fitting;
-  float           data_avg = 0;
+  //  vector<TString> geodatetime;
+  vector<float> data_collection;
+  vector<float> ts_collection;
+  vector<float> data2hr_collection;
+  vector<float> t2hr_collection;
+  vector<float> nsigma_collection;
+  TGraph       *g_data;
+  TGraph       *g_matchingdata;
+  TGraph       *g_2hrdata;
+  TGraph       *g_nsigma;
+  TH1D         *h_fitting;
+  float         data_avg = 0;
+  float         matchingdata[4000];
+  float         nDays[4000];
 };
 
 #endif
