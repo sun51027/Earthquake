@@ -1,7 +1,9 @@
 #!/bin/zsh
 
 # create directory
-mkdir obj plots 
+echo "create directories: obj and plot"
+mkdir obj plots plots/geodata
 
-# cmsenv or source ROOT path is necessary 
-
+# before compiling, cmsenv or source ROOT path is necessary 
+echo "!!Before you compile ('make'), make sure you have installed ROOT!!"
+echo ""

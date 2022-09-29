@@ -13,12 +13,12 @@ LIBS = -g -m64  $(shell root-config --libs) -lMathMore  -lGenVector -lRooFit -lR
 CFLAGS = -g -m64 -O2 -Wall $(shell root-config --cflags )
 
 
-OBJS = obj/main.o obj/erecoCalibration.o obj/makeTemplate.o obj/Analyzer.o obj/doFitting.o obj/EqdirData.o obj/GeoData.o obj/drawPlot.o 
+OBJS = obj/main.o obj/energyCali.o obj/makeTemplate.o obj/Analyzer.o obj/doFitting.o obj/EqdirData.o obj/GeoData.o obj/drawPlot.o 
 main: $(OBJS)
 	g++ $^ -o $@ $(LIBS)
 obj/main.o : src/main.cc include/RadonData.h include/DataReader.h
 	g++ -c $(CFLAGS) $< -o $@
-obj/erecoCalibration.o : src/erecoCalibration.cc include/RadonData.h 
+obj/energyCali.o : src/energyCali.cc include/RadonData.h 
 	g++ -c $(CFLAGS) $< -o $@
 obj/makeTemplate.o : src/makeTemplate.cc include/RadonData.h include/rootlogon.h
 	g++ -c $(CFLAGS) $< -o $@
