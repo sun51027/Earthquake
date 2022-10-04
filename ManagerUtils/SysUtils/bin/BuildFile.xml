@@ -1,0 +1,3 @@
+<use name="ManagerUtils/SysUtils"/>
+
+<bin name="xrdls" file="xrdls.cc"/>

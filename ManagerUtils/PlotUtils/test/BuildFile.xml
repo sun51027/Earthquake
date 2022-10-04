@@ -1,0 +1,4 @@
+<use name="ManagerUtils/PlotUtils"/>
+
+<flags CXXFLAGS="-g"/>
+<bin name="RooFitTest" file="RooFitTest.cc"/>

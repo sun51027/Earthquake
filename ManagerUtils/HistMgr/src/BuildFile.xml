@@ -1,0 +1,8 @@
+<use name="root"/>
+<use name="roofit"/>
+
+<flags CXXFLAGS="-g" />
+
+<export>
+   <lib name="1"/>
+</export>

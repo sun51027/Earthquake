@@ -1,0 +1,10 @@
+<use name="boost"/>
+<use name="boost_program_options"/>
+<use name="ManagerUtils/Maths"/>
+<use name="DataFormats/FWLite"/> <!--Required for boost excpetions-->
+
+<flags CXXFLAGS="-g" />
+
+<export>
+   <lib name="1"/>
+</export>

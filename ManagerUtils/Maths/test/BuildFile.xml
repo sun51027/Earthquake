@@ -1,0 +1,7 @@
+<use name="ManagerUtils/Maths"/>
+
+<flags CXXFLAGS="-g"/>
+
+<bin name="computing_test"   file="computing_test.cc"/>
+<bin name="parameter_format" file="parameter_format.cc"/>
+<bin name="parameter_arithmatics" file="parameter_arithmatics.cc"/>

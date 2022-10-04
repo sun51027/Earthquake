@@ -1,0 +1,3 @@
+<use name="ROOT"/>
+<bin name="ManagerUtils/SysUtils"/>
+<bin name="submit_cmsrun" file="submit_cmsrun.py"/>
