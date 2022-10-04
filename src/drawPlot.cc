@@ -29,6 +29,27 @@ void RadonData::DrawPlot()
 
   gStyle->SetTimeOffset(timeoffset.Convert());
   timeoffset.Print();
+
+  //# of K40
+  // TCanvas *c10  = new TCanvas("c", "", 10, 10, 1800, 900);
+  // g_NofK40->Draw("AP");
+  // g_NofK40->SetTitle("");
+  // g_NofK40->SetMarkerStyle(20);
+  // g_NofK40->SetMarkerColor(kBlue);
+  // g_NofK40->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 29) * 60 * 60 * 2);
+  // g_NofK40->GetXaxis()->SetTitle("Time (mm/dd)");
+  // g_NofK40->GetYaxis()->SetTitle("Area of K-40");
+  // g_NofK40->GetXaxis()->SetTitleOffset(1.6);
+  // g_NofK40->GetXaxis()->SetTimeDisplay(1);
+  // g_NofK40->GetXaxis()->SetTimeFormat("%m/%d");
+  // g_NofK40->GetYaxis()->SetTitleSize(30);
+  // g_NofK40->GetYaxis()->SetLabelSize(30);
+  //
+  // c10->SetGrid(1, 1);
+  // c10->Modified();
+  // c10->SaveAs("plots/NofK40.pdf");
+  // delete c10;
+  //
   // difference vs time
   // create canvas
   TCanvas *c  = new TCanvas("c", "", 10, 10, 1800, 900);
@@ -86,8 +107,8 @@ void RadonData::DrawPlot()
   mg4->Add(g_Radon2_uncali);
   mg4->Add(g_Radon2_cali);
   mg4->SetTitle("");
-  mg4->SetMaximum(0.62); // 1.01
-  mg4->SetMinimum(0.55); // 0.98
+  // mg4->SetMaximum(0.62); // 1.01
+  // mg4->SetMinimum(0.55); // 0.98
   mg4->Draw("AP");
   mg4->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 29) * 60 * 60 * 2);
   mg4->GetYaxis()->SetTitle("Radon 2nd peak (MeV)");
@@ -131,7 +152,7 @@ void RadonData::DrawPlot()
   mg->Add(g_K40_peak_cali);
   mg->Draw("AP");
   mg->SetMaximum(1.44); // 1.44
-  mg->SetMinimum(1.25); // 1.37
+  mg->SetMinimum(1.24); // 1.37
   mg->GetYaxis()->SetTitle("K40 peak (MeV)");
   mg->GetXaxis()->SetTitle("Time (mm/dd)");
   mg->GetXaxis()->SetTimeDisplay(1);
@@ -179,8 +200,8 @@ void RadonData::DrawPlot()
   mg3->Add(g_twopoint_uncali);
   mg3->Add(g_twopoint_cali);
   mg3->SetTitle("");
-  mg3->SetMaximum(2.24); 
-  mg3->SetMinimum(2.10); 
+  mg3->SetMaximum(2.2);
+  mg3->SetMinimum(2.09);
   mg3->Draw("AP");
   mg3->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 29) * 60 * 60 * 2);
   mg3->GetYaxis()->SetTitle("two point peak (MeV)");

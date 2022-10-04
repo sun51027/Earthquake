@@ -127,10 +127,14 @@ void main_makeTemplate()
   double caliPeak = 0;
   caliPeak        = Rndata.PeakforCalibration(Template, ofile, "cali_peak", 0);
   double K40Peak  = 0;
-  K40Peak         = Rndata.PeakforK40(Template, ofile, "K40_peak", 0);
+  K40Peak         = Rndata.PeakforK40(Template, ofile, "K40_peak", 0,0);
   cout << "\n\n\n";
   cout << "cali_peak " << caliPeak << "  K40_peak " << K40Peak << endl;
   cout << "\n\n\n";
+        // double nTemplateSig = Template->Integral(Template->GetXaxis()->FindBin(MINRADON),
+        //                                          Template->GetXaxis()->FindBin(MAXRADON));
+        //
+        // cout<<"nRadonSig_template " << nTemplateSig<<endl;
 
   ofile->Close();
 }

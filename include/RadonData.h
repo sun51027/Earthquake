@@ -27,7 +27,8 @@ public:
   double FittingGausPeak(TH1 *h_diff);
   double PeakforRadon2(TH1 *obj, TFile *ofile, TString hist_name, bool flag);
   double PeakforCalibration(TH1 *obj, TFile *ofile, TString hist_name, bool flag);
-  double PeakforK40(TH1 *obj, TFile *ofile, TString hist_name, bool flag);
+  double PeakforK40(TH1 *obj, TFile *ofile, TString hist_name, bool flag,int count);
+  // double PeakforK40(TH1 *obj, TFile *ofile, TString hist_name, bool flag);
   void   DrawPlot();
   void   ErecoCalibration(TDirectory *dir, TDirectory *odir, ifstream &inputfile);
   void   SetRnDatetime(TString *datetime);
@@ -37,11 +38,13 @@ private:
   TH1D *h_K40_peak_cali;
   TH1D *h_K40_peak_uncali;
   TH1D *h_diff;
+  TH1D *h_diff_K40;
   TH1D *h_cfactor;
   TH1D *h_cfactor_cali;
 
   // Graph
   TGraph *g_diffvsTime;
+  TGraph *g_NofK40;
   TGraph *g_Radon2_uncali; // 0.6 MeV
   TGraph *g_Radon2_cali;
   TGraph *g_twopoint_cali; // 2.2 MeV
@@ -56,6 +59,7 @@ private:
   // variables
   double K40_template = 0;
   double diff_[40000];
+  double diff_K40_[40000];
   double cfactor[40000];
   double cfactor_cali[40000];
 
@@ -65,6 +69,8 @@ private:
   double K40peak_cali[40000];    // ~ 1.4 MeV
   double Twopoint_uncali[40000]; // 2.2MeV, unknown peak
   double Twopoint_cali[40000];
+  double nsig_K40[40000];
+  double nbkg_K40[40000];
 
   double nMoveBin[40000];
   double energyBin = 5. / NBINS;
