@@ -25,12 +25,14 @@ void RadonData::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   h_K40_peak_cali   = new TH1D("h_K40_peak_cali", "", 100, 1.25, 1.44);
   h_K40_peak_uncali = new TH1D("h_K40_peak_uncali", "", 100, 1.25, 1.44);
   h_diff            = new TH1D("h_diff", "", 100, -20000, 20000);
-  h_diff_K40            = new TH1D("h_diff", "", 100, -20000, 20000);
+  h_diff_K40        = new TH1D("h_diff", "", 100, -20000, 20000);
   h_cfactor         = new TH1D("h_cfactor", "", 100, 0.9, 1.1);
   h_cfactor_cali    = new TH1D("h_cfactor", "", 100, 0.9, 1.1);
   K40_template =
     Template->Integral(Template->GetXaxis()->FindBin(XMINFIT_K40), Template->GetXaxis()->FindBin(XMAXFIT_K40));
 
+  TH1D *Template_cali = new TH1D("Template_cali", "", NBINS, -0.5, 4.5);
+  
   RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
   RooMsgService::instance().setSilentMode(true);
   TKey *keyAsObj, *keyAsObj2;
@@ -62,7 +64,7 @@ void RadonData::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
       K40peak_cali[N]      = 0.0;
       N_[N]                = 0.0;
       diff_[N]             = 0.0;
-      diff_K40_[N]             = 0.0;
+      diff_K40_[N]         = 0.0;
 
       if (obj->Integral() != 0) {
 
@@ -105,8 +107,8 @@ void RadonData::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         cfactor_cali[N]  = PEAKFORCALI / Twopoint_cali[N];
         h_cfactor_cali->Fill(cfactor_cali[N]);
 
-        K40peak_uncali[N]    = PeakforK40(obj, ofile, datetime[N], 0,N);
-        K40peak_cali[N]      = PeakforK40(obj_cali, ofile, datetime[N], 1,N);
+        K40peak_uncali[N]    = PeakforK40(obj, ofile, datetime[N], 0, N);
+        K40peak_cali[N]      = PeakforK40(obj_cali, ofile, datetime[N], 1, N);
         Radon2peak_uncali[N] = PeakforRadon2(obj, ofile, datetime[N], 0);
         Radon2peak_cali[N]   = PeakforRadon2(obj_cali, ofile, datetime[N], 1);
 
@@ -133,13 +135,16 @@ void RadonData::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
           obj_cali->Integral(obj_cali->GetXaxis()->FindBin(MINRADON), obj_cali->GetXaxis()->FindBin(MAXRADON));
         double diff = nDailySig - nTemplateSig;
 
-        N_[N]    = (double)(N + 1) * 60 * 60 * 2; // time series -- 2 hrs counting
-        diff_[N] = diff;
+        N_[N]        = (double)(N + 1) * 60 * 60 * 2; // time series -- 2 hrs counting
+        diff_[N]     = diff;
         diff_K40_[N] = K40_obj_cali;
         h_diff->Fill(diff);
 
+        Template_cali->Add(obj_cali);
+
         ofile->cd("obj_cali");
-        scaledTemplate->Write(key->GetName());
+        obj_cali->Write(key->GetName());
+      
 
         delete obj;
         delete obj_cali;
@@ -179,13 +184,12 @@ void RadonData::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   double v[40000];
   for (int i = 0; i < N; i++) v[i] = diff_[i] / fluct_sigma;
 
-  //  
+  //
   double ratio[40000];
-  for(int i =0;i<N;i++) ratio[i] = diff_[i]/nsig_K40[i];
-
+  for (int i = 0; i < N; i++) ratio[i] = diff_[i] / nsig_K40[i];
 
   g_diffvsTime      = new TGraph(N, N_, v);
-  g_NofK40      = new TGraph(N, N_,diff_K40_ );
+  g_NofK40          = new TGraph(N, N_, diff_K40_);
   g_cfactor         = new TGraph(N, N_, cfactor);
   g_cfactor_cali    = new TGraph(N, N_, cfactor_cali);
   g_twopoint_uncali = new TGraph(N, N_, Twopoint_uncali);
@@ -202,13 +206,18 @@ void RadonData::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
   // save time name into datetime.txt
   SetRnDatetime(datetime);
 
+
   // write analysis plots into oAnalyzr.root
+
   ofile->cd("Analysis_plot");
 
   h_K40_peak_uncali->Write();
   h_K40_peak_cali->Write();
   h_diff->Write();
   h_cfactor->Write();
+
+  Template_cali->SetName("Template_cali");
+  Template_cali->Write();
 
   g_Radon2_uncali->SetName("g_Radon2_uncali");
   g_Radon2_uncali->Write();
@@ -233,7 +242,7 @@ void RadonData::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
 
   g_diffvsTime->SetName("g_diffvsTime");
   g_diffvsTime->Write();
-  
+
   g_NofK40->SetName("g_NofK40");
   g_NofK40->Write();
 
