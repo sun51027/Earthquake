@@ -131,10 +131,13 @@ void main_makeTemplate()
   cout << "\n\n\n";
   cout << "cali_peak " << caliPeak << "  K40_peak " << K40Peak << endl;
   cout << "\n\n\n";
-        // double nTemplateSig = Template->Integral(Template->GetXaxis()->FindBin(MINRADON),
-        //                                          Template->GetXaxis()->FindBin(MAXRADON));
-        //
-        // cout<<"nRadonSig_template " << nTemplateSig<<endl;
+
+  TCanvas *c = new TCanvas("c","",800,600);
+  TH1D *t = (TH1D*)(Template->Clone("t"));
+    t->GetXaxis()->SetRange(t->GetXaxis()->FindBin(0.25),t->GetXaxis()->FindBin(2.5));
+    t->Draw();
+    t->SetStats(0);
+    c->SaveAs("template.pdf");
 
   ofile->Close();
 }

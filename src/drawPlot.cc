@@ -107,8 +107,8 @@ void RadonData::DrawPlot()
   mg4->Add(g_Radon2_uncali);
   mg4->Add(g_Radon2_cali);
   mg4->SetTitle("");
-  // mg4->SetMaximum(0.62); // 1.01
-  // mg4->SetMinimum(0.55); // 0.98
+  mg4->SetMaximum(0.62); // 1.01
+  mg4->SetMinimum(0.52); // 0.98
   mg4->Draw("AP");
   mg4->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 29) * 60 * 60 * 2);
   mg4->GetYaxis()->SetTitle("Radon 2nd peak (MeV)");
@@ -130,8 +130,8 @@ void RadonData::DrawPlot()
   /*----------------------------------------------*/
   // K40 stability
   TCanvas     *c2  = new TCanvas("c2", "", 10, 10, 1800, 900);
-  TPad        *pL2 = mgr::NewLeftPad();
-  TPad        *pR2 = mgr::NewRightPad();
+  // TPad        *pL2 = mgr::NewLeftPad();
+  // TPad        *pR2 = mgr::NewRightPad();
   TMultiGraph *mg  = new TMultiGraph();
 
   g_K40_peak_cali->SetMarkerColorAlpha(kRed, 1);
@@ -142,16 +142,16 @@ void RadonData::DrawPlot()
   g_K40_peak_uncali->SetMarkerStyle(22);
   mgr::SetLeftPlotAxis(g_K40_peak_uncali);
 
-  c2->cd();
-  pL2->Draw();
-  pR2->Draw();
+  // c2->cd();
+  // pL2->Draw();
+  // pR2->Draw();
 
-  c2->cd();
-  pL2->cd();
+  // c2->cd();
+  // pL2->cd();
   mg->Add(g_K40_peak_uncali);
   mg->Add(g_K40_peak_cali);
   mg->Draw("AP");
-  mg->SetMaximum(1.44); // 1.44
+  mg->SetMaximum(1.46); // 1.44
   mg->SetMinimum(1.24); // 1.37
   mg->GetYaxis()->SetTitle("K40 peak (MeV)");
   mg->GetXaxis()->SetTitle("Time (mm/dd)");
@@ -166,19 +166,20 @@ void RadonData::DrawPlot()
   leg2->AddEntry(g_K40_peak_cali, "Cali", "p");
   leg2->Draw();
 
-  c2->cd();
-  pR2->cd();
-  h_K40_peak_cali->SetFillColor(kRed);
-  h_K40_peak_cali->SetStats(0);
-  h_K40_peak_uncali->SetFillColor(kBlue);
-  h_K40_peak_uncali->SetStats(0);
-  h_K40_peak_uncali->Draw("hbar");
-  h_K40_peak_cali->Draw("same hbar");
-  mgr::SetRightPlotAxis(h_K40_peak_uncali);
-
-  pR2->Modified();
-  pL2->Modified();
-  pL2->SetGrid(1, 1);
+  // c2->cd();
+  // pR2->cd();
+  // h_K40_peak_cali->SetFillColor(kRed);
+  // h_K40_peak_cali->SetStats(0);
+  // h_K40_peak_uncali->SetFillColor(kBlue);
+  // h_K40_peak_uncali->SetStats(0);
+  // h_K40_peak_uncali->Draw("hbar");
+  // h_K40_peak_cali->Draw("same hbar");
+  // mgr::SetRightPlotAxis(h_K40_peak_uncali);
+  //
+  // pR2->Modified();
+  // pL2->Modified();
+  // pL2->SetGrid(1, 1);
+  c2->SetGrid(1,1);
   c2->Modified();
   c2->SaveAs("plots/K40_cali_vs_uncali.pdf");
   delete c2;
@@ -200,8 +201,8 @@ void RadonData::DrawPlot()
   mg3->Add(g_twopoint_uncali);
   mg3->Add(g_twopoint_cali);
   mg3->SetTitle("");
-  mg3->SetMaximum(2.2);
-  mg3->SetMinimum(2.09);
+  mg3->SetMaximum(2.26);
+  mg3->SetMinimum(2.06);
   mg3->Draw("AP");
   mg3->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 29) * 60 * 60 * 2);
   mg3->GetYaxis()->SetTitle("two point peak (MeV)");

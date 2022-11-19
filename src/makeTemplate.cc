@@ -52,6 +52,8 @@ TH1 *RadonData::AddHistforTemplate(TDirectory *dir)
   }
   Template->SetXTitle("Energy (MeV)");
   Template->SetYTitle("Entries");
+
+
   cout << count << endl;
   return Template;
 }
