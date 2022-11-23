@@ -152,7 +152,8 @@ void RadonData::DrawPlot()
   mg->Add(g_K40_peak_cali);
   mg->Draw("AP");
   mg->SetMaximum(1.46); // 1.44
-  mg->SetMinimum(1.24); // 1.37
+  mg->SetMinimum(1.26); // 1.37
+  mg->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 29) * 60 * 60 * 2);
   mg->GetYaxis()->SetTitle("K40 peak (MeV)");
   mg->GetXaxis()->SetTitle("Time (mm/dd)");
   mg->GetXaxis()->SetTimeDisplay(1);

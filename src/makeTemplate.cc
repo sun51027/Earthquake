@@ -42,7 +42,7 @@ TH1 *RadonData::AddHistforTemplate(TDirectory *dir)
       auto key2 = (TKey *)keyAsObj2;
       obj       = (TH1 *)dir2->Get(key2->GetName()); // copy every th1 histogram to
       if ((obj->Integral() != 0)) {
-        // if (count > 2375) { // start from 21/10/01
+        if (count > 2375) { // start from 21/10/01
         // if (count > 1799) { // start from 21/9/15
         Template->Add(obj);
         // }

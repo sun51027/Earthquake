@@ -132,11 +132,11 @@ void main_makeTemplate()
   cout << "cali_peak " << caliPeak << "  K40_peak " << K40Peak << endl;
   cout << "\n\n\n";
 
-  TCanvas *c = new TCanvas("c","",800,600);
+  TCanvas *c = new TCanvas("c","",1000,600);
   TH1D *t = (TH1D*)(Template->Clone("t"));
-    t->GetXaxis()->SetRange(t->GetXaxis()->FindBin(0.25),t->GetXaxis()->FindBin(2.5));
+    t->GetXaxis()->SetRange(t->GetXaxis()->FindBin(0.0),t->GetXaxis()->FindBin(2.5));
     t->Draw();
-    t->SetStats(0);
+    // t->SetStats(0);
     c->SaveAs("template.pdf");
 
   ofile->Close();
