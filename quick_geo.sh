@@ -32,7 +32,7 @@ make
 #./main -geo -i HWA_00_EHZ_20210914_20211031 -i2 doc/datetime_210915-1031.txt 
 
 ## 220109-220218
-# ./main -geo -i HWA_00_EHE_20220101_20220219 -i2 doc/datetime_220109-0218.txt
+./main -geo -i HWA_00_EHE_20220101_20220219 -i2 doc/datetime_220109-0218.txt
 # ./main -geo -i HWA_00_EHN_20220101_20220219 -i2 doc/datetime_220109-0218.txt
 # ./main -geo -i HWA_00_EHZ_20220101_20220219 -i2 doc/datetime_220109-0218.txt
 # ./main -geo -i HWA_00_HH1_20220101_20220219 -i2 doc/datetime_220109-0218.txt

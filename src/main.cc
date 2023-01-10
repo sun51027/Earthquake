@@ -199,7 +199,7 @@ void main_pvalue_eqDir()
   TDirectory *dir2 = (TDirectory *)fin2->Get("EQ_directory");
 
   TDatime timeoffset;
-  int     date = 20211101;
+  int     date = 20220109;
   int     time = 80000;
   timeoffset.Set(date, time);
   drawPvalue_eqdir(dir1, dir2, timeoffset);
@@ -228,7 +228,7 @@ void main_pvalue_geodata()
   TDirectory *dir3 = (TDirectory *)fin2->Get("00_EHN");
   TDirectory *dir4 = (TDirectory *)fin2->Get("00_EHZ");
   TDatime     timeoffset;
-  int         date = 20211102;
+  int         date = 20220109;
   int         time = 80000;
   timeoffset.Set(date, time);
   drawPvalue_geo(dir1, dir2, dir3, dir4, timeoffset);
