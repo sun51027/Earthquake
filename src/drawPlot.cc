@@ -102,7 +102,7 @@ void RadonData::DrawPlot()
   g_Radon2_cali->SetMarkerStyle(20);
   mgr::SetAxis(g_Radon2_cali);
 
-  TCanvas *c8  = new TCanvas("c8", "", 1800, 900);
+  TCanvas     *c8  = new TCanvas("c8", "", 1800, 900);
   TMultiGraph *mg4 = new TMultiGraph();
   mg4->Add(g_Radon2_uncali);
   mg4->Add(g_Radon2_cali);
@@ -122,7 +122,7 @@ void RadonData::DrawPlot()
   leg4->AddEntry(g_Radon2_uncali, "un-cali", "p");
   leg4->AddEntry(g_Radon2_cali, "Cali", "p");
   leg4->Draw();
-  c8->SetGrid(1,1);
+  c8->SetGrid(1, 1);
   c8->Modified();
   c8->SaveAs("plots/Radon2.pdf");
   delete c8;
@@ -130,8 +130,8 @@ void RadonData::DrawPlot()
   /*----------------------------------------------*/
   // K40 stability
   TCanvas     *c2  = new TCanvas("c2", "", 10, 10, 1800, 900);
-  // TPad        *pL2 = mgr::NewLeftPad();
-  // TPad        *pR2 = mgr::NewRightPad();
+  TPad        *pL2 = mgr::NewLeftPad();
+  TPad        *pR2 = mgr::NewRightPad();
   TMultiGraph *mg  = new TMultiGraph();
 
   g_K40_peak_cali->SetMarkerColorAlpha(kRed, 1);
@@ -142,12 +142,12 @@ void RadonData::DrawPlot()
   g_K40_peak_uncali->SetMarkerStyle(22);
   mgr::SetLeftPlotAxis(g_K40_peak_uncali);
 
-  // c2->cd();
-  // pL2->Draw();
-  // pR2->Draw();
+  c2->cd();
+  pL2->Draw();
+  pR2->Draw();
 
-  // c2->cd();
-  // pL2->cd();
+  c2->cd();
+  pL2->cd();
   mg->Add(g_K40_peak_uncali);
   mg->Add(g_K40_peak_cali);
   mg->Draw("AP");
@@ -167,28 +167,28 @@ void RadonData::DrawPlot()
   leg2->AddEntry(g_K40_peak_cali, "Cali", "p");
   leg2->Draw();
 
-  // c2->cd();
-  // pR2->cd();
-  // h_K40_peak_cali->SetFillColor(kRed);
-  // h_K40_peak_cali->SetStats(0);
-  // h_K40_peak_uncali->SetFillColor(kBlue);
-  // h_K40_peak_uncali->SetStats(0);
-  // h_K40_peak_uncali->Draw("hbar");
-  // h_K40_peak_cali->Draw("same hbar");
-  // mgr::SetRightPlotAxis(h_K40_peak_uncali);
-  //
-  // pR2->Modified();
-  // pL2->Modified();
-  // pL2->SetGrid(1, 1);
-  c2->SetGrid(1,1);
+  c2->cd();
+  pR2->cd();
+  h_K40_peak_cali->SetFillColor(kRed);
+  h_K40_peak_cali->SetStats(0);
+  h_K40_peak_uncali->SetFillColor(kBlue);
+  h_K40_peak_uncali->SetStats(0);
+  h_K40_peak_uncali->Draw("hbar");
+  h_K40_peak_cali->Draw("same hbar");
+  mgr::SetRightPlotAxis(h_K40_peak_uncali);
+
+  pR2->Modified();
+  pL2->Modified();
+  pL2->SetGrid(1, 1);
+  // c2->SetGrid(1,1);
   c2->Modified();
   c2->SaveAs("plots/K40_cali_vs_uncali.pdf");
   delete c2;
 
   /*----------------------------------------------*/
-  //   twoPoint 
+  //   twoPoint
 
-  TCanvas *c9  = new TCanvas("c9", "", 1800, 900);
+  TCanvas *c9 = new TCanvas("c9", "", 1800, 900);
 
   g_twopoint_uncali->SetMarkerColor(kBlue);
   g_twopoint_uncali->SetMarkerStyle(20);
@@ -222,7 +222,7 @@ void RadonData::DrawPlot()
   c9->Modified();
   c9->SaveAs("plots/twoPoint.pdf");
   delete c9;
-  
+
   /*----------------------------------------------*/
   //   Correlation factor
   TCanvas *c3  = new TCanvas("c3", "", 1800, 900);
@@ -312,8 +312,8 @@ void RadonData::DrawPlot()
   g_pvalue->GetXaxis()->SetLimits(-30 * 60 * 60 * 2, (N + 80) * 60 * 60 * 2);
   g_pvalue->GetXaxis()->SetTitle("Time (mm/dd)");
   g_pvalue->GetYaxis()->SetTitle("p-value");
-//  g_pvalue->GetXaxis()->SetLabelSize(0);
-//  g_pvalue->GetXaxis()->SetTitleSize(0);
+  //  g_pvalue->GetXaxis()->SetLabelSize(0);
+  //  g_pvalue->GetXaxis()->SetTitleSize(0);
   g_pvalue->GetYaxis()->SetTitleSize(0.05);
   g_pvalue->GetYaxis()->SetTitleOffset(0.7);
   g_pvalue->GetXaxis()->SetTimeDisplay(1);
@@ -359,7 +359,7 @@ void DataReader::EQdirDrawPlots()
     upperlimit = (N + 80) * 60 * 60 * 2;
   } else {
     cout << "There are " << (double)(N / 12) << " days in the graph! " << endl;
-    cout << "Input limit days: ";
+    cout << "Input boundary blank days (usually 2-3): ";
     cin >> limitdays;
 
     lowerlimit = -(limitdays)*60 * 60 * 2;
@@ -592,7 +592,7 @@ void GeoData::DrawGeoData(TString name, TString channel, TDatime timeoffset)
   g_data->GetXaxis()->SetTimeOffset(0);
   g_data->GetXaxis()->SetTimeFormat("%m/%d %Hh");
   g_data->GetXaxis()->SetTitle("Date time (mm/dd/hh)");
-  if (channel.Contains("HN1")||channel.Contains("HN2")||channel.Contains("HNZ")) {
+  if (channel.Contains("HN1") || channel.Contains("HN2") || channel.Contains("HNZ")) {
     g_data->GetYaxis()->SetTitle(channel + " (m/s/s)");
   } else {
     g_data->GetYaxis()->SetTitle(channel + " (m/s)");
@@ -634,7 +634,7 @@ void GeoData::DrawGeoData(TString name, TString channel, TDatime timeoffset)
   g_2hrdata->GetXaxis()->SetTimeOffset(0);
   g_2hrdata->GetXaxis()->SetTimeFormat("%m/%d %Hh");
   g_2hrdata->GetXaxis()->SetTitle("Date time (mm/dd/hh)");
-  if (channel.Contains("HN1")||channel.Contains("HN2")||channel.Contains("HNZ")) {
+  if (channel.Contains("HN1") || channel.Contains("HN2") || channel.Contains("HNZ")) {
     g_2hrdata->GetYaxis()->SetTitle(channel + " (m/s/s)");
   } else {
     g_2hrdata->GetYaxis()->SetTitle(channel + " (m/s)");

@@ -28,11 +28,9 @@ int main(int argc, char **argv)
   for (int i = 0; i < argc; ++i) {
     arg_str = argv[i];
     arg_list.push_back(arg_str);
-    //    std::cout << arg_list[i] << std::endl;
   }
   int iarg    = 1;
   int anaType = 0;
-  // only one arg run...
   while (iarg < argc) {
     string arg = arg_list[iarg];
 
@@ -218,7 +216,7 @@ void main_geodata()
   geo.OpenDateTimeDoc(timeInput);
 
   // input waveform data built inside the function
-  geo.GeoDataAnalyzer(inputFile.c_str()); //, timeInput);
+  geo.GeoDataAnalyzer(inputFile.c_str());
 }
 void main_pvalue_geodata()
 {

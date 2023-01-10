@@ -127,10 +127,10 @@ void DataReader::SetEQdata(ifstream &eqDirInput, TFile *ofile)
     }
   }
   for (int rn = 0; rn < datetime_Rn.size(); rn++) {
-    if (newArray[rn].datetime_ != "") {
-      cout << "newArray[" << rn << "] " << newArray[rn].datetime_ << " " << newArray[rn].ML_ << " "
-           << newArray[rn].depth_ << endl;
-    }
+    // if (newArray[rn].datetime_ != "") {
+    //   cout << "newArray[" << rn << "] " << newArray[rn].datetime_ << " " << newArray[rn].ML_ << " "
+    //        << newArray[rn].depth_ << endl;
+    // }
     //  if (newArray[rn].ML_ >= 4) {
     if (newArray[rn].ML_ >= 0.5 && newArray[rn].depth_ <= 35) {
       ML[rn]    = newArray[rn].ML_;
