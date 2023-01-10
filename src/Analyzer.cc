@@ -85,33 +85,33 @@ void RadonData::DoAnalysis(TH1 *Template, TDirectory *dir, TFile *ofile)
         // TH1D *obj_cali = new TH1D(key2->GetName(), key2->GetName(), NBINS, -0.5, 4.5);
         TH1D* obj_cali = (TH1D*)(obj->Clone(key2->GetName()));
         
-        // for (int j = 0; j < NBINS; j++) {
-        //
-        //   if (obj->GetBinContent(j + 1) != 0) {
-        //     double ratio = 0;
-        //     ratio        = nMoveBin[j] - (int)nMoveBin[j];
-        //     obj_cali->SetBinContent(j + 1 + (int)nMoveBin[j] + 1,
-        //                             obj->GetBinContent(j + 1) * ratio +
-        //                               obj_cali->GetBinContent(j + 1 + (int)nMoveBin[j] + 1));
-        //     obj_cali->SetBinContent(j + 1 + (int)nMoveBin[j] + 1 - 1,
-        //                             obj->GetBinContent(j + 1) * (1 - ratio) +
-        //                               obj_cali->GetBinContent(j + 1 + (int)nMoveBin[j] + 1 - 1));
-        //
-        //     // cout << j + 1 << "  nMoveBin " << nMoveBin[j] << "\t obj[" << j + 1 << "] " << obj->GetBinContent(j + 1)
-        //     //      << " \t  obj_cali[" << j + 1 << "] " << obj_cali->GetBinContent(j + 1) << " \t  obj_cali["
-        //     //      << j + 1 + (int)nMoveBin[j] << "] " << obj_cali->GetBinContent(j + 1 + (int)nMoveBin[j]) << "\t
-        //     //      obj["
-        //     //      << j + 1 << "] " << obj->GetBinContent(j + 1) << "*" << ratio << "\t + obj["
-        //     //      << j + 1 + (int)nMoveBin[j] << "] " << obj->GetBinContent(j + 1 + (int)nMoveBin[j]) << endl;
-        //   }
-        // }
+        for (int j = 0; j < NBINS; j++) {
+
+          if (obj->GetBinContent(j + 1) != 0) {
+            double ratio = 0;
+            ratio        = nMoveBin[j] - (int)nMoveBin[j];
+            obj_cali->SetBinContent(j + 1 + (int)nMoveBin[j] + 1,
+                                    obj->GetBinContent(j + 1) * ratio +
+                                      obj_cali->GetBinContent(j + 1 + (int)nMoveBin[j] + 1));
+            obj_cali->SetBinContent(j + 1 + (int)nMoveBin[j] + 1 - 1,
+                                    obj->GetBinContent(j + 1) * (1 - ratio) +
+                                      obj_cali->GetBinContent(j + 1 + (int)nMoveBin[j] + 1 - 1));
+
+            // cout << j + 1 << "  nMoveBin " << nMoveBin[j] << "\t obj[" << j + 1 << "] " << obj->GetBinContent(j + 1)
+            //      << " \t  obj_cali[" << j + 1 << "] " << obj_cali->GetBinContent(j + 1) << " \t  obj_cali["
+            //      << j + 1 + (int)nMoveBin[j] << "] " << obj_cali->GetBinContent(j + 1 + (int)nMoveBin[j]) << "\t
+            //      obj["
+            //      << j + 1 << "] " << obj->GetBinContent(j + 1) << "*" << ratio << "\t + obj["
+            //      << j + 1 + (int)nMoveBin[j] << "] " << obj->GetBinContent(j + 1 + (int)nMoveBin[j]) << endl;
+          }
+        }
         Twopoint_cali[N] = PeakforCalibration(obj_cali, ofile, datetime[N], 1);
         cfactor_cali[N]  = PEAKFORCALI / Twopoint_cali[N];
         h_cfactor_cali->Fill(cfactor_cali[N]);
 
         K40peak_uncali[N]    = PeakforK40(obj, ofile, datetime[N], 0, N);
         K40peak_cali[N]      = PeakforK40(obj_cali, ofile, datetime[N], 1, N);
-        // Radon2peak_uncali[N] = PeakforRadon2(obj, ofile, datetime[N], 0);
+        Radon2peak_uncali[N] = PeakforRadon2(obj, ofile, datetime[N], 0);
         Radon2peak_cali[N]   = PeakforRadon2(obj_cali, ofile, datetime[N], 1);
 
         h_K40_peak_cali->Fill(K40peak_cali[N]);

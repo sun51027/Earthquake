@@ -4,76 +4,77 @@
 
 #define MINRADON 0.25
 #define MAXRADON 0.8
-// #define MINK40 1.35 
+// #define MINK40 1.35
 // #define MAXK40 1.45
 
 // 2021 Apr-Dec
- #define XMINFIT_CALI 2.0
- #define XCENFIT_CALI 2.2
- #define XMAXFIT_CALI 2.4
- #define XMINFIT_K40 1.2
- #define XCENFIT_K40 1.38
- #define XMAXFIT_K40 1.5
- #define PEAKFORCALI 2.22982
-#define XMINFIT_RADON2 0.50
-#define XCENFIT_RADON2 0.58
-#define XMAXFIT_RADON2 0.65
-// // 220109-220218
-//  #define XMINFIT_CALI 2.0
-//  #define XCENFIT_CALI 2.2
-//  #define XMAXFIT_CALI 2.4
-//  #define XMINFIT_K40 1.2
-//  #define XCENFIT_K40 1.38
-//  #define XMAXFIT_K40 1.5
-//  #define PEAKFORCALI 2.22682
+// #define XMINFIT_CALI 2.0
+// #define XCENFIT_CALI 2.2
+// #define XMAXFIT_CALI 2.4
+// #define XMINFIT_K40 1.2
+// #define XCENFIT_K40 1.38
+// #define XMAXFIT_K40 1.5
+// #define PEAKFORCALI 2.22982
 // #define XMINFIT_RADON2 0.50
 // #define XCENFIT_RADON2 0.58
 // #define XMAXFIT_RADON2 0.65
 
+// // 220109-220218 (example)
+#define XMINFIT_CALI 2.0
+#define XCENFIT_CALI 2.2
+#define XMAXFIT_CALI 2.4
+#define XMINFIT_K40 1.2
+#define XCENFIT_K40 1.38
+#define XMAXFIT_K40 1.5
+#define PEAKFORCALI 2.22785
+#define XMINFIT_RADON2 0.50
+#define XCENFIT_RADON2 0.58
+#define XMAXFIT_RADON2 0.65
+
 // 220501-220630
- // #define XMINFIT_CALI 2.0
- // #define XCENFIT_CALI 2.13
- // #define XMAXFIT_CALI 2.4
- // #define XMINFIT_K40 1.2
- // #define XCENFIT_K40 1.32
- // #define XMAXFIT_K40 1.5
- // #define PEAKFORCALI 2.15167
- // #define XMINFIT_RADON2 0.51
- // #define XCENFIT_RADON2 0.557
- // #define XMAXFIT_RADON2 0.6
+// #define XMINFIT_CALI 2.0
+// #define XCENFIT_CALI 2.13
+// #define XMAXFIT_CALI 2.4
+// #define XMINFIT_K40 1.2
+// #define XCENFIT_K40 1.32
+// #define XMAXFIT_K40 1.5
+// #define PEAKFORCALI 2.15167
+// #define XMINFIT_RADON2 0.51
+// #define XCENFIT_RADON2 0.557
+// #define XMAXFIT_RADON2 0.6
 // 220701-220820
- // #define XMINFIT_CALI 2.0
- // #define XCENFIT_CALI 2.13
- // #define XMAXFIT_CALI 2.4
- // #define XMINFIT_K40 1.2
- // #define XCENFIT_K40 1.32
- // #define XMAXFIT_K40 1.5
- // #define PEAKFORCALI 2.11421
- // #define XMINFIT_RADON2 0.51
- // #define XCENFIT_RADON2 0.557
- // #define XMAXFIT_RADON2 0.6
+// #define XMINFIT_CALI 2.0
+// #define XCENFIT_CALI 2.13
+// #define XMAXFIT_CALI 2.4
+// #define XMINFIT_K40 1.2
+// #define XCENFIT_K40 1.32
+// #define XMAXFIT_K40 1.5
+// #define PEAKFORCALI 2.11421
+// #define XMINFIT_RADON2 0.51
+// #define XCENFIT_RADON2 0.557
+// #define XMAXFIT_RADON2 0.6
 // 220820-220929
- // #define XMINFIT_CALI 2.0
- // #define XCENFIT_CALI 2.13
- // #define XMAXFIT_CALI 2.4
- // #define XMINFIT_K40 1.2
- // #define XCENFIT_K40 1.32
- // #define XMAXFIT_K40 1.5
- // #define PEAKFORCALI 2.09759
- // #define XMINFIT_RADON2 0.51
- // #define XCENFIT_RADON2 0.557
- // #define XMAXFIT_RADON2 0.6
+// #define XMINFIT_CALI 2.0
+// #define XCENFIT_CALI 2.13
+// #define XMAXFIT_CALI 2.4
+// #define XMINFIT_K40 1.2
+// #define XCENFIT_K40 1.32
+// #define XMAXFIT_K40 1.5
+// #define PEAKFORCALI 2.09759
+// #define XMINFIT_RADON2 0.51
+// #define XCENFIT_RADON2 0.557
+// #define XMAXFIT_RADON2 0.6
 // // 220501-220820
- // #define XMINFIT_CALI 2.0
- // #define XCENFIT_CALI 2.13
- // #define XMAXFIT_CALI 2.4
- // #define XMINFIT_K40 1.2
- // #define XCENFIT_K40 1.32
- // #define XMAXFIT_K40 1.5
- // #define PEAKFORCALI 2.13312
- // #define XMINFIT_RADON2 0.51
- // #define XCENFIT_RADON2 0.557
- // #define XMAXFIT_RADON2 0.6
+// #define XMINFIT_CALI 2.0
+// #define XCENFIT_CALI 2.13
+// #define XMAXFIT_CALI 2.4
+// #define XMINFIT_K40 1.2
+// #define XCENFIT_K40 1.32
+// #define XMAXFIT_K40 1.5
+// #define PEAKFORCALI 2.13312
+// #define XMINFIT_RADON2 0.51
+// #define XCENFIT_RADON2 0.557
+// #define XMAXFIT_RADON2 0.6
 //
 // 220501-220820  cali
 // #define XMINFIT_CALI 2.0
@@ -88,17 +89,17 @@
 // #define XMAXFIT_RADON2 0.65
 //
 // // 2022 all
- // #define XMINFIT_CALI 2.0
- // #define XCENFIT_CALI 2.13
- // #define XMAXFIT_CALI 2.4
- // #define XMINFIT_K40 1.2
- // #define XCENFIT_K40 1.32
- // #define XMAXFIT_K40 1.5
- // #define PEAKFORCALI 2.13312
- // #define XMINFIT_RADON2 0.51
- // #define XCENFIT_RADON2 0.557
- // #define XMAXFIT_RADON2 0.63
- //
+// #define XMINFIT_CALI 2.0
+// #define XCENFIT_CALI 2.13
+// #define XMAXFIT_CALI 2.4
+// #define XMINFIT_K40 1.2
+// #define XCENFIT_K40 1.32
+// #define XMAXFIT_K40 1.5
+// #define PEAKFORCALI 2.13312
+// #define XMINFIT_RADON2 0.51
+// #define XCENFIT_RADON2 0.557
+// #define XMAXFIT_RADON2 0.63
+//
 //#define PEAKFORCALI 2.22304
 //#define PEAKFORCALI 2.22198
 #define constEHE 1.100e-10

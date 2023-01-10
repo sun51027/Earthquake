@@ -127,17 +127,18 @@ void main_makeTemplate()
   double caliPeak = 0;
   caliPeak        = Rndata.PeakforCalibration(Template, ofile, "cali_peak", 0);
   double K40Peak  = 0;
-  K40Peak         = Rndata.PeakforK40(Template, ofile, "K40_peak", 0,0);
-  cout << "\n\n\n";
-  cout << "cali_peak " << caliPeak << "  K40_peak " << K40Peak << endl;
+  K40Peak         = Rndata.PeakforK40(Template, ofile, "K40_peak", 0, 0);
+  cout << "\n\nFitting result:\n\n";
+  cout << "2.2 MeV peak " << caliPeak << endl;
+  cout << "   K-40 peak " << K40Peak << endl;
   cout << "\n\n\n";
 
-  TCanvas *c = new TCanvas("c","",1000,600);
-  TH1D *t = (TH1D*)(Template->Clone("t"));
-    t->GetXaxis()->SetRange(t->GetXaxis()->FindBin(0.0),t->GetXaxis()->FindBin(2.5));
-    t->Draw();
-    // t->SetStats(0);
-    c->SaveAs("template.pdf");
+  TCanvas *c = new TCanvas("c", "", 1000, 600);
+  TH1D    *t = (TH1D *)(Template->Clone("t"));
+  t->GetXaxis()->SetRange(t->GetXaxis()->FindBin(0.0), t->GetXaxis()->FindBin(2.5));
+  t->Draw();
+  // t->SetStats(0);
+  c->SaveAs("template.pdf");
 
   ofile->Close();
 }
@@ -238,12 +239,13 @@ void Help()
 {
   cout << endl;
   cout << "Anlysis type  -------------------" << endl;
-  cout << "-t   || --template \t\t make template" << endl;
-  cout << "-an  || --analysis \t\t Do Radon analysis" << endl;
-  cout << "-dir || --eqdir \t\t Treat EQ directory from CWB and draw plots" << endl;
-  cout << "-geo || --geodata \t\t Treat waveform data from CWB and draw plots" << endl;
+  cout << "-t    || --template \t\t make template" << endl;
+  cout << "-an   || --analysis \t\t Do Radon analysis" << endl;
+  cout << "-dir  || --eqdir \t\t Treat EQ directory from CWB and draw plots" << endl;
+  cout << "-geo  || --geodata \t\t Treat waveform data from CWB and draw plots" << endl;
   cout << "-pd   || --pvalue \t\t Draw p-value with eqdir and radon data" << endl;
   cout << "-pg   || --pvalue \t\t Draw p-value with geodata and radon data" << endl;
+  cout << "-cali || --calibration \t\t linear calibration full spectrum " << endl;
   cout << endl;
   cout << "File type  ----------------------" << endl;
   cout << "-i   || --inputFile \t\t 1st inputfile, radon data for -an, GDMScatalog for -dir, analyzer for -p" << endl;
@@ -252,11 +254,12 @@ void Help()
   cout << endl;
   cout << "other note ----------------------" << endl;
   cout << "To draw pvalue, manual is necessary" << endl;
-  cout << "|     |inputfile1         | inputfile2        | outputfile      |" << endl;
-  cout << "|-t   |RadonData.root     |                   | Rn_template.root|" << endl;
-  cout << "|-an  |RadonData.root     | Rn_template.root  | Rn_analysis.root|" << endl;
-  cout << "|-dir |doc/GDMScatalog.txt| datetime.txt      | EQdir.root      |" << endl;
-  cout << "|-geo |(name)HWA_00_*_    | datetime.txt      | GeoData.root    |" << endl;
-  cout << "|-pd  |Rn_analysis.root   | EQdir.root        |                 |" << endl;
-  cout << "|-pg  |Rn_analysis.root   | GeoData.root      |                 |" << endl;
+  cout << "|       |inputfile1         | inputfile2      | outputfile         |" << endl;
+  cout << "|-t     |RadonData.root     |                 | Rn_template.root   |" << endl;
+  cout << "|-an    |RadonData.root     | Rn_template.root| Rn_analysis.root   |" << endl;
+  cout << "|-dir   |doc/GDMScatalog.txt| datetime.txt    | EQdir.root         |" << endl;
+  cout << "|-geo   |(name)HWA_00_*_    | datetime.txt    | GeoData.root       |" << endl;
+  cout << "|-pd    |Rn_analysis.root   | EQdir.root      |                    |" << endl;
+  cout << "|-pg    |Rn_analysis.root   | GeoData.root    |                    |" << endl;
+  cout << "|-cali  |RadonData.root     |                 | RadonData_cali.root|" << endl;
 }
